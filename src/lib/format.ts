@@ -23,3 +23,22 @@ export function propertyTypeLabel(t: Listing["typeBien"]) {
     autre: "Autre",
   }[t];
 }
+
+export function statusLabel(s: Listing["statut"]) {
+  return {
+    disponible: "Disponible",
+    reserve: "Réservé",
+    loue: "Loué",
+    vendu: "Vendu",
+  }[s];
+}
+
+export function conditionLabel(e: NonNullable<Listing["etat"]>) {
+  return {
+    neuf: "Neuf",
+    "excellent-etat": "Excellent état",
+    "bon-etat": "Bon état",
+    "a-rafraichir": "À rafraîchir",
+    "a-renover": "À rénover",
+  }[e];
+}

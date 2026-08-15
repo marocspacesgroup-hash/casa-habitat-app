@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { siteConfig } from "@/config/site";
+import { trackEvent } from "@/lib/analytics";
 
 interface Errors {
   nom?: string;
@@ -53,6 +54,7 @@ export default function EstimationForm() {
 
     window.location.href = mailto;
     setSent(true);
+    trackEvent("form_submit", { form: "estimation" });
   };
 
   const inputClass =

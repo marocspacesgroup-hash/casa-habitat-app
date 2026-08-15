@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Listing, TransactionType } from "@/data/types";
 import { listings as allListings } from "@/data/listings";
 import ListingCard from "@/components/ui/ListingCard";
+import { whatsappGeneral } from "@/lib/whatsapp";
 
 export interface ListingFilters {
   type?: string;
@@ -36,6 +37,7 @@ export default function ListingsPageContent({
   emphasis,
   description,
   breadcrumb,
+  whatsappCta,
 }: {
   transaction: TransactionType;
   meubleOnly?: boolean;
@@ -44,6 +46,8 @@ export default function ListingsPageContent({
   emphasis?: string;
   description: string;
   breadcrumb: string;
+  /** Optionnel — affiche un CTA WhatsApp sous la description (ex. courte durée) */
+  whatsappCta?: string;
 }) {
   let results = allListings.filter((l) => l.transaction === transaction);
   if (meubleOnly === true) results = results.filter((l) => l.meuble);
@@ -69,6 +73,16 @@ export default function ListingsPageContent({
             {emphasis && <em className="text-gold not-italic italic">{emphasis}</em>}
           </h1>
           <p className="text-ink-soft">{description}</p>
+          {whatsappCta && (
+            <a
+              href={whatsappGeneral()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-5 bg-gold text-navy text-xs font-semibold uppercase tracking-widest px-6 py-3 rounded-sm hover:bg-gold-bright transition-colors"
+            >
+              {whatsappCta}
+            </a>
+          )}
         </div>
 
         {results.length === 0 ? (

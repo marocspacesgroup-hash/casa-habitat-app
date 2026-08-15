@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
-import { whatsappGeneral } from "@/lib/whatsapp";
+import { whatsappOwner } from "@/lib/whatsapp";
 import OwnerLeadForm from "@/components/sections/OwnerLeadForm";
+import TrackedLink from "@/components/ui/TrackedLink";
 
 export const metadata: Metadata = {
   title: "Confier mon bien — Vendre ou louer à Casablanca",
@@ -56,13 +57,15 @@ export default function ConfierMonBienPage() {
             Propriétaires
           </span>
           <h1 className="font-display text-ivory text-[clamp(28px,4vw,44px)] mb-6">
-            Vous souhaitez vendre ou louer{" "}
-            <em className="text-gold not-italic italic">votre bien à Casablanca ?</em>
+            Confiez votre bien{" "}
+            <em className="text-gold not-italic italic">à Casa Habitat</em>
           </h1>
-          <p className="text-ivory/70 text-[16px] max-w-xl mx-auto">
-            Casa Habitat s&apos;occupe de tout — de l&apos;estimation à la
-            signature — avec un seul interlocuteur et une sélection rigoureuse
-            des visiteurs.
+          <p className="text-ivory/70 text-[16px] max-w-xl mx-auto mb-4">
+            Nous vous accompagnons pour louer ou vendre votre bien à
+            Casablanca avec une stratégie adaptée au marché.
+          </p>
+          <p className="text-gold text-[15px] font-medium">
+            Recevez une première estimation de positionnement de votre bien.
           </p>
         </div>
       </section>
@@ -101,20 +104,24 @@ export default function ConfierMonBienPage() {
               démarche, sans formulaire.
             </p>
             <div className="flex flex-col gap-3">
-              <a
-                href={whatsappGeneral()}
+              <TrackedLink
+                href={whatsappOwner()}
                 target="_blank"
                 rel="noopener noreferrer"
+                event="owner_cta_click"
+                params={{ channel: "whatsapp" }}
                 className="bg-gold text-navy text-center font-semibold text-xs uppercase tracking-widest px-6 py-3.5 rounded-sm hover:bg-gold-bright transition-colors"
               >
                 Écrire sur WhatsApp
-              </a>
-              <a
+              </TrackedLink>
+              <TrackedLink
                 href={`tel:${siteConfig.contact.phones[0]}`}
+                event="phone_click"
+                params={{ source: "confier_mon_bien" }}
                 className="border border-ivory/30 text-ivory text-center text-xs uppercase tracking-widest px-6 py-3.5 rounded-sm hover:border-gold hover:text-gold transition-colors"
               >
                 {siteConfig.contact.phones[0]}
-              </a>
+              </TrackedLink>
             </div>
           </aside>
         </div>

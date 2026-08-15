@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { siteConfig } from "@/config/site";
 import { neighborhoods } from "@/data/neighborhoods";
+import { trackEvent } from "@/lib/analytics";
 
 interface Errors {
   nom?: string;
@@ -66,6 +67,7 @@ export default function OwnerLeadForm() {
 
     window.location.href = mailto;
     setSent(true);
+    trackEvent("form_submit", { form: "confier_mon_bien" });
   };
 
   const inputClass =

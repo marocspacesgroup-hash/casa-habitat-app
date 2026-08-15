@@ -1,4 +1,7 @@
+"use client";
+
 import { whatsappGeneral } from "@/lib/whatsapp";
+import { trackEvent } from "@/lib/analytics";
 
 export default function WhatsAppFloat() {
   return (
@@ -7,6 +10,7 @@ export default function WhatsAppFloat() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Contacter Casa Habitat sur WhatsApp"
+      onClick={() => trackEvent("whatsapp_click", { source: "floating_button" })}
       className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] shadow-lg shadow-black/20 hover:scale-105 transition-transform"
     >
       <svg width="26" height="26" viewBox="0 0 24 24" fill="white" aria-hidden="true">

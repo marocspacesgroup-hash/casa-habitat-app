@@ -6,14 +6,24 @@ function buildWhatsAppUrl(message: string) {
   return `https://wa.me/${siteConfig.contact.whatsappPrimary}?text=${encoded}`;
 }
 
+/** Utilisé sur la page Contact et comme message par défaut (bouton flottant). */
 export function whatsappGeneral() {
   return buildWhatsAppUrl(
-    "Bonjour Casa Habitat, je souhaiterais avoir plus d'informations sur vos services."
+    "Bonjour Casa Habitat, je souhaite obtenir des informations."
   );
 }
 
-export function whatsappForListing(listing: Listing) {
+/** Utilisé depuis une fiche bien — contextualisé avec la référence et le quartier. */
+export function whatsappForListing(listing: Listing, quartierNom?: string) {
+  const lieu = quartierNom ?? listing.ville;
   return buildWhatsAppUrl(
-    `Bonjour Casa Habitat, je suis intéressé(e) par le bien "${listing.titre}" (réf. ${listing.reference}). Je souhaiterais obtenir plus d'informations et éventuellement organiser une visite.`
+    `Bonjour Casa Habitat, je suis intéressé par le bien ${listing.reference} à ${lieu}.`
+  );
+}
+
+/** Utilisé depuis la page "Confier mon bien". */
+export function whatsappOwner() {
+  return buildWhatsAppUrl(
+    "Bonjour Casa Habitat, je souhaite vous confier mon bien."
   );
 }

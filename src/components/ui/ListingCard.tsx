@@ -1,17 +1,21 @@
 import Link from "next/link";
 import { Listing } from "@/data/types";
-import { formatPrice, transactionLabel } from "@/lib/format";
+import { formatPrice, statusLabel, transactionLabel } from "@/lib/format";
 import { getNeighborhoodBySlug } from "@/data/neighborhoods";
 import FavoriteButton from "./FavoriteButton";
+import PropertyImage from "./PropertyImage";
 
 export default function ListingCard({ listing }: { listing: Listing }) {
   const neighborhood = getNeighborhoodBySlug(listing.quartierSlug);
+  const notAvailable = listing.statut !== "disponible";
 
   return (
     <div className="bg-white border border-ink/8 group">
       <div className="relative aspect-[4/3.2]">
         <div className="absolute inset-0 overflow-hidden rounded-t-[150px]">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1e3a58] to-navy transition-transform duration-[1100ms] ease-out group-hover:scale-[1.06]" />
+          <div className="absolute inset-0 transition-transform duration-[1100ms] ease-out group-hover:scale-[1.06]">
+            <PropertyImage image={listing.imagePrincipale} />
+          </div>
         </div>
         <span className="absolute top-5 left-5 z-10 bg-navy/85 text-gold font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-sm">
           {transactionLabel(listing.transaction)}
@@ -19,9 +23,14 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         <div className="absolute top-5 right-5 z-10">
           <FavoriteButton reference={listing.reference} />
         </div>
-        {listing.isDemo && (
-          <span className="absolute bottom-3 left-3 z-10 bg-ivory/90 text-ink/60 font-mono text-[9px] uppercase tracking-widest px-2 py-1 rounded-sm">
-            Démo
+        {notAvailable && (
+          <span className="absolute bottom-4 left-5 z-10 bg-ivory/95 text-ink font-mono text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-sm">
+            {statusLabel(listing.statut)}
+          </span>
+        )}
+        {listing.isSample && (
+          <span className="absolute bottom-4 right-5 z-10 bg-ivory/85 text-ink-soft font-mono text-[9px] uppercase tracking-widest px-2 py-1 rounded-sm">
+            Exemple
           </span>
         )}
       </div>

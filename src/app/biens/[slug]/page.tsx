@@ -7,11 +7,19 @@ import {
   listings,
 } from "@/data/listings";
 import { getNeighborhoodBySlug } from "@/data/neighborhoods";
-import { formatPrice, propertyTypeLabel, transactionLabel } from "@/lib/format";
-import { whatsappForListing } from "@/lib/whatsapp";
+import {
+  conditionLabel,
+  formatPrice,
+  propertyTypeLabel,
+  statusLabel,
+  transactionLabel,
+} from "@/lib/format";
 import { siteConfig } from "@/config/site";
 import ListingCard from "@/components/ui/ListingCard";
 import ShareButtons from "@/components/ui/ShareButtons";
+import PropertyImage from "@/components/ui/PropertyImage";
+import ListingContactActions from "@/components/ui/ListingContactActions";
+import ListingViewTracker from "@/components/ui/ListingViewTracker";
 
 export function generateStaticParams() {
   return listings.map((l) => ({ slug: l.slug }));
@@ -26,9 +34,17 @@ export async function generateMetadata({
   const listing = getListingBySlug(slug);
   if (!listing) return {};
   const neighborhood = getNeighborhoodBySlug(listing.quartierSlug);
+  const title = `${listing.titre} — ${neighborhood?.nom ?? listing.ville}`;
   return {
-    title: `${listing.titre} — ${neighborhood?.nom ?? listing.ville}`,
+    title,
     description: listing.description,
+    alternates: { canonical: `/biens/${listing.slug}` },
+    openGraph: {
+      title: `${title} | ${siteConfig.name}`,
+      description: listing.description,
+      url: `${siteConfig.url}/biens/${listing.slug}`,
+      type: "website",
+    },
   };
 }
 
@@ -54,7 +70,11 @@ export default async function ListingDetailPage({
       "@type": "Offer",
       price: listing.prix ?? undefined,
       priceCurrency: "MAD",
-      availability: "https://schema.org/InStock",
+      availability:
+        listing.statut === "disponible"
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      url: `${siteConfig.url}/biens/${listing.slug}`,
     },
   };
 
@@ -75,16 +95,17 @@ export default async function ListingDetailPage({
     ],
   };
 
+  const galleryImages = listing.images.length > 0 ? listing.images : [listing.imagePrincipale];
+
   return (
     <div className="pt-32 pb-24">
+      <ListingViewTracker reference={listing.reference} />
       <script
         type="application/ld+json"
-         
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <script
         type="application/ld+json"
-         
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
@@ -102,25 +123,37 @@ export default async function ListingDetailPage({
           <span className="text-ink">{listing.titre}</span>
         </nav>
 
-        {listing.isDemo && (
-          <div className="bg-gold/10 border border-gold/30 text-ink text-sm px-4 py-3 rounded-sm mb-8">
-            Annonce de démonstration — utilisée pour tester l&apos;interface, à remplacer par une vraie annonce.
+        {listing.isSample && (
+          <div className="bg-navy/5 border border-navy/15 text-ink-soft text-sm px-4 py-3 rounded-sm mb-8">
+            Fiche présentée à titre d&apos;exemple — les annonces réelles de Casa Habitat seront publiées ici.
           </div>
         )}
 
         {/* Galerie */}
         <div className="grid md:grid-cols-3 gap-3 mb-12">
-          <div className="md:col-span-2 aspect-[4/3] rounded-t-[80px] bg-gradient-to-br from-[#1e3a58] to-navy" />
+          <div className="md:col-span-2 aspect-[4/3] rounded-t-[80px] overflow-hidden">
+            <PropertyImage image={listing.imagePrincipale} priority sizes="(min-width: 768px) 66vw, 100vw" />
+          </div>
           <div className="grid grid-rows-2 gap-3">
-            <div className="rounded-sm bg-gradient-to-br from-[#234166] to-navy" />
-            <div className="rounded-sm bg-gradient-to-br from-[#132539] to-navy" />
+            {galleryImages.slice(0, 2).map((img, i) => (
+              <div key={i} className="rounded-sm overflow-hidden">
+                <PropertyImage image={img} sizes="33vw" />
+              </div>
+            ))}
           </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-14">
           <div className="lg:col-span-2">
-            <div className="font-mono text-[10.5px] uppercase tracking-widest text-gold mb-3">
-              {neighborhood?.nom ?? listing.ville} · Réf. {listing.reference}
+            <div className="flex items-center gap-3 mb-3 flex-wrap">
+              <div className="font-mono text-[10.5px] uppercase tracking-widest text-gold">
+                {neighborhood?.nom ?? listing.ville} · Réf. {listing.reference}
+              </div>
+              {listing.statut !== "disponible" && (
+                <span className="font-mono text-[10px] uppercase tracking-widest bg-ink/5 text-ink-soft px-2.5 py-1 rounded-sm">
+                  {statusLabel(listing.statut)}
+                </span>
+              )}
             </div>
             <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-6">
               {listing.titre}
@@ -135,6 +168,10 @@ export default async function ListingDetailPage({
               <Spec label="Ascenseur" value={listing.ascenseur ? "Oui" : "Non"} />
               <Spec label="Parking" value={listing.parking ? "Oui" : "Non"} />
               <Spec label="Meublé" value={listing.meuble ? "Oui" : "Non"} />
+              {listing.etat && <Spec label="État" value={conditionLabel(listing.etat)} />}
+              {listing.disponibilite && (
+                <Spec label="Disponibilité" value={listing.disponibilite} />
+              )}
             </div>
 
             <h2 className="font-display text-xl text-ink mb-4">Description</h2>
@@ -178,26 +215,7 @@ export default async function ListingDetailPage({
             </div>
 
             <div className="flex flex-col gap-3 mb-8">
-              <a
-                href={whatsappForListing(listing)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gold text-navy text-center font-semibold text-xs uppercase tracking-widest px-6 py-3.5 rounded-sm hover:bg-gold-bright transition-colors"
-              >
-                Demander une visite
-              </a>
-              <a
-                href={`tel:${siteConfig.contact.phones[0]}`}
-                className="border border-ivory/30 text-ivory text-center text-xs uppercase tracking-widest px-6 py-3.5 rounded-sm hover:border-gold hover:text-gold transition-colors"
-              >
-                Appeler l&apos;agence
-              </a>
-              <Link
-                href="/contact"
-                className="text-ivory/60 text-center text-xs underline underline-offset-4"
-              >
-                Contacter Casa Habitat
-              </Link>
+              <ListingContactActions listing={listing} quartierNom={neighborhood?.nom} />
             </div>
 
             <div className="border-t border-ivory/15 pt-6">

@@ -1,5 +1,67 @@
 @import "tailwindcss";
 
+/*
+ * Polices auto-hébergées (fichiers dans /public/fonts) — aucune dépendance
+ * réseau externe, ni au build ni à l'exécution. Fraunces est une police à
+ * axe variable (poids 300–900) : un seul fichier couvre tous les poids.
+ */
+@font-face {
+  font-family: "Fraunces Variable";
+  src: url("/fonts/fraunces-variable-normal.woff2") format("woff2-variations");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces Variable";
+  src: url("/fonts/fraunces-variable-italic.woff2") format("woff2-variations");
+  font-weight: 300 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/plex-mono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/plex-mono-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --color-navy: #081a36;
   --color-navy-deep: #0e2444;
@@ -8,6 +70,10 @@
   --color-ivory: #f7f5f2;
   --color-ink: #16202c;
   --color-ink-soft: rgba(22, 32, 44, 0.66);
+
+  --font-fraunces: "Fraunces Variable", ui-serif, Georgia, serif;
+  --font-manrope: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-plex-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 @theme inline {

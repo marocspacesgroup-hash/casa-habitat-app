@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
 import { whatsappGeneral } from "@/lib/whatsapp";
 import ContactForm from "@/components/sections/ContactForm";
+import TrackedLink from "@/components/ui/TrackedLink";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -46,14 +47,16 @@ export default function ContactPage() {
                   Écrivez-nous directement sur WhatsApp.
                 </p>
               </div>
-              <a
+              <TrackedLink
                 href={whatsappGeneral()}
                 target="_blank"
                 rel="noopener noreferrer"
+                event="whatsapp_click"
+                params={{ source: "contact_page" }}
                 className="bg-gold text-navy text-xs font-semibold uppercase tracking-wider px-5 py-2.5 rounded-sm whitespace-nowrap"
               >
                 WhatsApp
-              </a>
+              </TrackedLink>
             </div>
           </div>
         </div>

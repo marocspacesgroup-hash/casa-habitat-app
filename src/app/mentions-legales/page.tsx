@@ -7,6 +7,14 @@ export const metadata: Metadata = {
   alternates: { canonical: "/mentions-legales" },
 };
 
+function LegalField({ label, value }: { label: string; value: string }) {
+  return (
+    <p>
+      {label} : {value || <span className="italic text-ink-soft/70">à renseigner</span>}
+    </p>
+  );
+}
+
 export default function MentionsLegalesPage() {
   return (
     <div className="pt-36 pb-24">
@@ -38,17 +46,30 @@ export default function MentionsLegalesPage() {
             <h2 className="font-display text-lg text-ink mb-3">
               Identification professionnelle
             </h2>
-            <p className="bg-gold/10 border border-gold/30 rounded-sm px-4 py-3 text-ink text-sm">
-              Numéro de registre du commerce (RC), identifiant commun de
-              l&apos;entreprise (ICE) et carte professionnelle d&apos;agent
-              immobilier à compléter ici.
-            </p>
+            <div className="flex flex-col gap-1 text-sm">
+              <LegalField label="Forme juridique" value={siteConfig.legal.formeJuridique} />
+              <LegalField label="Registre du commerce (RC)" value={siteConfig.legal.rc} />
+              <LegalField label="Identifiant commun de l'entreprise (ICE)" value={siteConfig.legal.ice} />
+              <LegalField label="Carte professionnelle d'agent immobilier" value={siteConfig.legal.carteProfessionnelle} />
+            </div>
           </section>
 
           <section>
             <h2 className="font-display text-lg text-ink mb-3">Hébergement</h2>
-            <p className="bg-gold/10 border border-gold/30 rounded-sm px-4 py-3 text-ink text-sm">
-              Coordonnées de l&apos;hébergeur à compléter une fois le site déployé.
+            <p>
+              {siteConfig.hosting.name}
+              <br />
+              {siteConfig.hosting.website}
+              <br />
+              Informations légales de l&apos;hébergeur :{" "}
+              <a
+                href={siteConfig.hosting.legalInfo}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-4 hover:text-gold"
+              >
+                {siteConfig.hosting.legalInfo}
+              </a>
             </p>
           </section>
 

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { neighborhoods } from "@/data/neighborhoods";
+import { trackEvent } from "@/lib/analytics";
 
 const transactionRoutes: Record<string, string> = {
   location: "/locations",
@@ -33,6 +34,7 @@ export default function SearchBar() {
     if (surfaceMin) params.set("surfaceMin", surfaceMin);
     const base = transactionRoutes[transaction] ?? "/locations";
     const qs = params.toString();
+    trackEvent("property_search", { transaction, typeBien, quartier });
     router.push(qs ? `${base}?${qs}` : base);
   };
 

@@ -21,7 +21,8 @@ export default async function CourteDureePage({
       title="Séjours"
       emphasis="courte durée."
       breadcrumb="Courte durée"
-      description="Biens meublés et équipés, pour quelques nuits ou quelques mois. Calendrier de disponibilité et réservation en ligne à venir."
+      whatsappCta="Demander les disponibilités sur WhatsApp"
+      description="Biens meublés et équipés, pour quelques nuits ou quelques mois. Disponibilités et tarifs sur demande — contactez-nous sur WhatsApp."
     />
   );
 }

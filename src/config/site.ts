@@ -31,6 +31,24 @@ export const siteConfig = {
     facebook: "",
     youtube: "",
   },
+
+  /**
+   * Informations réglementaires — à renseigner par l'agence.
+   * Ne jamais afficher de valeur inventée : tant qu'un champ est vide,
+   * la page mentions légales affiche "à renseigner", jamais un faux numéro.
+   */
+  legal: {
+    formeJuridique: "",
+    rc: "",
+    ice: "",
+    carteProfessionnelle: "",
+  },
+
+  hosting: {
+    name: "Vercel Inc.",
+    website: "https://vercel.com",
+    legalInfo: "https://vercel.com/legal",
+  },
 } as const;
 
 export const navLinks = [
