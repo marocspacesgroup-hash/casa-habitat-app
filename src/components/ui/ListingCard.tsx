@@ -41,6 +41,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         </div>
         <h3 className="font-display text-xl text-ink mb-3">{listing.titre}</h3>
         <div className="flex gap-4 flex-wrap mb-4 font-mono text-xs text-ink-soft">
+          {listing.pieces && <span>◆ {listing.pieces} pièces</span>}
           <span>◆ {listing.chambres} ch.</span>
           <span>◆ {listing.surfaceM2} m²</span>
           <span>◆ {listing.sallesDeBain} sdb</span>

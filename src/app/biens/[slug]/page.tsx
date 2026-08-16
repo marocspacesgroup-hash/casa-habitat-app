@@ -11,6 +11,7 @@ import {
   conditionLabel,
   formatPrice,
   propertyTypeLabel,
+  seoTitle,
   statusLabel,
   transactionLabel,
 } from "@/lib/format";
@@ -34,16 +35,29 @@ export async function generateMetadata({
   const listing = getListingBySlug(slug);
   if (!listing) return {};
   const neighborhood = getNeighborhoodBySlug(listing.quartierSlug);
-  const title = `${listing.titre} — ${neighborhood?.nom ?? listing.ville}`;
+  const title = seoTitle(listing, neighborhood?.nom);
+  const metaDescription = `${propertyTypeLabel(listing.typeBien)} de ${listing.surfaceM2} m² à ${listing.transaction === "vente" ? "vendre" : "louer"} à ${neighborhood?.nom ?? listing.ville}${listing.prix ? ` — ${formatPrice(listing)}` : ""}.`;
+  const ogImage =
+    listing.imagePrincipale.kind === "photo"
+      ? [
+          {
+            url: listing.imagePrincipale.src,
+            width: listing.imagePrincipale.width,
+            height: listing.imagePrincipale.height,
+            alt: listing.imagePrincipale.alt,
+          },
+        ]
+      : undefined;
   return {
     title,
-    description: listing.description,
+    description: metaDescription,
     alternates: { canonical: `/biens/${listing.slug}` },
     openGraph: {
       title: `${title} | ${siteConfig.name}`,
-      description: listing.description,
+      description: metaDescription,
       url: `${siteConfig.url}/biens/${listing.slug}`,
       type: "website",
+      images: ogImage,
     },
   };
 }
@@ -161,9 +175,13 @@ export default async function ListingDetailPage({
 
             <div className="flex flex-wrap gap-6 mb-10 pb-10 border-b border-ink/10">
               <Spec label="Type" value={propertyTypeLabel(listing.typeBien)} />
+              {listing.pieces && <Spec label="Pièces" value={String(listing.pieces)} />}
               <Spec label="Surface" value={`${listing.surfaceM2} m²`} />
               <Spec label="Chambres" value={String(listing.chambres)} />
               <Spec label="Salles de bain" value={String(listing.sallesDeBain)} />
+              {listing.wcInvites !== undefined && (
+                <Spec label="WC invités" value={String(listing.wcInvites)} />
+              )}
               {listing.etage && <Spec label="Étage" value={listing.etage} />}
               <Spec label="Ascenseur" value={listing.ascenseur ? "Oui" : "Non"} />
               <Spec label="Parking" value={listing.parking ? "Oui" : "Non"} />
@@ -188,6 +206,26 @@ export default async function ListingDetailPage({
                 </span>
               ))}
             </div>
+
+            {(listing.caution || listing.honorairesAgence || listing.chargesIncluses !== undefined || listing.conditionsParticulieres) && (
+              <>
+                <h2 className="font-display text-xl text-ink mb-4">Conditions de location</h2>
+                <div className="flex flex-wrap gap-6 mb-10">
+                  {listing.chargesIncluses !== undefined && (
+                    <Spec label="Charges / syndic" value={listing.chargesIncluses ? "Inclus" : "Non inclus"} />
+                  )}
+                  {listing.caution && <Spec label="Caution" value={listing.caution} />}
+                  {listing.honorairesAgence && (
+                    <Spec label="Honoraires d'agence" value={listing.honorairesAgence} />
+                  )}
+                </div>
+                {listing.conditionsParticulieres && (
+                  <p className="text-ink-soft text-sm mb-10 italic">
+                    {listing.conditionsParticulieres}
+                  </p>
+                )}
+              </>
+            )}
 
             {neighborhood && (
               <>
@@ -235,6 +273,18 @@ export default async function ListingDetailPage({
             </div>
           </div>
         )}
+
+        <div className="mt-20 pt-8 border-t border-ink/10 text-center">
+          <p className="text-ink-soft text-sm">
+            Vous êtes propriétaire d&apos;un bien similaire ?{" "}
+            <Link
+              href="/confier-mon-bien"
+              className="text-navy font-semibold border-b border-gold pb-0.5"
+            >
+              Confiez-le à Casa Habitat
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

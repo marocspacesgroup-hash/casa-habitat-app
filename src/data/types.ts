@@ -44,8 +44,9 @@ export interface Listing {
    * Contenu d'exemple utilisé pour construire et tester l'interface.
    * Reste visible avec une mention "Exemple" tant qu'aucune vraie annonce
    * ne le remplace — jamais présenté comme une annonce réelle.
+   * false = annonce réelle de l'agence.
    */
-  isSample: true;
+  isSample: boolean;
 
   titre: string;
   transaction: TransactionType;
@@ -62,8 +63,11 @@ export interface Listing {
   periodePrix?: "mois" | "nuit"; // pour location / courte durée
 
   surfaceM2: number;
+  /** Nombre total de pièces (convention marocaine : salon + chambres), distinct de `chambres` */
+  pieces?: number;
   chambres: number;
   sallesDeBain: number;
+  wcInvites?: number;
   etage?: string;
   ascenseur: boolean;
   parking: boolean;
@@ -79,6 +83,12 @@ export interface Listing {
 
   disponibilite?: string; // ex. "Immédiate", "À partir du 01/09"
   dateMiseAJour: string; // ISO date, ex. "2026-08-15"
+
+  /** Conditions de location — affichées uniquement si fournies */
+  chargesIncluses?: boolean;
+  caution?: string; // ex. "1 mois"
+  honorairesAgence?: string; // ex. "1 mois"
+  conditionsParticulieres?: string;
 
   courteDuree?: ShortStayPricing;
 

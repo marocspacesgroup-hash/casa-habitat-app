@@ -14,6 +14,18 @@ export function transactionLabel(t: Listing["transaction"]) {
   return { location: "Location", vente: "Vente", "courte-duree": "Courte durée" }[t];
 }
 
+/** Titre SEO structuré : type de bien, meublé, chambres, quartier — distinct du titre éditorial affiché en H1. */
+export function seoTitle(listing: Listing, quartierNom?: string) {
+  const type = propertyTypeLabel(listing.typeBien);
+  const meuble = listing.meuble ? " meublé" : "";
+  const chambres =
+    listing.chambres > 0
+      ? ` ${listing.chambres} chambre${listing.chambres > 1 ? "s" : ""}`
+      : "";
+  const lieu = quartierNom ?? listing.ville;
+  return `${type}${meuble}${chambres} — ${lieu}`;
+}
+
 export function propertyTypeLabel(t: Listing["typeBien"]) {
   return {
     appartement: "Appartement",

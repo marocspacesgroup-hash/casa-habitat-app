@@ -1,5 +1,72 @@
 import { Listing } from "./types";
-import { placeholderImage } from "@/lib/images";
+import { placeholderImage, photoImage } from "@/lib/images";
+
+/**
+ * ANNONCES RÉELLES DE L'AGENCE (isSample: false)
+ */
+const realListings: Listing[] = [
+  {
+    id: "listing-0007",
+    reference: "CH-0007",
+    slug: "princesses-appartement-meuble-2-chambres",
+    isSample: false,
+    titre: "Appartement premium à Maarif-Princesse",
+    transaction: "location",
+    typeBien: "appartement",
+    statut: "disponible",
+    quartierSlug: "les-princesses",
+    ville: "Casablanca",
+    adresse: "Secteur BIM, Les Princesses",
+    prix: 12000,
+    devise: "DH",
+    periodePrix: "mois",
+    surfaceM2: 90,
+    pieces: 3,
+    chambres: 2,
+    sallesDeBain: 2,
+    wcInvites: 1,
+    etage: "2e étage sur 5",
+    ascenseur: true,
+    parking: true,
+    meuble: true,
+    climatisation: true,
+    terrasseBalcon: false,
+    etat: "neuf",
+    standing: "haut-standing",
+    equipements: [
+      "Ascenseur",
+      "Parking",
+      "Meublé",
+      "Climatisation centralisée",
+      "Chauffage",
+      "Cuisine américaine équipée",
+      'TV Samsung 50"',
+      "Serrure digitale",
+      "WC invités",
+    ],
+    description:
+      "Bel appartement meublé de 90 m² au 2e étage d'une résidence de 5 niveaux avec ascenseur, dans le secteur des Princesses à Maarif. L'appartement compte 3 pièces dont 2 chambres, 2 salles de bains et un WC invités. Cuisine américaine entièrement équipée, climatisation centralisée, chauffage et mobilier moderne — téléviseur Samsung 50 pouces et serrure digitale à l'entrée. Une place de parking est incluse. Lumineux et livré à l'état neuf, il est disponible immédiatement pour un locataire sérieux et solvable.",
+    disponibilite: "Immédiate",
+    dateMiseAJour: "2026-08-16",
+    chargesIncluses: true,
+    caution: "1 mois",
+    honorairesAgence: "1 mois",
+    conditionsParticulieres: "Locataire sérieux et solvable",
+    imagePrincipale: photoImage("CH-0007", 1, "Salon lumineux avec canapé beige et grandes baies vitrées", 1500, 2000),
+    images: [
+      photoImage("CH-0007", 1, "Salon lumineux avec canapé beige et grandes baies vitrées", 1500, 2000),
+      photoImage("CH-0007", 2, "Salon et salle à manger", 1810, 2000),
+      photoImage("CH-0007", 3, "Salon avec vue sur la cuisine ouverte et le coin repas", 1500, 2000),
+      photoImage("CH-0007", 4, "Cuisine équipée, plan de travail et électroménager", 1500, 2000),
+      photoImage("CH-0007", 5, "Chambre avec tête de lit capitonnée et armoire", 1500, 2000),
+      photoImage("CH-0007", 6, "Chambre, vue sur l'armoire et la table de chevet", 1500, 2000),
+      photoImage("CH-0007", 7, "Deuxième chambre avec tête de lit terracotta", 1500, 2000),
+      photoImage("CH-0007", 8, "Deuxième chambre, vue sur la baie vitrée", 1500, 2000),
+      photoImage("CH-0007", 9, "Salle de bain avec douche à l'italienne", 1015, 1353),
+      photoImage("CH-0007", 10, "Couloir d'entrée avec décoration murale", 1080, 1485),
+    ],
+  },
+];
 
 /**
  * CONTENU D'EXEMPLE (isSample: true)
@@ -8,6 +75,7 @@ import { placeholderImage } from "@/lib/images";
  * public/images/biens/README.md pour ajouter les vraies photos.
  */
 export const listings: Listing[] = [
+  ...realListings,
   {
     id: "listing-0001",
     reference: "CH-0001",

@@ -15,6 +15,14 @@ export const neighborhoods: Neighborhood[] = [
     faits: ["Quartier central", "Commerces à pied", "Bonne desserte routière"],
   },
   {
+    slug: "les-princesses",
+    nom: "Les Princesses",
+    ville: "Casablanca",
+    description:
+      "Secteur résidentiel du côté de Maarif, apprécié pour son calme et sa proximité avec les commodités du quartier.",
+    faits: ["Proche Maarif", "Résidentiel"],
+  },
+  {
     slug: "racine",
     nom: "Racine",
     ville: "Casablanca",
