@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { neighborhoods } from "@/data/neighborhoods";
+import { getNeighborhoods } from "@/lib/supabase/queries";
 
 export const metadata: Metadata = {
   title: "Quartiers de Casablanca",
@@ -9,7 +9,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/quartiers" },
 };
 
-export default function QuartiersPage() {
+export default async function QuartiersPage() {
+  const neighborhoods = await getNeighborhoods();
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-6xl mx-auto px-6">

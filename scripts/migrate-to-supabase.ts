@@ -1,0 +1,210 @@
+/**
+ * Migration unique : données statiques (src/data/listings.ts) → Supabase.
+ *
+ * À exécuter UNE SEULE FOIS, en local, après avoir créé votre compte
+ * administrateur et l'avoir ajouté à la table `admins`.
+ *
+ * Usage :
+ *   1. Créez un fichier .env.migration (déjà ignoré par git) contenant :
+ *        NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+ *        NEXT_PUBLIC_SUPABASE_ANON_KEY=xxxx
+ *        MIGRATION_ADMIN_EMAIL=vous@exemple.com
+ *        MIGRATION_ADMIN_PASSWORD=votre-mot-de-passe-admin
+ *   2. npx tsx scripts/migrate-to-supabase.ts
+ *
+ * Ce script utilise UNIQUEMENT vos identifiants admin (jamais la clé
+ * service_role) — les écritures passent par les mêmes règles RLS que
+ * l'interface d'administration.
+ *
+ * Comportement :
+ *  - Les 6 annonces "Exemple" sont migrées en brouillon (is_sample: true,
+ *    publication_status: "brouillon") — invisibles publiquement, visibles
+ *    uniquement dans l'admin, comme décidé.
+ *  - CH-0007 (la seule annonce réelle) est migrée publiée
+ *    (is_sample: false, publication_status: "publie") et ses 10 photos
+ *    réelles sont uploadées vers le bucket Storage "listing-photos".
+ *  - Idempotent sur la référence : relancer le script ne crée pas de
+ *    doublon, il met à jour l'annonce existante.
+ */
+
+import { createClient } from "@supabase/supabase-js";
+import { config } from "dotenv";
+import fs from "node:fs";
+import path from "node:path";
+import { listings } from "../src/data/listings";
+
+config({ path: ".env.migration" });
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const ADMIN_EMAIL = process.env.MIGRATION_ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.MIGRATION_ADMIN_PASSWORD;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !ADMIN_EMAIL || !ADMIN_PASSWORD) {
+  console.error(
+    "Variables manquantes. Créez .env.migration avec NEXT_PUBLIC_SUPABASE_URL, " +
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY, MIGRATION_ADMIN_EMAIL, MIGRATION_ADMIN_PASSWORD."
+  );
+  process.exit(1);
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function toDbTransaction(t: string) {
+  return t === "courte-duree" ? "courte_duree" : t;
+}
+
+function toDbCondition(e?: string) {
+  if (!e) return null;
+  return e.replace(/-/g, "_");
+}
+
+function toDbStanding(s: string) {
+  return s === "haut-standing" ? "haut_standing" : s;
+}
+
+async function uploadLocalPhoto(reference: string, fileName: string): Promise<string | null> {
+  const localPath = path.join(
+    process.cwd(),
+    "public",
+    "images",
+    "biens",
+    reference,
+    fileName
+  );
+  if (!fs.existsSync(localPath)) return null;
+
+  const fileBuffer = fs.readFileSync(localPath);
+  const storagePath = `${reference}/${fileName}`;
+
+  const { error } = await supabase.storage
+    .from("listing-photos")
+    .upload(storagePath, fileBuffer, { contentType: "image/webp", upsert: true });
+
+  if (error) {
+    console.error(`  ✗ Échec upload ${storagePath} :`, error.message);
+    return null;
+  }
+  return storagePath;
+}
+
+async function migrate() {
+  console.log("Connexion en tant qu'administrateur...");
+  const { error: authError } = await supabase.auth.signInWithPassword({
+    email: ADMIN_EMAIL!,
+    password: ADMIN_PASSWORD!,
+  });
+  if (authError) {
+    console.error("Échec de connexion :", authError.message);
+    process.exit(1);
+  }
+
+  const { data: isAdmin } = await supabase.rpc("is_admin");
+  if (!isAdmin) {
+    console.error("Ce compte n'est pas administrateur (absent de la table admins).");
+    process.exit(1);
+  }
+  console.log("✓ Connecté et vérifié administrateur.\n");
+
+  for (const listing of listings) {
+    const isRealListing = listing.isSample === false;
+    console.log(
+      `${listing.reference} — ${listing.titre} (${isRealListing ? "réel → publié" : "exemple → brouillon"})`
+    );
+
+    const row = {
+      reference: listing.reference,
+      slug: listing.slug,
+      publication_status: isRealListing ? "publie" : "brouillon",
+      availability_status: listing.statut,
+      transaction: toDbTransaction(listing.transaction),
+      type_bien: listing.typeBien,
+      titre: listing.titre,
+      description: listing.description,
+      quartier_slug: listing.quartierSlug,
+      ville: listing.ville,
+      adresse: listing.adresse ?? null,
+      prix: listing.prix,
+      periode_prix: listing.periodePrix ?? null,
+      surface_m2: listing.surfaceM2,
+      pieces: listing.pieces ?? null,
+      chambres: listing.chambres,
+      salles_de_bain: listing.sallesDeBain,
+      wc_invites: listing.wcInvites ?? null,
+      etage: listing.etage ?? null,
+      ascenseur: listing.ascenseur,
+      parking: listing.parking,
+      meuble: listing.meuble,
+      climatisation: listing.climatisation,
+      terrasse_balcon: listing.terrasseBalcon ?? null,
+      etat: toDbCondition(listing.etat),
+      standing: toDbStanding(listing.standing),
+      equipements: listing.equipements,
+      disponibilite: listing.disponibilite ?? null,
+      charges_incluses: listing.chargesIncluses ?? null,
+      caution: listing.caution ?? null,
+      honoraires_agence: listing.honorairesAgence ?? null,
+      conditions_particulieres: listing.conditionsParticulieres ?? null,
+      is_sample: listing.isSample,
+    };
+
+    const { data: upserted, error } = await supabase
+      .from("listings")
+      .upsert(row, { onConflict: "reference" })
+      .select("id")
+      .single();
+
+    if (error) {
+      console.error(`  ✗ ${error.message}`);
+      continue;
+    }
+    console.log(`  ✓ Bien enregistré (id ${upserted.id})`);
+
+    if (isRealListing) {
+      const localDir = path.join(process.cwd(), "public", "images", "biens", listing.reference);
+      if (fs.existsSync(localDir)) {
+        // Idempotence : si des photos existent déjà pour ce bien (script
+        // relancé), on ne les re-crée pas en double — pas de contrainte
+        // unique sur listing_images pour un upsert propre, donc on
+        // vérifie nous-mêmes avant d'insérer.
+        const { count } = await supabase
+          .from("listing_images")
+          .select("id", { count: "exact", head: true })
+          .eq("listing_id", upserted.id);
+
+        if (count && count > 0) {
+          console.log(`  → ${count} photo(s) déjà présente(s), migration des photos ignorée.`);
+        } else {
+          const files = fs.readdirSync(localDir).filter((f) => f.endsWith(".webp")).sort();
+          let position = 0;
+          for (const fileName of files) {
+            const storagePath = await uploadLocalPhoto(listing.reference, fileName);
+            if (!storagePath) continue;
+
+            const sourceImage = listing.images[position];
+            const alt = sourceImage?.kind === "photo" ? sourceImage.alt : listing.titre;
+
+            const { error: imgError } = await supabase.from("listing_images").insert({
+              listing_id: upserted.id,
+              storage_path: storagePath,
+              alt,
+              position,
+              is_primary: position === 0,
+            });
+            if (imgError) {
+              console.error(`  ✗ Photo ${fileName} :`, imgError.message);
+            } else {
+              console.log(`  ✓ Photo ${fileName} migrée`);
+            }
+            position += 1;
+          }
+        }
+      }
+    }
+  }
+
+  console.log("\nMigration terminée.");
+  await supabase.auth.signOut();
+}
+
+migrate();

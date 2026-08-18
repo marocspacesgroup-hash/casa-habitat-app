@@ -1,6 +1,8 @@
+import { getNeighborhoods } from "@/lib/supabase/queries";
 import SearchBar from "./SearchBar";
 
-export default function Hero() {
+export default async function Hero() {
+  const neighborhoods = await getNeighborhoods();
   return (
     <section className="relative bg-navy pt-36 pb-20 overflow-hidden">
       <div
@@ -27,7 +29,7 @@ export default function Hero() {
           remise des clés.
         </p>
 
-        <SearchBar />
+        <SearchBar neighborhoods={neighborhoods} />
       </div>
     </section>
   );

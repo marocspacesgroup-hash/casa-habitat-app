@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { neighborhoods, getNeighborhoodBySlug } from "@/data/neighborhoods";
-import { getListingsByNeighborhood } from "@/data/listings";
+import {
+  getNeighborhoods,
+  getNeighborhoodBySlug,
+  getPublishedListingsByNeighborhood,
+} from "@/lib/supabase/queries";
 import ListingCard from "@/components/ui/ListingCard";
 import { siteConfig } from "@/config/site";
 
-export function generateStaticParams() {
-  return neighborhoods.map((n) => ({ slug: n.slug }));
-}
+// Pas de generateStaticParams : les quartiers viennent de Supabase et la
+// page est rendue à la demande (le client Supabase serveur utilise les
+// cookies de la requête, ce qui rend cette route dynamique de toute façon).
 
 export async function generateMetadata({
   params,
@@ -16,11 +19,12 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const n = getNeighborhoodBySlug(slug);
+  const n = await getNeighborhoodBySlug(slug);
   if (!n) return {};
   return {
     title: `Immobilier à ${n.nom}, Casablanca`,
     description: `${n.description} Biens à louer et à vendre à ${n.nom} avec Casa Habitat.`,
+    alternates: { canonical: `/quartiers/${slug}` },
   };
 }
 
@@ -30,11 +34,14 @@ export default async function QuartierPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const neighborhood = getNeighborhoodBySlug(slug);
+  const neighborhood = await getNeighborhoodBySlug(slug);
   if (!neighborhood) notFound();
 
-  const listings = getListingsByNeighborhood(slug);
-  const others = neighborhoods.filter((n) => n.slug !== slug).slice(0, 5);
+  const [listings, allNeighborhoods] = await Promise.all([
+    getPublishedListingsByNeighborhood(slug),
+    getNeighborhoods(),
+  ]);
+  const others = allNeighborhoods.filter((n) => n.slug !== slug).slice(0, 5);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -63,7 +70,6 @@ export default async function QuartierPage({
     <div className="pt-36 pb-24">
       <script
         type="application/ld+json"
-         
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="max-w-6xl mx-auto px-6">

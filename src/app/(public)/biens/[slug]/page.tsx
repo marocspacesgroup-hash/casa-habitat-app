@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
-  getListingBySlug,
-  getSimilarListings,
-  listings,
-} from "@/data/listings";
-import { getNeighborhoodBySlug } from "@/data/neighborhoods";
+  getPublishedListingBySlug,
+  getSimilarPublishedListings,
+  getNeighborhoodBySlug,
+} from "@/lib/supabase/queries";
 import {
   conditionLabel,
   formatPrice,
@@ -22,9 +21,11 @@ import PropertyImage from "@/components/ui/PropertyImage";
 import ListingContactActions from "@/components/ui/ListingContactActions";
 import ListingViewTracker from "@/components/ui/ListingViewTracker";
 
-export function generateStaticParams() {
-  return listings.map((l) => ({ slug: l.slug }));
-}
+// Pas de generateStaticParams : les biens viennent de Supabase et peuvent
+// changer à tout moment depuis l'admin (prix, statut, photos...). La page
+// est rendue à la demande et revalidée explicitement par les server actions
+// admin (revalidatePath) après chaque modification — jamais besoin d'un
+// nouveau build pour qu'un changement apparaisse publiquement.
 
 export async function generateMetadata({
   params,
@@ -32,9 +33,9 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const listing = getListingBySlug(slug);
+  const listing = await getPublishedListingBySlug(slug);
   if (!listing) return {};
-  const neighborhood = getNeighborhoodBySlug(listing.quartierSlug);
+  const neighborhood = await getNeighborhoodBySlug(listing.quartierSlug);
   const title = seoTitle(listing, neighborhood?.nom);
   const metaDescription = `${propertyTypeLabel(listing.typeBien)} de ${listing.surfaceM2} m² à ${listing.transaction === "vente" ? "vendre" : "louer"} à ${neighborhood?.nom ?? listing.ville}${listing.prix ? ` — ${formatPrice(listing)}` : ""}.`;
   const ogImage =
@@ -68,11 +69,13 @@ export default async function ListingDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const listing = getListingBySlug(slug);
+  const listing = await getPublishedListingBySlug(slug);
   if (!listing) notFound();
 
-  const neighborhood = getNeighborhoodBySlug(listing.quartierSlug);
-  const similar = getSimilarListings(listing);
+  const [neighborhood, similar] = await Promise.all([
+    getNeighborhoodBySlug(listing.quartierSlug),
+    getSimilarPublishedListings(listing),
+  ]);
 
   const jsonLd = {
     "@context": "https://schema.org",

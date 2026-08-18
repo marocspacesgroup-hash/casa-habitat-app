@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { listings } from "@/data/listings";
+import { getPublishedListings } from "@/lib/supabase/queries";
 import ListingCard from "@/components/ui/ListingCard";
 import SectionHead from "@/components/ui/SectionHead";
 
-export default function FeaturedListings() {
+export default async function FeaturedListings() {
+  const listings = await getPublishedListings();
   const featured = listings.filter((l) => l.standing === "prestige").slice(0, 3);
   const featuredOrFallback = featured.length ? featured : listings.slice(0, 3);
 
@@ -16,11 +17,17 @@ export default function FeaturedListings() {
           emphasis="choisis, pas listés."
           description="Un aperçu de notre portefeuille — la disponibilité évolue au fil des visites, contactez-nous pour l'état actualisé."
         />
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredOrFallback.map((listing) => (
-            <ListingCard key={listing.reference} listing={listing} />
-          ))}
-        </div>
+        {featuredOrFallback.length === 0 ? (
+          <p className="text-ink-soft">
+            Nouvelles annonces à venir très prochainement — contactez-nous directement en attendant.
+          </p>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredOrFallback.map((listing) => (
+              <ListingCard key={listing.reference} listing={listing} />
+            ))}
+          </div>
+        )}
         <div className="mt-10">
           <Link
             href="/locations"

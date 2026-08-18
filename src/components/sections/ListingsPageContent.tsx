@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Listing, TransactionType } from "@/data/types";
-import { listings as allListings } from "@/data/listings";
+import { getPublishedListingsByTransaction } from "@/lib/supabase/queries";
 import ListingCard from "@/components/ui/ListingCard";
 import { whatsappGeneral } from "@/lib/whatsapp";
 
@@ -29,7 +29,7 @@ function applyFilters(items: Listing[], filters: ListingFilters) {
   });
 }
 
-export default function ListingsPageContent({
+export default async function ListingsPageContent({
   transaction,
   meubleOnly,
   filters,
@@ -49,7 +49,7 @@ export default function ListingsPageContent({
   /** Optionnel — affiche un CTA WhatsApp sous la description (ex. courte durée) */
   whatsappCta?: string;
 }) {
-  let results = allListings.filter((l) => l.transaction === transaction);
+  let results = await getPublishedListingsByTransaction(transaction);
   if (meubleOnly === true) results = results.filter((l) => l.meuble);
   if (meubleOnly === false) results = results.filter((l) => !l.meuble);
   results = applyFilters(results, filters);

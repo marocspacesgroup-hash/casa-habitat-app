@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
 import { whatsappOwner } from "@/lib/whatsapp";
+import { getNeighborhoods } from "@/lib/supabase/queries";
 import OwnerLeadForm from "@/components/sections/OwnerLeadForm";
 import TrackedLink from "@/components/ui/TrackedLink";
 
@@ -30,7 +31,8 @@ const reasons = [
   },
 ];
 
-export default function ConfierMonBienPage() {
+export default async function ConfierMonBienPage() {
+  const neighborhoods = await getNeighborhoods();
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -92,7 +94,7 @@ export default function ConfierMonBienPage() {
               Quelques informations suffisent — nous vous recontactons
               rapidement pour en discuter.
             </p>
-            <OwnerLeadForm />
+            <OwnerLeadForm neighborhoods={neighborhoods} />
           </div>
 
           <aside className="bg-navy rounded-sm p-8 h-fit lg:sticky lg:top-28">

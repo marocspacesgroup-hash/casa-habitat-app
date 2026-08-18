@@ -2,11 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { siteConfig } from "@/config/site";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import WhatsAppFloat from "@/components/layout/WhatsAppFloat";
 import Analytics from "@/components/layout/Analytics";
-import { FavoritesProvider } from "@/lib/favorites";
 
 /**
  * Polices auto-hébergées (fichiers dans src/fonts/, issus des paquets
@@ -64,26 +60,13 @@ export const metadata: Metadata = {
     : undefined,
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "RealEstateAgent",
-  name: siteConfig.name,
-  description: siteConfig.description,
-  url: siteConfig.url,
-  telephone: siteConfig.contact.phones[0],
-  email: siteConfig.contact.email,
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: siteConfig.contact.address.line1,
-    addressLocality: siteConfig.contact.address.city,
-    addressCountry: "MA",
-  },
-  areaServed: {
-    "@type": "City",
-    name: "Casablanca",
-  },
-};
-
+/**
+ * Racine minimale, commune à TOUT le site — y compris /admin.
+ * Le header/footer/WhatsApp/favoris du site public vivent désormais dans
+ * (public)/layout.tsx, pour que /admin/login et le reste de l'admin n'en
+ * héritent jamais (auparavant, la page de connexion affichait par erreur
+ * la navigation publique par-dessus le formulaire).
+ */
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -92,17 +75,7 @@ export default function RootLayout({
       <body
         className={`${fraunces.variable} ${manrope.variable} ${plexMono.variable} antialiased`}
       >
-        <script
-          type="application/ld+json"
-           
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        <FavoritesProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-          <WhatsAppFloat />
-        </FavoritesProvider>
+        {children}
         <Analytics />
       </body>
     </html>

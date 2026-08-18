@@ -54,6 +54,8 @@ export interface Listing {
   statut: ListingStatus;
 
   quartierSlug: string;
+  /** Résolu depuis la table neighborhoods lors de la lecture — évite un aller-retour supplémentaire dans les composants d'affichage */
+  quartierNom?: string;
   ville: string;
   /** Adresse précise — à renseigner par l'agence, peut rester vide pour préserver la confidentialité du propriétaire */
   adresse?: string;

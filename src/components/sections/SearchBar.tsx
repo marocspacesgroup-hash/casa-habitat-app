@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { neighborhoods } from "@/data/neighborhoods";
+import { Neighborhood } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
 
 const transactionRoutes: Record<string, string> = {
@@ -11,7 +11,7 @@ const transactionRoutes: Record<string, string> = {
   "courte-duree": "/courte-duree",
 };
 
-export default function SearchBar() {
+export default function SearchBar({ neighborhoods }: { neighborhoods: Neighborhood[] }) {
   const router = useRouter();
   const [transaction, setTransaction] = useState("location");
   const [typeBien, setTypeBien] = useState("");

@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { siteConfig } from "@/config/site";
-import { neighborhoods } from "@/data/neighborhoods";
+import { Neighborhood } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
 
 interface Errors {
@@ -12,7 +12,7 @@ interface Errors {
   quartier?: string;
 }
 
-export default function OwnerLeadForm() {
+export default function OwnerLeadForm({ neighborhoods }: { neighborhoods: Neighborhood[] }) {
   const [nom, setNom] = useState("");
   const [telephone, setTelephone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");

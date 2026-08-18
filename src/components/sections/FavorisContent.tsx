@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useFavorites } from "@/lib/favorites";
-import { listings } from "@/data/listings";
+import { Listing } from "@/data/types";
 import ListingCard from "@/components/ui/ListingCard";
 
-export default function FavorisContent() {
+export default function FavorisContent({ listings }: { listings: Listing[] }) {
   const { favorites } = useFavorites();
   const favoriteListings = listings.filter((l) =>
     favorites.includes(l.reference)

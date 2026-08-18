@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { neighborhoods } from "@/data/neighborhoods";
+import { getNeighborhoods } from "@/lib/supabase/queries";
 import SectionHead from "@/components/ui/SectionHead";
 
-export default function NeighborhoodsTeaser() {
+export default async function NeighborhoodsTeaser() {
+  const neighborhoods = await getNeighborhoods();
   return (
     <section className="bg-[#E4DAC2] py-24 md:py-28">
       <div className="max-w-6xl mx-auto px-6">

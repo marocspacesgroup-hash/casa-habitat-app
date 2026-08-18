@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import FavorisContent from "@/components/sections/FavorisContent";
+import { getPublishedListings } from "@/lib/supabase/queries";
 
 export const metadata: Metadata = {
   title: "Mes favoris",
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-export default function FavorisPage() {
-  return <FavorisContent />;
+export default async function FavorisPage() {
+  const listings = await getPublishedListings();
+  return <FavorisContent listings={listings} />;
 }

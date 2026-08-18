@@ -1,9 +1,8 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
-import { listings } from "@/data/listings";
-import { neighborhoods } from "@/data/neighborhoods";
+import { getAllPublishedSlugs, getNeighborhoods } from "@/lib/supabase/queries";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     "",
     "/locations",
@@ -23,8 +22,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(),
   }));
 
-  const listingRoutes = listings.map((l) => ({
-    url: `${siteConfig.url}/biens/${l.slug}`,
+  const [slugs, neighborhoods] = await Promise.all([
+    getAllPublishedSlugs(),
+    getNeighborhoods(),
+  ]);
+
+  // Seuls les biens publiés (publication_status = "publie") sont renvoyés
+  // par getAllPublishedSlugs — brouillons et archives n'apparaissent jamais
+  // dans le sitemap, conformément à la règle d'indexabilité.
+  const listingRoutes = slugs.map((slug) => ({
+    url: `${siteConfig.url}/biens/${slug}`,
     lastModified: new Date(),
   }));
 

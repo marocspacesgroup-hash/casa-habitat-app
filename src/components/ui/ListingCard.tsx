@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { Listing } from "@/data/types";
 import { formatPrice, statusLabel, transactionLabel } from "@/lib/format";
-import { getNeighborhoodBySlug } from "@/data/neighborhoods";
 import FavoriteButton from "./FavoriteButton";
 import PropertyImage from "./PropertyImage";
 
 export default function ListingCard({ listing }: { listing: Listing }) {
-  const neighborhood = getNeighborhoodBySlug(listing.quartierSlug);
   const notAvailable = listing.statut !== "disponible";
 
   return (
@@ -37,7 +35,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
 
       <div className="px-6 pt-6 pb-6">
         <div className="font-mono text-[10.5px] uppercase tracking-widest text-gold mb-2">
-          {neighborhood?.nom ?? listing.ville}
+          {listing.quartierNom ?? listing.ville}
         </div>
         <h3 className="font-display text-xl text-ink mb-3">{listing.titre}</h3>
         <div className="flex gap-4 flex-wrap mb-4 font-mono text-xs text-ink-soft">
