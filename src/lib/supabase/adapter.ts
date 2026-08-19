@@ -71,6 +71,7 @@ export async function adaptListingForPublicSite(
     parking: db.parking,
     meuble: db.meuble,
     climatisation: db.climatisation,
+    chauffage: db.chauffage,
     terrasseBalcon: db.terrasse_balcon ?? undefined,
     etat: db.etat ? conditionMap[db.etat] : undefined,
 

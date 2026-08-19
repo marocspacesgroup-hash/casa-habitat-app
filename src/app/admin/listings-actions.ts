@@ -76,6 +76,19 @@ function parseListingFormData(formData: FormData) {
     conditions_particulieres: str("conditions_particulieres"),
     seo_title: str("seo_title"),
     seo_description: str("seo_description"),
+    courte_duree_details: (() => {
+      const par_semaine = num("courte_duree_par_semaine");
+      const par_mois = num("courte_duree_par_mois");
+      const voyageurs_max = num("courte_duree_voyageurs_max");
+      if (par_semaine === null && par_mois === null && voyageurs_max === null) {
+        return null;
+      }
+      return {
+        par_semaine: par_semaine ?? undefined,
+        par_mois: par_mois ?? undefined,
+        voyageurs_max: voyageurs_max ?? undefined,
+      };
+    })(),
   };
 }
 

@@ -136,6 +136,7 @@ async function migrate() {
       parking: listing.parking,
       meuble: listing.meuble,
       climatisation: listing.climatisation,
+      chauffage: listing.chauffage,
       terrasse_balcon: listing.terrasseBalcon ?? null,
       etat: toDbCondition(listing.etat),
       standing: toDbStanding(listing.standing),
@@ -145,6 +146,13 @@ async function migrate() {
       caution: listing.caution ?? null,
       honoraires_agence: listing.honorairesAgence ?? null,
       conditions_particulieres: listing.conditionsParticulieres ?? null,
+      courte_duree_details: listing.courteDuree
+        ? {
+            par_semaine: listing.courteDuree.parSemaine ?? null,
+            par_mois: listing.courteDuree.parMois ?? null,
+            voyageurs_max: listing.courteDuree.voyageursMax,
+          }
+        : null,
       is_sample: listing.isSample,
     };
 

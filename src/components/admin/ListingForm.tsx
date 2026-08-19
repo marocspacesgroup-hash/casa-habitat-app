@@ -116,6 +116,44 @@ export default function ListingForm({
             </select>
           </div>
         </div>
+
+        <div className="mt-5 pt-5 border-t border-ink/10">
+          <p className="font-mono text-[10.5px] uppercase tracking-widest text-ink-soft mb-3">
+            Courte durée (si applicable) — le prix par nuit ci-dessus reste la référence principale
+          </p>
+          <div className="grid sm:grid-cols-3 gap-5">
+            <div>
+              <label className={labelClass}>Prix / semaine (DH)</label>
+              <input
+                name="courte_duree_par_semaine"
+                type="number"
+                min="0"
+                defaultValue={d?.courte_duree_details?.par_semaine ?? ""}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Prix / mois (DH)</label>
+              <input
+                name="courte_duree_par_mois"
+                type="number"
+                min="0"
+                defaultValue={d?.courte_duree_details?.par_mois ?? ""}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Voyageurs max.</label>
+              <input
+                name="courte_duree_voyageurs_max"
+                type="number"
+                min="1"
+                defaultValue={d?.courte_duree_details?.voyageurs_max ?? ""}
+                className={inputClass}
+              />
+            </div>
+          </div>
+        </div>
       </Section>
 
       <Section title="Caractéristiques">

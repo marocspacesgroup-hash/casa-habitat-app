@@ -3,13 +3,18 @@ import { NextResponse, type NextRequest } from "next/server";
 
 /**
  * Rafraîchit la session Supabase à chaque requête et protège /admin.
- * Un utilisateur non connecté qui tente d'accéder à une page /admin
- * (hors /admin/login) est redirigé vers /admin/login — vérification
- * côté serveur, jamais laissée au seul état React côté client.
  *
- * Ce middleware vérifie uniquement qu'une session existe. La vérification
- * is_admin() (liste blanche) est faite séparément dans admin/layout.tsx
- * et dans chaque server action — défense en profondeur.
+ * Un utilisateur authentifié n'est PAS automatiquement administrateur —
+ * la présence d'une session ne suffit jamais : chaque décision de
+ * redirection ci-dessous vérifie explicitement is_admin() (la liste
+ * blanche en base), en plus de la vérification déjà faite indépendamment
+ * dans admin/layout.tsx et chaque server action (défense en profondeur,
+ * pas une simple délégation à ce middleware).
+ *
+ * Sans ce contrôle explicite ici, un compte authentifié mais absent de la
+ * table admins provoquait une boucle : /admin/login le renvoyait vers
+ * /admin/dashboard (session présente), qui le renvoyait vers /admin/login
+ * (non admin) — indéfiniment.
  */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -42,12 +47,32 @@ export async function updateSession(request: NextRequest) {
   const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
   const isLoginRoute = request.nextUrl.pathname === "/admin/login";
 
+  // Aucune session : jamais admin, inutile d'appeler is_admin().
   if (isAdminRoute && !isLoginRoute && !user) {
     const loginUrl = new URL("/admin/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isLoginRoute && user) {
+  // Une session existe : ne JAMAIS la traiter comme admin sans vérifier.
+  let isAdmin = false;
+  if (user && isAdminRoute) {
+    const { data } = await supabase.rpc("is_admin");
+    isAdmin = data === true;
+  }
+
+  // Connecté mais pas admin, sur une page protégée : retour au login —
+  // une seule fois, pas de boucle, puisque la règle suivante ne renvoie
+  // vers le dashboard que si isAdmin est vrai.
+  if (isAdminRoute && !isLoginRoute && user && !isAdmin) {
+    const loginUrl = new URL("/admin/login", request.url);
+    loginUrl.searchParams.set("error", "not_admin");
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Sur /admin/login : ne redirige vers le dashboard QUE si réellement admin.
+  // Un compte authentifié non-admin reste sur /admin/login sans boucler —
+  // il peut s'y reconnecter avec un autre compte.
+  if (isLoginRoute && user && isAdmin) {
     const dashboardUrl = new URL("/admin/dashboard", request.url);
     return NextResponse.redirect(dashboardUrl);
   }

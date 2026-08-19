@@ -112,7 +112,14 @@ export default async function ListingDetailPage({
     ],
   };
 
-  const galleryImages = listing.images.length > 0 ? listing.images : [listing.imagePrincipale];
+  // Vignettes secondaires : toutes les photos SAUF l'image principale déjà
+  // affichée en grand — évite de la répéter (l'admin peut définir n'importe
+  // quelle photo comme principale, sa position dans la liste n'est pas fiable).
+  const isSameImage = (a: (typeof listing.images)[number], b: typeof listing.imagePrincipale) =>
+    a.kind === "photo" && b.kind === "photo" && a.src === b.src;
+  const secondaryImages = listing.images.filter(
+    (img) => !isSameImage(img, listing.imagePrincipale)
+  );
 
   return (
     <div className="pt-32 pb-24">
@@ -152,7 +159,7 @@ export default async function ListingDetailPage({
             <PropertyImage image={listing.imagePrincipale} priority sizes="(min-width: 768px) 66vw, 100vw" />
           </div>
           <div className="grid grid-rows-2 gap-3">
-            {galleryImages.slice(0, 2).map((img, i) => (
+            {secondaryImages.slice(0, 2).map((img, i) => (
               <div key={i} className="rounded-sm overflow-hidden">
                 <PropertyImage image={img} sizes="33vw" />
               </div>

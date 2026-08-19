@@ -75,6 +75,7 @@ export interface Listing {
   parking: boolean;
   meuble: boolean;
   climatisation: boolean;
+  chauffage: boolean;
   terrasseBalcon?: boolean;
   etat?: PropertyCondition;
 

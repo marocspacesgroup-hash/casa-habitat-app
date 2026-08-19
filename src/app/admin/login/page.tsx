@@ -1,9 +1,20 @@
 "use client";
 
-import { useActionState } from "react";
+import { Suspense, useActionState } from "react";
+import { useSearchParams } from "next/navigation";
 import { login, LoginState } from "@/lib/supabase/auth-actions";
 
 const initialState: LoginState = {};
+
+function NotAdminNotice() {
+  const searchParams = useSearchParams();
+  if (searchParams.get("error") !== "not_admin") return null;
+  return (
+    <p className="text-red-400 text-sm mb-5">
+      Ce compte n&apos;a pas les droits d&apos;administration. Connectez-vous avec le compte agence.
+    </p>
+  );
+}
 
 export default function AdminLoginPage() {
   const [state, formAction, pending] = useActionState(login, initialState);
@@ -23,6 +34,10 @@ export default function AdminLoginPage() {
         <div className="bg-navy-deep border border-gold/15 rounded-sm p-8">
           <h1 className="font-display text-ivory text-xl mb-1">Administration</h1>
           <p className="text-ivory/50 text-sm mb-8">Connexion réservée à l&apos;agence.</p>
+
+          <Suspense fallback={null}>
+            <NotAdminNotice />
+          </Suspense>
 
           <form action={formAction} className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
