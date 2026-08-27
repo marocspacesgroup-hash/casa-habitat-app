@@ -1,26 +1,45 @@
 import type { Locale } from "./fr";
 
 export const ar: Locale = {
-  language: "العربية",
-  languageShort: "AR",
-  navigation: {
-    locations: "الإيجار",
-    sale: "البيع",
-    shortTerm: "إيجار قصير المدة",
+  nav: {
+    rentals: "الإيجار",
+    sales: "البيع",
+    shortStay: "إيجار قصير المدة",
     neighborhoods: "الأحياء",
     about: "من نحن",
     contact: "اتصل بنا",
-    owners: "اعرض عقارك",
-    openMenu: "فتح القائمة",
-    closeMenu: "إغلاق القائمة",
+    listProperty: "اعرض عقارك",
   },
-  home: {
-    heroTitle: "اعثر على عقارك في الدار البيضاء دون تنازلات.",
+  hero: {
+    title: "اعثر على عقارك في الدار البيضاء دون تنازلات.",
+    subtitle: "اختيار موثوق مع جهة اتصال واحدة مخصصة.",
+    searchPlaceholder: "ابحث عن عقار",
+    ctaButton: "عرض العقارات",
+  },
+  filters: {
+    propertyType: "نوع العقار",
+    city: "المدينة",
+    budget: "الميزانية",
+    search: "بحث",
+  },
+  properties: {
     featuredTitle: "عقارات مختارة، وليست مجرد قوائم.",
-    featuredDescription:
-      "لمحة عن محفظتنا — تتغير التوافرات مع الزيارات، تواصلوا معنا للحصول على آخر المستجدات.",
-    servicesTitle: "أربع خدمات، ومعيار واحد.",
-    neighborhoodsTitle: "الأحياء التي نعرفها.",
-    contactTitle: "جهة اتصال واحدة، من أول تواصل إلى تسليم المفاتيح.",
+    rooms: "غرف",
+    bathrooms: "حمامات",
+    area: "م²",
+    viewDetails: "عرض العقار",
+  },
+  contact: {
+    title: "جهة اتصال واحدة، من أول تواصل إلى تسليم المفاتيح.",
+    namePlaceholder: "اسمك",
+    emailPlaceholder: "بريدك الإلكتروني",
+    phonePlaceholder: "رقم هاتفك",
+    messagePlaceholder: "رسالتك",
+    submitButton: "إرسال الرسالة",
+    successMessage: "شكرًا، تم إرسال رسالتك.",
+  },
+  footer: {
+    tagline: "عقارات فاخرة في الدار البيضاء.",
+    rights: "جميع الحقوق محفوظة.",
   },
 };

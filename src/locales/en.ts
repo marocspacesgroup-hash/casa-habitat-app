@@ -1,26 +1,45 @@
 import type { Locale } from "./fr";
 
 export const en: Locale = {
-  language: "English",
-  languageShort: "EN",
-  navigation: {
-    locations: "Rentals",
-    sale: "Sales",
-    shortTerm: "Short stay",
+  nav: {
+    rentals: "Rentals",
+    sales: "Sales",
+    shortStay: "Short stay",
     neighborhoods: "Neighborhoods",
     about: "About",
     contact: "Contact",
-    owners: "List your property",
-    openMenu: "Open menu",
-    closeMenu: "Close menu",
+    listProperty: "List your property",
   },
-  home: {
-    heroTitle: "Find your property in Casablanca, without compromise.",
+  hero: {
+    title: "Find your property in Casablanca, without compromise.",
+    subtitle: "A verified selection with one dedicated point of contact.",
+    searchPlaceholder: "Search for a property",
+    ctaButton: "View properties",
+  },
+  filters: {
+    propertyType: "Property type",
+    city: "City",
+    budget: "Budget",
+    search: "Search",
+  },
+  properties: {
     featuredTitle: "Properties chosen, not just listed.",
-    featuredDescription:
-      "A glimpse of our portfolio — availability changes with viewings, so contact us for the latest update.",
-    servicesTitle: "Four services, one standard.",
-    neighborhoodsTitle: "The neighborhoods we know.",
-    contactTitle: "One point of contact, from first conversation to keys.",
+    rooms: "rooms",
+    bathrooms: "baths",
+    area: "sqm",
+    viewDetails: "View property",
+  },
+  contact: {
+    title: "One point of contact, from first conversation to keys.",
+    namePlaceholder: "Your name",
+    emailPlaceholder: "Your email address",
+    phonePlaceholder: "Your phone number",
+    messagePlaceholder: "Your message",
+    submitButton: "Send message",
+    successMessage: "Thank you, your message has been sent.",
+  },
+  footer: {
+    tagline: "Luxury real estate in Casablanca.",
+    rights: "All rights reserved.",
   },
 };

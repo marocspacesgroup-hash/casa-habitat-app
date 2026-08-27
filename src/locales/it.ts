@@ -1,26 +1,45 @@
 import type { Locale } from "./fr";
 
 export const it: Locale = {
-  language: "Italiano",
-  languageShort: "IT",
-  navigation: {
-    locations: "Affitti",
-    sale: "Vendita",
-    shortTerm: "Affitti brevi",
+  nav: {
+    rentals: "Affitti",
+    sales: "Vendite",
+    shortStay: "Affitti brevi",
     neighborhoods: "Quartieri",
     about: "Chi siamo",
     contact: "Contatti",
-    owners: "Affida il tuo immobile",
-    openMenu: "Apri il menu",
-    closeMenu: "Chiudi il menu",
+    listProperty: "Affida il tuo immobile",
   },
-  home: {
-    heroTitle: "Trova il tuo immobile a Casablanca, senza compromessi.",
+  hero: {
+    title: "Trova il tuo immobile a Casablanca, senza compromessi.",
+    subtitle: "Una selezione verificata con un unico interlocutore dedicato.",
+    searchPlaceholder: "Cerca un immobile",
+    ctaButton: "Vedi gli immobili",
+  },
+  filters: {
+    propertyType: "Tipo di immobile",
+    city: "Città",
+    budget: "Budget",
+    search: "Cerca",
+  },
+  properties: {
     featuredTitle: "Immobili scelti, non semplicemente elencati.",
-    featuredDescription:
-      "Una selezione del nostro portafoglio — la disponibilità cambia con le visite, contattaci per gli ultimi aggiornamenti.",
-    servicesTitle: "Quattro servizi, un unico standard.",
-    neighborhoodsTitle: "I quartieri che conosciamo.",
-    contactTitle: "Un unico interlocutore, dal primo contatto alla consegna delle chiavi.",
+    rooms: "locali",
+    bathrooms: "bagni",
+    area: "m²",
+    viewDetails: "Vedi immobile",
+  },
+  contact: {
+    title: "Un unico interlocutore, dal primo contatto alla consegna delle chiavi.",
+    namePlaceholder: "Il tuo nome",
+    emailPlaceholder: "Il tuo indirizzo e-mail",
+    phonePlaceholder: "Il tuo telefono",
+    messagePlaceholder: "Il tuo messaggio",
+    submitButton: "Invia messaggio",
+    successMessage: "Grazie, il tuo messaggio è stato inviato.",
+  },
+  footer: {
+    tagline: "Immobili di prestigio a Casablanca.",
+    rights: "Tutti i diritti riservati.",
   },
 };

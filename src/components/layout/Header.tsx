@@ -9,15 +9,17 @@ import { fr } from "@/locales/fr";
 import { es } from "@/locales/es";
 import { it } from "@/locales/it";
 
+const languageFlags = { fr: "🇫🇷", en: "🇬🇧", ar: "🇲🇦", es: "🇪🇸", it: "🇮🇹" } as const;
+
 const translations = { fr, en, ar, es, it } as const;
 type Language = keyof typeof translations;
 
 const languageNames: Record<Language, string> = {
-  fr: fr.language,
-  en: en.language,
-  ar: ar.language,
-  es: es.language,
-  it: it.language,
+  fr: "Français",
+  en: "English",
+  ar: "العربية",
+  es: "Español",
+  it: "Italiano",
 };
 
 function getNextLanguage(language: Language): Language {
@@ -27,44 +29,44 @@ function getNextLanguage(language: Language): Language {
 
 const navigationLabels: Record<Language, Record<string, string>> = {
   fr: {
-    "/locations": fr.navigation.locations,
-    "/vente": fr.navigation.sale,
-    "/courte-duree": fr.navigation.shortTerm,
-    "/quartiers": fr.navigation.neighborhoods,
-    "/a-propos": fr.navigation.about,
-    "/contact": fr.navigation.contact,
+    "/locations": fr.nav.rentals,
+    "/vente": fr.nav.sales,
+    "/courte-duree": fr.nav.shortStay,
+    "/quartiers": fr.nav.neighborhoods,
+    "/a-propos": fr.nav.about,
+    "/contact": fr.nav.contact,
   },
   en: {
-    "/locations": en.navigation.locations,
-    "/vente": en.navigation.sale,
-    "/courte-duree": en.navigation.shortTerm,
-    "/quartiers": en.navigation.neighborhoods,
-    "/a-propos": en.navigation.about,
-    "/contact": en.navigation.contact,
+    "/locations": en.nav.rentals,
+    "/vente": en.nav.sales,
+    "/courte-duree": en.nav.shortStay,
+    "/quartiers": en.nav.neighborhoods,
+    "/a-propos": en.nav.about,
+    "/contact": en.nav.contact,
   },
   ar: {
-    "/locations": ar.navigation.locations,
-    "/vente": ar.navigation.sale,
-    "/courte-duree": ar.navigation.shortTerm,
-    "/quartiers": ar.navigation.neighborhoods,
-    "/a-propos": ar.navigation.about,
-    "/contact": ar.navigation.contact,
+    "/locations": ar.nav.rentals,
+    "/vente": ar.nav.sales,
+    "/courte-duree": ar.nav.shortStay,
+    "/quartiers": ar.nav.neighborhoods,
+    "/a-propos": ar.nav.about,
+    "/contact": ar.nav.contact,
   },
   es: {
-    "/locations": es.navigation.locations,
-    "/vente": es.navigation.sale,
-    "/courte-duree": es.navigation.shortTerm,
-    "/quartiers": es.navigation.neighborhoods,
-    "/a-propos": es.navigation.about,
-    "/contact": es.navigation.contact,
+    "/locations": es.nav.rentals,
+    "/vente": es.nav.sales,
+    "/courte-duree": es.nav.shortStay,
+    "/quartiers": es.nav.neighborhoods,
+    "/a-propos": es.nav.about,
+    "/contact": es.nav.contact,
   },
   it: {
-    "/locations": it.navigation.locations,
-    "/vente": it.navigation.sale,
-    "/courte-duree": it.navigation.shortTerm,
-    "/quartiers": it.navigation.neighborhoods,
-    "/a-propos": it.navigation.about,
-    "/contact": it.navigation.contact,
+    "/locations": it.nav.rentals,
+    "/vente": it.nav.sales,
+    "/courte-duree": it.nav.shortStay,
+    "/quartiers": it.nav.neighborhoods,
+    "/a-propos": it.nav.about,
+    "/contact": it.nav.contact,
   },
 };
 
@@ -97,6 +99,9 @@ export default function Header() {
     const nextLanguage = getNextLanguage(language);
     setLanguage(nextLanguage);
     window.localStorage.setItem("casa-habitat-language", nextLanguage);
+    window.dispatchEvent(
+      new CustomEvent("casa-habitat-language-change", { detail: nextLanguage })
+    );
   };
 
   useEffect(() => {
@@ -135,7 +140,7 @@ export default function Header() {
             href={ownerNavLink.href}
             className="border border-gold text-gold text-xs uppercase tracking-wider px-5 py-2.5 rounded-sm hover:bg-gold hover:text-navy transition-colors"
           >
-            {currentLocale.navigation.owners}
+            {currentLocale.nav.listProperty}
           </Link>
           <button
             type="button"
@@ -143,13 +148,13 @@ export default function Header() {
             className="border border-ivory/40 text-ivory text-xs uppercase tracking-wider px-3 py-2.5 rounded-sm hover:border-gold hover:text-gold transition-colors"
             aria-label={`Switch to ${languageNames[getNextLanguage(language)]}`}
           >
-            {translations[language].languageShort}
+            <span aria-hidden="true">{languageFlags[language]}</span> {language.toUpperCase()}
           </button>
         </nav>
 
         <button
           className="lg:hidden text-ivory"
-          aria-label={mobileOpen ? currentLocale.navigation.closeMenu : currentLocale.navigation.openMenu}
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileOpen}
           onClick={() => setMobileOpen((v) => !v)}
         >
@@ -181,7 +186,7 @@ export default function Header() {
             onClick={() => setMobileOpen(false)}
             className="text-gold text-sm font-medium"
           >
-            {currentLocale.navigation.owners} →
+            {currentLocale.nav.listProperty} →
           </Link>
           <button
             type="button"
@@ -189,7 +194,7 @@ export default function Header() {
             className="text-gold text-sm font-medium text-left"
             aria-label={`Switch to ${languageNames[getNextLanguage(language)]}`}
           >
-            {translations[language].languageShort}
+            <span aria-hidden="true">{languageFlags[language]}</span> {language.toUpperCase()}
           </button>
           <a
             href={`tel:${siteConfig.contact.phones[0]}`}

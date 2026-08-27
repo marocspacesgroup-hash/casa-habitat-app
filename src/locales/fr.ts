@@ -1,48 +1,87 @@
 export const fr = {
-  language: "Français",
-  languageShort: "FR",
-  navigation: {
-    locations: "Locations",
-    sale: "Vente",
-    shortTerm: "Courte durée",
+  nav: {
+    rentals: "Locations",
+    sales: "Vente",
+    shortStay: "Courte durée",
     neighborhoods: "Quartiers",
     about: "À propos",
     contact: "Contact",
-    owners: "Confier mon bien",
-    openMenu: "Ouvrir le menu",
-    closeMenu: "Fermer le menu",
+    listProperty: "Confier mon bien",
   },
-  home: {
-    heroTitle: "Trouvez votre bien à Casablanca, sans compromis.",
+  hero: {
+    title: "Trouvez votre bien à Casablanca, sans compromis.",
+    subtitle: "Une sélection vérifiée, accompagnée par un interlocuteur unique.",
+    searchPlaceholder: "Rechercher un bien",
+    ctaButton: "Voir les biens",
+  },
+  filters: {
+    propertyType: "Type de bien",
+    city: "Ville",
+    budget: "Budget",
+    search: "Rechercher",
+  },
+  properties: {
     featuredTitle: "Des biens choisis, pas listés.",
-    featuredDescription:
-      "Un aperçu de notre portefeuille — la disponibilité évolue au fil des visites, contactez-nous pour l'état actualisé.",
-    servicesTitle: "Quatre métiers, une même exigence.",
-    neighborhoodsTitle: "Les quartiers que nous connaissons.",
-    contactTitle: "Un interlocuteur unique, du premier échange aux clés.",
+    rooms: "pièces",
+    bathrooms: "sdb",
+    area: "m²",
+    viewDetails: "Voir le bien",
+  },
+  contact: {
+    title: "Un interlocuteur unique, du premier échange aux clés.",
+    namePlaceholder: "Votre nom",
+    emailPlaceholder: "Votre adresse e-mail",
+    phonePlaceholder: "Votre téléphone",
+    messagePlaceholder: "Votre message",
+    submitButton: "Envoyer le message",
+    successMessage: "Merci, votre message a bien été envoyé.",
+  },
+  footer: {
+    tagline: "Immobilier de prestige à Casablanca.",
+    rights: "Tous droits réservés.",
   },
 } as const;
 
 export type Locale = {
-  language: string;
-  languageShort: string;
-  navigation: {
-    locations: string;
-    sale: string;
-    shortTerm: string;
+  nav: {
+    rentals: string;
+    sales: string;
+    shortStay: string;
     neighborhoods: string;
     about: string;
     contact: string;
-    owners: string;
-    openMenu: string;
-    closeMenu: string;
+    listProperty: string;
   };
-  home: {
-    heroTitle: string;
+  hero: {
+    title: string;
+    subtitle: string;
+    searchPlaceholder: string;
+    ctaButton: string;
+  };
+  filters: {
+    propertyType: string;
+    city: string;
+    budget: string;
+    search: string;
+  };
+  properties: {
     featuredTitle: string;
-    featuredDescription: string;
-    servicesTitle: string;
-    neighborhoodsTitle: string;
-    contactTitle: string;
+    rooms: string;
+    bathrooms: string;
+    area: string;
+    viewDetails: string;
+  };
+  contact: {
+    title: string;
+    namePlaceholder: string;
+    emailPlaceholder: string;
+    phonePlaceholder: string;
+    messagePlaceholder: string;
+    submitButton: string;
+    successMessage: string;
+  };
+  footer: {
+    tagline: string;
+    rights: string;
   };
 };
