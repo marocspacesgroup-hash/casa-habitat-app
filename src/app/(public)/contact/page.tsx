@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
 import { whatsappGeneral } from "@/lib/whatsapp";
 import ContactForm from "@/components/sections/ContactForm";
+import AgencyLocation from "@/components/sections/AgencyLocation";
 import TrackedLink from "@/components/ui/TrackedLink";
 
 export const metadata: Metadata = {
@@ -61,6 +62,7 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
+      <AgencyLocation />
     </div>
   );
 }
