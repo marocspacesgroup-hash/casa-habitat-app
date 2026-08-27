@@ -143,7 +143,7 @@ export default function Header() {
             className="border border-ivory/40 text-ivory text-xs uppercase tracking-wider px-3 py-2.5 rounded-sm hover:border-gold hover:text-gold transition-colors"
             aria-label={`Switch to ${languageNames[getNextLanguage(language)]}`}
           >
-            {translations[getNextLanguage(language)].languageShort}
+            {translations[language].languageShort}
           </button>
         </nav>
 
@@ -189,7 +189,7 @@ export default function Header() {
             className="text-gold text-sm font-medium text-left"
             aria-label={`Switch to ${languageNames[getNextLanguage(language)]}`}
           >
-            {translations[getNextLanguage(language)].languageShort}
+            {translations[language].languageShort}
           </button>
           <a
             href={`tel:${siteConfig.contact.phones[0]}`}
