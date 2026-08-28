@@ -22,6 +22,17 @@ const jsonLd = {
     "@type": "City",
     name: "Casablanca",
   },
+  sameAs: Object.values(siteConfig.social).filter(Boolean),
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteConfig.name,
+  url: siteConfig.url,
+  description: siteConfig.description,
+  publisher: { "@type": "Organization", name: siteConfig.name },
+  inLanguage: "fr-MA",
 };
 
 export default function PublicLayout({
@@ -32,6 +43,10 @@ export default function PublicLayout({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
       />
       <FavoritesProvider>
         <Header />

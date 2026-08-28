@@ -19,7 +19,7 @@ export const siteConfig = {
     whatsappPrimary: "212632659054",
     email: "casahabitat06@gmail.com",
     address: {
-      line1: "Socrate, Résidence Dan Hel, 1er étage",
+      line1: "Socrate, Résidence Dan Hel, 1er étage, rue 40 Attabari",
       city: "Casablanca",
       country: "Maroc",
     },

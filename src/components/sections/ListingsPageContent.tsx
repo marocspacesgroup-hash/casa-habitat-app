@@ -3,6 +3,7 @@ import { Listing, TransactionType } from "@/data/types";
 import { getPublishedListingsByTransaction } from "@/lib/supabase/queries";
 import ListingCard from "@/components/ui/ListingCard";
 import { whatsappGeneral } from "@/lib/whatsapp";
+import { siteConfig } from "@/config/site";
 
 export interface ListingFilters {
   type?: string;
@@ -54,8 +55,29 @@ export default async function ListingsPageContent({
   if (meubleOnly === false) results = results.filter((l) => !l.meuble);
   results = applyFilters(results, filters);
 
+  const pageJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${title} ${emphasis ?? ""}`.trim(),
+    description,
+    url: `${siteConfig.url}${transaction === "vente" ? "/vente" : transaction === "courte-duree" ? "/courte-duree" : "/locations"}`,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: results.map((listing, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${siteConfig.url}/biens/${listing.slug}`,
+        name: listing.titre,
+      })),
+    },
+  };
+
   return (
     <section className="pt-36 pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }}
+      />
       <div className="max-w-6xl mx-auto px-6">
         <nav className="text-xs font-mono text-ink-soft mb-8 flex gap-2">
           <Link href="/" className="hover:text-gold">Accueil</Link>

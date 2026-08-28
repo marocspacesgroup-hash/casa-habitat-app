@@ -19,6 +19,7 @@ export default function OwnerLeadForm({ neighborhoods }: { neighborhoods: Neighb
   const [email, setEmail] = useState("");
   const [typeBien, setTypeBien] = useState("appartement");
   const [transaction, setTransaction] = useState("location");
+  const [besoin, setBesoin] = useState("estimation");
   const [quartier, setQuartier] = useState("");
   const [surface, setSurface] = useState("");
   const [chambres, setChambres] = useState("");
@@ -53,6 +54,7 @@ export default function OwnerLeadForm({ neighborhoods }: { neighborhoods: Neighb
       `E-mail : ${email}`,
       `Type de bien : ${typeBien}`,
       `Transaction souhaitée : ${transaction}`,
+      `Besoin : ${besoin}`,
       `Quartier : ${neighborhoodName}`,
       surface ? `Superficie : ${surface} m²` : null,
       chambres ? `Chambres : ${chambres}` : null,
@@ -118,6 +120,15 @@ export default function OwnerLeadForm({ neighborhoods }: { neighborhoods: Neighb
             <option value="villa">Villa</option>
             <option value="bureau">Bureau</option>
             <option value="autre">Autre</option>
+          </select>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className={labelClass} htmlFor="besoin">Votre besoin</label>
+          <select id="besoin" className={inputClass} value={besoin} onChange={(e) => setBesoin(e.target.value)}>
+            <option value="estimation">Estimation</option>
+            <option value="commercialisation">Commercialisation</option>
+            <option value="accompagnement">Accompagnement immobilier</option>
+            <option value="gestion-locative">Gestion locative</option>
           </select>
         </div>
         <div className="flex flex-col gap-2">

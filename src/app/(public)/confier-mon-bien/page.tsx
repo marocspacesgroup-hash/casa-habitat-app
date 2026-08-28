@@ -6,10 +6,16 @@ import OwnerLeadForm from "@/components/sections/OwnerLeadForm";
 import TrackedLink from "@/components/ui/TrackedLink";
 
 export const metadata: Metadata = {
-  title: "Confier mon bien — Vendre ou louer à Casablanca",
+  title: "Propriétaire : confier un bien à une agence à Casablanca",
   description:
-    "Vous souhaitez vendre ou louer votre bien à Casablanca ? Confiez-le à Casa Habitat : estimation juste, sélection de locataires ou acquéreurs qualifiés, accompagnement de bout en bout.",
+    "Vous êtes propriétaire à Casablanca ? Casa Habitat vous accompagne pour estimer, vendre ou mettre en location votre appartement, villa ou bureau.",
   alternates: { canonical: "/confier-mon-bien" },
+  openGraph: {
+    title: "Confiez votre bien à Casa Habitat",
+    description: "Estimation, vente et mise en location de biens à Casablanca avec un accompagnement professionnel.",
+    url: `${siteConfig.url}/confier-mon-bien`,
+    type: "website",
+  },
 };
 
 const reasons = [
@@ -40,6 +46,14 @@ export default async function ConfierMonBienPage() {
     provider: {
       "@type": "RealEstateAgent",
       name: siteConfig.name,
+      telephone: siteConfig.contact.phones[0],
+      email: siteConfig.contact.email,
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: siteConfig.contact.address.line1,
+        addressLocality: siteConfig.contact.address.city,
+        addressCountry: "MA",
+      },
     },
     areaServed: { "@type": "City", name: "Casablanca" },
   };

@@ -37,7 +37,7 @@ export async function generateMetadata({
   if (!listing) return {};
   const neighborhood = await getNeighborhoodBySlug(listing.quartierSlug);
   const title = seoTitle(listing, neighborhood?.nom);
-  const metaDescription = `${propertyTypeLabel(listing.typeBien)} de ${listing.surfaceM2} m² à ${listing.transaction === "vente" ? "vendre" : "louer"} à ${neighborhood?.nom ?? listing.ville}${listing.prix ? ` — ${formatPrice(listing)}` : ""}.`;
+  const metaDescription = `${seoTitle(listing, neighborhood?.nom)}. ${listing.description.slice(0, 135)}${listing.description.length > 135 ? "…" : ""}`;
   const ogImage =
     listing.imagePrincipale.kind === "photo"
       ? [
@@ -57,7 +57,13 @@ export async function generateMetadata({
       title: `${title} | ${siteConfig.name}`,
       description: metaDescription,
       url: `${siteConfig.url}/biens/${listing.slug}`,
-      type: "website",
+      type: "article",
+      images: ogImage,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: metaDescription,
       images: ogImage,
     },
   };
@@ -79,10 +85,27 @@ export default async function ListingDetailPage({
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Product",
-    name: listing.titre,
+    "@type": "RealEstateListing",
+    name: seoTitle(listing, neighborhood?.nom),
+    url: `${siteConfig.url}/biens/${listing.slug}`,
     description: listing.description,
     sku: listing.reference,
+    image:
+      listing.imagePrincipale.kind === "photo"
+        ? `${siteConfig.url}${listing.imagePrincipale.src}`
+        : undefined,
+    about: {
+      "@type": "Place",
+      name: neighborhood?.nom ?? listing.ville,
+    },
+    additionalProperty: [
+      {
+        "@type": "PropertyValue",
+        name: "Type de bien",
+        value: propertyTypeLabel(listing.typeBien),
+      },
+      { "@type": "PropertyValue", name: "Surface", value: `${listing.surfaceM2} m²` },
+    ],
     offers: {
       "@type": "Offer",
       price: listing.prix ?? undefined,
@@ -180,7 +203,7 @@ export default async function ListingDetailPage({
               )}
             </div>
             <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-6">
-              {listing.titre}
+              {seoTitle(listing, neighborhood?.nom)}
             </h1>
 
             <div className="flex flex-wrap gap-6 mb-10 pb-10 border-b border-ink/10">

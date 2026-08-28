@@ -25,6 +25,12 @@ export async function generateMetadata({
     title: `Immobilier à ${n.nom}, Casablanca`,
     description: `${n.description} Biens à louer et à vendre à ${n.nom} avec Casa Habitat.`,
     alternates: { canonical: `/quartiers/${slug}` },
+    openGraph: {
+      title: `Immobilier à ${n.nom}, Casablanca`,
+      description: `${n.description} Biens à louer et à vendre à ${n.nom} avec Casa Habitat.`,
+      url: `${siteConfig.url}/quartiers/${slug}`,
+      type: "website",
+    },
   };
 }
 
@@ -44,6 +50,24 @@ export default async function QuartierPage({
   const others = allNeighborhoods.filter((n) => n.slug !== slug).slice(0, 5);
 
   const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: `Immobilier à ${neighborhood.nom}, Casablanca`,
+    description: neighborhood.description,
+    url: `${siteConfig.url}/quartiers/${neighborhood.slug}`,
+    about: { "@type": "Place", name: neighborhood.nom, containedInPlace: { "@type": "City", name: "Casablanca" } },
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: listings.map((listing, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${siteConfig.url}/biens/${listing.slug}`,
+        name: listing.titre,
+      })),
+    },
+  };
+
+  const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     mainEntity: [
@@ -72,6 +96,10 @@ export default async function QuartierPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <div className="max-w-6xl mx-auto px-6">
         <nav className="text-xs font-mono text-ink-soft mb-8 flex gap-2">
           <Link href="/quartiers" className="hover:text-gold">Quartiers</Link>
@@ -83,6 +111,14 @@ export default async function QuartierPage({
           Immobilier à <em className="text-gold not-italic italic">{neighborhood.nom}</em>
         </h1>
         <p className="text-ink-soft max-w-2xl mb-8">{neighborhood.description}</p>
+
+        <h2 className="font-display text-xl text-ink mb-4">
+          Le marché immobilier à {neighborhood.nom}
+        </h2>
+        <p className="text-ink-soft max-w-2xl mb-8">
+          Retrouvez les biens actuellement publiés par Casa Habitat à {neighborhood.nom},
+          en location ou à la vente selon les disponibilités réelles.
+        </p>
 
         <div className="flex flex-wrap gap-2 mb-16">
           {neighborhood.faits.map((f) => (

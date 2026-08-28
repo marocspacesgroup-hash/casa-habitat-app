@@ -48,11 +48,13 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     title: `${siteConfig.name} — ${siteConfig.tagline}`,
     description: siteConfig.description,
+    images: [{ url: "/images/biens/CH-0007/01.webp", alt: siteConfig.name }],
   },
   twitter: {
     card: "summary_large_image",
     title: `${siteConfig.name} — ${siteConfig.tagline}`,
     description: siteConfig.description,
+    images: ["/images/biens/CH-0007/01.webp"],
   },
   robots: { index: true, follow: true },
   verification: process.env.NEXT_PUBLIC_GSC_VERIFICATION

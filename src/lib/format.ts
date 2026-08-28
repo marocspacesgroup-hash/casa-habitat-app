@@ -22,8 +22,9 @@ export function seoTitle(listing: Listing, quartierNom?: string) {
     listing.chambres > 0
       ? ` ${listing.chambres} chambre${listing.chambres > 1 ? "s" : ""}`
       : "";
-  const lieu = quartierNom ?? listing.ville;
-  return `${type}${meuble}${chambres} — ${lieu}`;
+  const transaction = transactionLabel(listing.transaction).toLowerCase();
+  const lieu = quartierNom ? `${quartierNom}, ${listing.ville}` : listing.ville;
+  return `${type}${meuble}${chambres} à ${transaction} à ${lieu}`;
 }
 
 export function propertyTypeLabel(t: Listing["typeBien"]) {
