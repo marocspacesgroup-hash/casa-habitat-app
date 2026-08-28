@@ -8,8 +8,9 @@ export const fr = {
     contact: "Contact",
     listProperty: "Confier mon bien",
   },
-  hero: {
-    title: "Trouvez votre bien à Casablanca, sans compromis.",
+hero: {
+    title: "Trouvez votre bien à Casablanca,",
+    highlight: "sans compromis.",
     subtitle: "Une sélection vérifiée, accompagnée par un interlocuteur unique.",
     searchPlaceholder: "Rechercher un bien",
     ctaButton: "Voir les biens",

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { adaptListingForPublicSite, adaptListingsForPublicSite } from "./adapter";
 import { DbListingWithImages, DbNeighborhood } from "./database.types";
 import { Listing, Neighborhood, TransactionType } from "@/data/types";
+import { CASABLANCA_QUARTIERS, neighborhoods, quartierSlug } from "@/data/neighborhoods";
 
 const LISTING_SELECT = "*, listing_images(*), neighborhoods(nom)";
 
@@ -88,14 +89,32 @@ export async function getNeighborhoods(): Promise<Neighborhood[]> {
     .select("*")
     .order("nom", { ascending: true });
 
-  if (error || !data) return [];
-  return (data as DbNeighborhood[]).map((n) => ({
+  const databaseNeighborhoods = error || !data ? [] : (data as DbNeighborhood[]).map((n) => ({
     slug: n.slug,
     nom: n.nom,
     ville: n.ville,
     description: n.description ?? "",
     faits: n.faits,
   }));
+
+  const bySlug = new Map(
+    [...neighborhoods, ...databaseNeighborhoods].map((neighborhood) => [
+      neighborhood.slug,
+      neighborhood,
+    ])
+  );
+
+  return CASABLANCA_QUARTIERS.map((nom) => {
+    const slug = quartierSlug(nom);
+    const existing = bySlug.get(slug);
+    return {
+      slug,
+      nom,
+      ville: existing?.ville ?? "Casablanca",
+      description: existing?.description ?? "",
+      faits: existing?.faits ?? [],
+    };
+  });
 }
 
 export async function getNeighborhoodBySlug(slug: string): Promise<Neighborhood | null> {
@@ -106,7 +125,9 @@ export async function getNeighborhoodBySlug(slug: string): Promise<Neighborhood 
     .eq("slug", slug)
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error || !data) {
+    return (await getNeighborhoods()).find((neighborhood) => neighborhood.slug === slug) ?? null;
+  }
   const n = data as DbNeighborhood;
   return { slug: n.slug, nom: n.nom, ville: n.ville, description: n.description ?? "", faits: n.faits };
 }

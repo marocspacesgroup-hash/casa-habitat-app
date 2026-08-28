@@ -1,5 +1,55 @@
 import { Neighborhood } from "./types";
 
+export const CASABLANCA_QUARTIERS = [
+  "Triangle d'or",
+  "Anfa / Casa Anfa",
+  "Maârif",
+  "Racine",
+  "Gauthier",
+  "Palmier",
+  "Val Fleuri",
+  "CIL",
+  "Les Princesses",
+  "Casablanca Finance City (CFC)",
+  "Ferme Bretonne",
+  "Beauséjour",
+  "Yacoub El Mansour",
+  "Bouskoura",
+  "Dar Bouazza",
+  "Ghandi",
+  "Abdelmoumen",
+  "Bourgogne",
+  "Oasis",
+  "Californie",
+  "Corniche / Aïn Diab",
+  "Franceville",
+  "Les Hôpitaux",
+  "Belvédère",
+  "2 Mars",
+  "Hermitage",
+  "Gironde",
+  "Mer Sultan",
+  "Roche Noire",
+  "Sidi Maârouf",
+];
+
+const quartierSlugAliases: Record<string, string> = {
+  "anfa-casa-anfa": "anfa",
+  "casablanca-finance-city-cfc": "cfc",
+  "corniche-ain-diab": "ain-diab",
+};
+
+export function quartierSlug(nom: string) {
+  const slug = nom
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return quartierSlugAliases[slug] ?? slug;
+}
+
 /**
  * Quartiers couverts par l'agence. Les descriptions restent volontairement
  * générales (aucune statistique ou information non vérifiable) — à enrichir
@@ -8,7 +58,7 @@ import { Neighborhood } from "./types";
 export const neighborhoods: Neighborhood[] = [
   {
     slug: "maarif",
-    nom: "Maarif",
+    nom: "Maârif",
     ville: "Casablanca",
     description:
       "Quartier central et commerçant, très prisé pour sa vie de quartier animée, ses commerces de proximité et sa position centrale dans Casablanca.",
@@ -40,7 +90,7 @@ export const neighborhoods: Neighborhood[] = [
   },
   {
     slug: "anfa",
-    nom: "Anfa",
+    nom: "Anfa / Casa Anfa",
     ville: "Casablanca",
     description:
       "Un des quartiers les plus prestigieux de Casablanca, associé à l'habitat haut de gamme et aux grandes propriétés.",
@@ -48,7 +98,7 @@ export const neighborhoods: Neighborhood[] = [
   },
   {
     slug: "californie",
-    nom: "Californie (Ain Diab Extension)",
+    nom: "Californie",
     ville: "Casablanca",
     description:
       "Zone résidentielle en développement du côté d'Ain Diab, avec des constructions récentes et une offre en expansion.",
@@ -56,7 +106,7 @@ export const neighborhoods: Neighborhood[] = [
   },
   {
     slug: "cfc",
-    nom: "CFC",
+    nom: "Casablanca Finance City (CFC)",
     ville: "Casablanca",
     description:
       "Quartier proche du pôle financier de Casablanca Finance City, avec une offre résidentielle orientée vers une clientèle active.",
@@ -88,7 +138,7 @@ export const neighborhoods: Neighborhood[] = [
   },
   {
     slug: "triangle-dor",
-    nom: "Triangle d'Or",
+    nom: "Triangle d'or",
     ville: "Casablanca",
     description:
       "Secteur d'affaires et résidentiel haut de gamme au cœur de Casablanca, entre les grands boulevards du centre.",
