@@ -101,6 +101,25 @@ export interface Listing {
   coordonnees?: { lat: number; lng: number };
 }
 
+export type PublicListingCard = Pick<
+  Listing,
+  | "reference"
+  | "slug"
+  | "isSample"
+  | "titre"
+  | "transaction"
+  | "statut"
+  | "quartierNom"
+  | "ville"
+  | "prix"
+  | "periodePrix"
+  | "surfaceM2"
+  | "pieces"
+  | "chambres"
+  | "sallesDeBain"
+  | "imagePrincipale"
+>;
+
 export interface Neighborhood {
   slug: string;
   nom: string;

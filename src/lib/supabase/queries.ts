@@ -4,7 +4,47 @@ import { DbListingWithImages, DbNeighborhood } from "./database.types";
 import { Listing, Neighborhood, TransactionType } from "@/data/types";
 import { CASABLANCA_QUARTIERS, neighborhoods, quartierSlug } from "@/data/neighborhoods";
 
-const LISTING_SELECT = "*, listing_images(*), neighborhoods(nom)";
+const PUBLIC_LISTING_SELECT = [
+  "id",
+  "reference",
+  "slug",
+  "is_sample",
+  "availability_status",
+  "transaction",
+  "type_bien",
+  "titre",
+  "description",
+  "quartier_slug",
+  "ville",
+  "prix",
+  "periode_prix",
+  "surface_m2",
+  "pieces",
+  "chambres",
+  "salles_de_bain",
+  "wc_invites",
+  "etage",
+  "ascenseur",
+  "parking",
+  "meuble",
+  "climatisation",
+  "chauffage",
+  "terrasse_balcon",
+  "etat",
+  "standing",
+  "equipements",
+  "disponibilite",
+  "charges_incluses",
+  "caution",
+  "honoraires_agence",
+  "conditions_particulieres",
+  "courte_duree_details",
+  "updated_at",
+  "listing_images(storage_path, alt, position, is_primary)",
+  "neighborhoods(nom)",
+].join(", ");
+
+const PUBLIC_NEIGHBORHOOD_SELECT = "slug, nom, ville, description, faits";
 
 function toDbTransaction(t: TransactionType) {
   return t === "courte-duree" ? "courte_duree" : t;
@@ -14,7 +54,7 @@ export async function getPublishedListings(): Promise<Listing[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select(LISTING_SELECT)
+    .select(PUBLIC_LISTING_SELECT)
     .eq("publication_status", "publie")
     .order("created_at", { ascending: false });
 
@@ -28,7 +68,7 @@ export async function getPublishedListingsByTransaction(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select(LISTING_SELECT)
+    .select(PUBLIC_LISTING_SELECT)
     .eq("publication_status", "publie")
     .eq("transaction", toDbTransaction(transaction))
     .order("created_at", { ascending: false });
@@ -41,7 +81,7 @@ export async function getPublishedListingBySlug(slug: string): Promise<Listing |
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select(LISTING_SELECT)
+    .select(PUBLIC_LISTING_SELECT)
     .eq("publication_status", "publie")
     .eq("slug", slug)
     .maybeSingle();
@@ -56,7 +96,7 @@ export async function getPublishedListingsByNeighborhood(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select(LISTING_SELECT)
+    .select(PUBLIC_LISTING_SELECT)
     .eq("publication_status", "publie")
     .eq("quartier_slug", quartierSlug)
     .order("created_at", { ascending: false });
@@ -72,7 +112,7 @@ export async function getSimilarPublishedListings(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select(LISTING_SELECT)
+    .select(PUBLIC_LISTING_SELECT)
     .eq("publication_status", "publie")
     .neq("slug", listing.slug)
     .or(`quartier_slug.eq.${listing.quartierSlug},type_bien.eq.${listing.typeBien}`)
@@ -86,7 +126,7 @@ export async function getNeighborhoods(): Promise<Neighborhood[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("neighborhoods")
-    .select("*")
+    .select(PUBLIC_NEIGHBORHOOD_SELECT)
     .order("nom", { ascending: true });
 
   const databaseNeighborhoods = error || !data ? [] : (data as DbNeighborhood[]).map((n) => ({
@@ -121,7 +161,7 @@ export async function getNeighborhoodBySlug(slug: string): Promise<Neighborhood 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("neighborhoods")
-    .select("*")
+    .select(PUBLIC_NEIGHBORHOOD_SELECT)
     .eq("slug", slug)
     .maybeSingle();
 

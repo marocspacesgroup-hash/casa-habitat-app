@@ -10,7 +10,7 @@ export default function ListingContactActions({
   listing,
   quartierNom,
 }: {
-  listing: Listing;
+  listing: Pick<Listing, "reference" | "ville">;
   quartierNom?: string;
 }) {
   return (

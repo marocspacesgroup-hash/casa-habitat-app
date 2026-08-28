@@ -286,7 +286,10 @@ export default async function ListingDetailPage({
             </div>
 
             <div className="flex flex-col gap-3 mb-8">
-              <ListingContactActions listing={listing} quartierNom={neighborhood?.nom} />
+              <ListingContactActions
+                listing={{ reference: listing.reference, ville: listing.ville }}
+                quartierNom={neighborhood?.nom}
+              />
             </div>
 
             <div className="border-t border-ivory/15 pt-6">

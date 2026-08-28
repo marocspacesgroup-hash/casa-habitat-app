@@ -14,7 +14,10 @@ export function whatsappGeneral() {
 }
 
 /** Utilisé depuis une fiche bien — contextualisé avec la référence et le quartier. */
-export function whatsappForListing(listing: Listing, quartierNom?: string) {
+export function whatsappForListing(
+  listing: Pick<Listing, "reference" | "ville">,
+  quartierNom?: string
+) {
   const lieu = quartierNom ?? listing.ville;
   return buildWhatsAppUrl(
     `Bonjour Casa Habitat, je suis intéressé par le bien ${listing.reference} à ${lieu}.`

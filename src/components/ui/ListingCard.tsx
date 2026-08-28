@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Listing } from "@/data/types";
+import { PublicListingCard } from "@/data/types";
 import { formatPrice, statusLabel, transactionLabel } from "@/lib/format";
 import FavoriteButton from "./FavoriteButton";
 import PropertyImage from "./PropertyImage";
 
-export default function ListingCard({ listing }: { listing: Listing }) {
+export default function ListingCard({ listing }: { listing: PublicListingCard }) {
   const notAvailable = listing.statut !== "disponible";
 
   return (
