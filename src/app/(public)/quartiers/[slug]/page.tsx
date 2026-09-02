@@ -7,9 +7,8 @@ import {
   getPublishedListingsByNeighborhood,
 } from "@/lib/supabase/queries";
 import ListingCard from "@/components/ui/ListingCard";
-import { siteConfig } from "@/config/site";
-import MapboxMap from "@/components/MapboxMap";
-
+  import NeighborhoodMap from "@/components/NeighborhoodMap";
+  import { siteConfig } from "@/config/site";
 // Pas de generateStaticParams : les quartiers viennent de Supabase et la
 // page est rendue à la demande (le client Supabase serveur utilise les
 // cookies de la requête, ce qui rend cette route dynamique de toute façon).
@@ -128,12 +127,12 @@ export default async function QuartierPage({
           <p className="text-ink-soft text-sm max-w-2xl mb-5">
             La carte présente une zone indicative de Casablanca et ne localise jamais précisément un immeuble.
           </p>
-          <div className="h-[360px] overflow-hidden rounded-sm border border-ink/10 bg-navy">
-            <MapboxMap
-              center={[-7.6322, 33.5731]}
-              markers={[{ id: neighborhood.slug, longitude: -7.6322, latitude: 33.5731, label: neighborhood.nom }]}
-            />
-          </div>
+          <NeighborhoodMap
+         latitude={neighborhood.latitude ?? undefined} 
+  longitude={neighborhood.longitude ?? undefined} 
+  zoom={neighborhood.zoom ?? 11.5} 
+  name={neighborhood.nom} 
+/>    
         </section>
 
         <div className="flex flex-wrap gap-2 mb-16">

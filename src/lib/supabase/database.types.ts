@@ -24,6 +24,9 @@ export interface DbNeighborhood {
   ville: string;
   description: string | null;
   faits: string[];
+  latitude?: number | null;
+  longitude?: number | null;
+  zoom?: number | null;
 }
 
 export interface DbListing {

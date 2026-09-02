@@ -126,4 +126,17 @@ export interface Neighborhood {
   ville: string;
   description: string;
   faits: string[]; // points pratiques courts, factuels
+  latitude?: number | null;
+  longitude?: number | null;
+  zoom?: number;
+}
+export interface DbNeighborhood {
+  slug: string;
+  nom: string;
+  ville: string;
+  description?: string;
+  faits?: string[];
+  latitude?: number;
+  longitude?: number;
+  zoom?: number;
 }
