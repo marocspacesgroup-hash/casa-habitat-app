@@ -135,13 +135,47 @@ export default async function ListingDetailPage({
     ],
   };
 
-  // Vignettes secondaires : toutes les photos SAUF l'image principale déjà
-  // affichée en grand — évite de la répéter (l'admin peut définir n'importe
-  // quelle photo comme principale, sa position dans la liste n'est pas fiable).
-  const isSameImage = (a: (typeof listing.images)[number], b: typeof listing.imagePrincipale) =>
-    a.kind === "photo" && b.kind === "photo" && a.src === b.src;
-  const secondaryImages = listing.images.filter(
-    (img) => !isSameImage(img, listing.imagePrincipale)
+  // Place l'image principale en premier sans perdre les autres photos, même
+  // lorsque l'admin a choisi une photo qui n'est pas la première positionnée.
+  const primaryPhoto = listing.imagePrincipale.kind === "photo"
+    ? listing.imagePrincipale
+    : null;
+  const primaryIndex = primaryPhoto
+    ? listing.images.findIndex(
+        (img) => img.kind === "photo" && img.src === primaryPhoto.src
+      )
+    : 0;
+  const galleryImages = listing.images.length > 0
+    ? [
+        listing.imagePrincipale,
+        ...listing.images.filter((_, index) => index !== primaryIndex),
+      ]
+    : [listing.imagePrincipale];
+  const imageCount = galleryImages.length;
+  const visibleImages = imageCount >= 5 ? galleryImages.slice(0, 4) : galleryImages;
+  const extraImageCount = imageCount - visibleImages.length;
+
+  const renderImageTile = (
+    image: (typeof galleryImages)[number],
+    index: number,
+    showCounter = false
+  ) => (
+    <div
+      key={`${image.kind}-${index}`}
+      className="group relative h-full min-h-0 min-w-0 overflow-hidden bg-navy/5"
+    >
+      <PropertyImage
+        image={image}
+        priority={index === 0}
+        sizes="(min-width: 768px) 33vw, 50vw"
+        className="transition-transform duration-700 ease-out group-hover:scale-[1.025]"
+      />
+      {showCounter && extraImageCount > 0 && (
+        <span className="absolute inset-0 flex items-center justify-center bg-navy/30 px-3 text-center font-mono text-xs font-medium uppercase tracking-widest text-ivory backdrop-brightness-90">
+          +{extraImageCount} photos
+        </span>
+      )}
+    </div>
   );
 
   return (
@@ -177,17 +211,42 @@ export default async function ListingDetailPage({
         )}
 
         {/* Galerie */}
-        <div className="grid md:grid-cols-3 gap-3 mb-12">
-          <div className="md:col-span-2 aspect-[4/3] rounded-t-[80px] overflow-hidden">
-            <PropertyImage image={listing.imagePrincipale} priority sizes="(min-width: 768px) 66vw, 100vw" />
-          </div>
-          <div className="grid grid-rows-2 gap-3">
-            {secondaryImages.slice(0, 2).map((img, i) => (
-              <div key={i} className="rounded-sm overflow-hidden">
-                <PropertyImage image={img} sizes="33vw" />
+        <div className="mb-12 aspect-[4/3] overflow-hidden rounded-md bg-ivory md:aspect-[2/1]">
+          {imageCount === 1 && renderImageTile(visibleImages[0], 0)}
+
+          {imageCount === 2 && (
+            <div className="grid h-full grid-cols-2 gap-2">
+              {visibleImages.map((image, index) => renderImageTile(image, index))}
+            </div>
+          )}
+
+          {imageCount === 3 && (
+            <div className="grid h-full grid-cols-2 grid-rows-2 gap-2">
+              <div className="row-span-2">
+                {renderImageTile(visibleImages[0], 0)}
               </div>
-            ))}
-          </div>
+              {visibleImages.slice(1).map((image, index) =>
+                renderImageTile(image, index + 1)
+              )}
+            </div>
+          )}
+
+          {imageCount === 4 && (
+            <div className="grid h-full grid-cols-2 grid-rows-2 gap-2">
+              {visibleImages.map((image, index) => renderImageTile(image, index))}
+            </div>
+          )}
+
+          {imageCount >= 5 && (
+            <div className="grid h-full grid-cols-2 grid-rows-3 gap-2">
+              <div className="row-span-3">
+                {renderImageTile(visibleImages[0], 0)}
+              </div>
+              {visibleImages.slice(1).map((image, index) =>
+                renderImageTile(image, index + 1, index === visibleImages.length - 2)
+              )}
+            </div>
+          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-14">
