@@ -2,8 +2,11 @@
 
 import { useRef, useState, useTransition } from "react";
 import { DbListingImage } from "@/lib/supabase/database.types";
+import { createClient } from "@/lib/supabase/client";
 import {
-  uploadPhotos,
+  preparePhotoUploads,
+  registerPhoto,
+  cleanupPhotoUpload,
   deletePhoto,
   setPrimaryPhoto,
   reorderPhotos,
@@ -12,7 +15,6 @@ import {
 
 export default function PhotoManager({
   listingId,
-  reference,
   images,
   signedUrls,
 }: {
@@ -23,6 +25,7 @@ export default function PhotoManager({
   signedUrls: Record<string, string>;
 }) {
   const [isPending, startTransition] = useTransition();
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [ordered, setOrdered] = useState(
     [...images].sort((a, b) => a.position - b.position)
   );
@@ -31,10 +34,57 @@ export default function PhotoManager({
 
   const handleUpload = (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    const formData = new FormData();
-    Array.from(files).forEach((f) => formData.append("photos", f));
+    const selectedFiles = Array.from(files).filter((file) => file.type.startsWith("image/"));
+    setUploadError(null);
     startTransition(async () => {
-      await uploadPhotos(listingId, reference, formData);
+      const preparation = await preparePhotoUploads(
+        listingId,
+        selectedFiles.map((file) => ({
+          extension: file.name.split(".").pop() || "webp",
+          mimeType: file.type,
+        }))
+      );
+
+      if (preparation.error || !preparation.targets) {
+        setUploadError(preparation.error ?? "Préparation de l&apos;upload impossible.");
+        return;
+      }
+
+      const supabase = createClient();
+      for (const [index, target] of preparation.targets.entries()) {
+        const file = selectedFiles[index];
+        if (!file) continue;
+
+        const { error: uploadError } = await supabase.storage
+          .from("listing-photos")
+          .upload(target.path, file, {
+            upsert: false,
+            contentType: target.mimeType,
+          });
+
+        if (uploadError) {
+          setUploadError(uploadError.message);
+          break;
+        }
+
+        try {
+          const registration = await registerPhoto(
+            listingId,
+            target.path,
+            target.position,
+            target.mimeType
+          );
+          if (registration.error) {
+            await cleanupPhotoUpload(listingId, target.path);
+            setUploadError(registration.error);
+            break;
+          }
+        } catch (error) {
+          await cleanupPhotoUpload(listingId, target.path);
+          setUploadError(error instanceof Error ? error.message : "Enregistrement de la photo impossible.");
+          break;
+        }
+      }
       if (fileInputRef.current) fileInputRef.current.value = "";
     });
   };
@@ -87,7 +137,6 @@ export default function PhotoManager({
             type="file"
             accept="image/*"
             multiple
-            capture="environment"
             className="hidden"
             disabled={isPending}
             onChange={(e) => handleUpload(e.target.files)}
@@ -96,6 +145,7 @@ export default function PhotoManager({
         <p className="text-ink-soft text-xs mt-2">
           Depuis un téléphone : sélection directe dans la galerie ou l&apos;appareil photo. Glissez les vignettes pour réordonner.
         </p>
+        {uploadError && <p className="text-red-600 text-xs mt-2">{uploadError}</p>}
       </div>
 
       {ordered.length === 0 ? (

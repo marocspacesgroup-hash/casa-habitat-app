@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
-import { DbListingWithImages } from "@/lib/supabase/database.types";
+import { useActionState, useState } from "react";
 import { Neighborhood } from "@/data/types";
+import { DbListingWithImages } from "@/lib/supabase/database.types";
 import { ListingFormState } from "@/app/admin/listings-actions";
 
 const inputClass =
@@ -32,27 +32,68 @@ export default function ListingForm({
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const d = defaultValues;
+  const [values, setValues] = useState(() => ({
+    reference: d?.reference ?? "",
+    titre: d?.titre ?? "",
+    slug: d?.slug ?? "",
+    description: d?.description ?? "",
+    transaction: d?.transaction ?? "location",
+    type_bien: d?.type_bien ?? "appartement",
+    quartier_slug: d?.quartier_slug ?? "",
+    ville: d?.ville ?? "Casablanca",
+    adresse: d?.adresse ?? "",
+    prix: d?.prix ?? "",
+    periode_prix: d?.periode_prix ?? "",
+    courte_duree_par_semaine: d?.courte_duree_details?.par_semaine ?? "",
+    courte_duree_par_mois: d?.courte_duree_details?.par_mois ?? "",
+    courte_duree_voyageurs_max: d?.courte_duree_details?.voyageurs_max ?? "",
+    surface_m2: d?.surface_m2 ?? "",
+    pieces: d?.pieces ?? "",
+    chambres: d?.chambres ?? 0,
+    salles_de_bain: d?.salles_de_bain ?? 0,
+    wc_invites: d?.wc_invites ?? "",
+    etage: d?.etage ?? "",
+    etat: d?.etat ?? "",
+    standing: d?.standing ?? "standard",
+    equipements: d?.equipements?.join(", ") ?? "",
+    disponibilite: d?.disponibilite ?? "",
+    charges_incluses: d?.charges_incluses ?? false,
+    caution: d?.caution ?? "",
+    honoraires_agence: d?.honoraires_agence ?? "",
+    conditions_particulieres: d?.conditions_particulieres ?? "",
+    seo_title: d?.seo_title ?? "",
+    seo_description: d?.seo_description ?? "",
+  }));
+
+  function updateValue(name: string, value: string | boolean) {
+    setValues((current) => ({ ...current, [name]: value }));
+  }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    formAction(new FormData(event.currentTarget));
+  }
 
   return (
-    <form action={formAction}>
+    <form action={formAction} onSubmit={handleSubmit}>
       <Section title="Identification">
         <div className="grid sm:grid-cols-2 gap-5">
           <div>
             <label className={labelClass}>Référence</label>
-            <input name="reference" defaultValue={d?.reference} required className={inputClass} placeholder="CH-0008" />
+            <input name="reference" value={values.reference} onChange={(e) => updateValue("reference", e.target.value)} required className={inputClass} placeholder="CH-0008" />
           </div>
           <div>
             <label className={labelClass}>Titre</label>
-            <input name="titre" defaultValue={d?.titre} required className={inputClass} />
+            <input name="titre" value={values.titre} onChange={(e) => updateValue("titre", e.target.value)} required className={inputClass} />
           </div>
         </div>
         <div className="mt-5">
           <label className={labelClass}>Slug (URL) — laisser vide pour génération automatique</label>
-          <input name="slug" defaultValue={d?.slug} className={inputClass} placeholder="quartier-titre-court" />
+          <input name="slug" value={values.slug} onChange={(e) => updateValue("slug", e.target.value)} className={inputClass} placeholder="quartier-titre-court" />
         </div>
         <div className="mt-5">
           <label className={labelClass}>Description</label>
-          <textarea name="description" defaultValue={d?.description ?? ""} rows={5} className={inputClass} />
+          <textarea name="description" value={values.description} onChange={(e) => updateValue("description", e.target.value)} rows={5} className={inputClass} />
         </div>
       </Section>
 
@@ -60,7 +101,7 @@ export default function ListingForm({
         <div className="grid sm:grid-cols-2 gap-5">
           <div>
             <label className={labelClass}>Transaction</label>
-            <select name="transaction" defaultValue={d?.transaction ?? "location"} className={inputClass}>
+            <select name="transaction" value={values.transaction} onChange={(e) => updateValue("transaction", e.target.value)} className={inputClass}>
               <option value="location">Location</option>
               <option value="vente">Vente</option>
               <option value="courte_duree">Courte durée</option>
@@ -68,7 +109,7 @@ export default function ListingForm({
           </div>
           <div>
             <label className={labelClass}>Type de bien</label>
-            <select name="type_bien" defaultValue={d?.type_bien ?? "appartement"} className={inputClass}>
+            <select name="type_bien" value={values.type_bien} onChange={(e) => updateValue("type_bien", e.target.value)} className={inputClass}>
               <option value="appartement">Appartement</option>
               <option value="studio">Studio</option>
               <option value="villa">Villa</option>
@@ -83,7 +124,7 @@ export default function ListingForm({
         <div className="grid sm:grid-cols-2 gap-5">
           <div>
             <label className={labelClass}>Quartier</label>
-            <select name="quartier_slug" defaultValue={d?.quartier_slug} required className={inputClass}>
+            <select name="quartier_slug" value={values.quartier_slug} onChange={(e) => updateValue("quartier_slug", e.target.value)} required className={inputClass}>
               <option value="">Choisir…</option>
               {neighborhoods.map((n) => (
                 <option key={n.slug} value={n.slug}>{n.nom}</option>
@@ -92,12 +133,12 @@ export default function ListingForm({
           </div>
           <div>
             <label className={labelClass}>Ville</label>
-            <input name="ville" defaultValue={d?.ville ?? "Casablanca"} className={inputClass} />
+            <input name="ville" value={values.ville} onChange={(e) => updateValue("ville", e.target.value)} className={inputClass} />
           </div>
         </div>
         <div className="mt-5">
           <label className={labelClass}>Adresse / secteur (facultatif)</label>
-          <input name="adresse" defaultValue={d?.adresse ?? ""} className={inputClass} />
+          <input name="adresse" value={values.adresse} onChange={(e) => updateValue("adresse", e.target.value)} className={inputClass} />
         </div>
       </Section>
 
@@ -105,11 +146,11 @@ export default function ListingForm({
         <div className="grid sm:grid-cols-2 gap-5">
           <div>
             <label className={labelClass}>Prix (DH) — laisser vide pour &quot;Sur demande&quot;</label>
-            <input name="prix" type="number" min="0" defaultValue={d?.prix ?? ""} className={inputClass} />
+            <input name="prix" type="number" min="0" value={values.prix} onChange={(e) => updateValue("prix", e.target.value)} className={inputClass} />
           </div>
           <div>
             <label className={labelClass}>Période</label>
-            <select name="periode_prix" defaultValue={d?.periode_prix ?? ""} className={inputClass}>
+            <select name="periode_prix" value={values.periode_prix} onChange={(e) => updateValue("periode_prix", e.target.value)} className={inputClass}>
               <option value="">—</option>
               <option value="mois">Par mois</option>
               <option value="nuit">Par nuit</option>
@@ -128,7 +169,8 @@ export default function ListingForm({
                 name="courte_duree_par_semaine"
                 type="number"
                 min="0"
-                defaultValue={d?.courte_duree_details?.par_semaine ?? ""}
+                value={values.courte_duree_par_semaine}
+                onChange={(e) => updateValue("courte_duree_par_semaine", e.target.value)}
                 className={inputClass}
               />
             </div>
@@ -138,7 +180,8 @@ export default function ListingForm({
                 name="courte_duree_par_mois"
                 type="number"
                 min="0"
-                defaultValue={d?.courte_duree_details?.par_mois ?? ""}
+                value={values.courte_duree_par_mois}
+                onChange={(e) => updateValue("courte_duree_par_mois", e.target.value)}
                 className={inputClass}
               />
             </div>
@@ -148,7 +191,8 @@ export default function ListingForm({
                 name="courte_duree_voyageurs_max"
                 type="number"
                 min="1"
-                defaultValue={d?.courte_duree_details?.voyageurs_max ?? ""}
+                value={values.courte_duree_voyageurs_max}
+                onChange={(e) => updateValue("courte_duree_voyageurs_max", e.target.value)}
                 className={inputClass}
               />
             </div>
@@ -160,35 +204,35 @@ export default function ListingForm({
         <div className="grid sm:grid-cols-3 gap-5 mb-5">
           <div>
             <label className={labelClass}>Surface (m²)</label>
-            <input name="surface_m2" type="number" min="0" defaultValue={d?.surface_m2} required className={inputClass} />
+            <input name="surface_m2" type="number" min="0" value={values.surface_m2} onChange={(e) => updateValue("surface_m2", e.target.value)} required className={inputClass} />
           </div>
           <div>
             <label className={labelClass}>Pièces</label>
-            <input name="pieces" type="number" min="0" defaultValue={d?.pieces ?? ""} className={inputClass} />
+            <input name="pieces" type="number" min="0" value={values.pieces} onChange={(e) => updateValue("pieces", e.target.value)} className={inputClass} />
           </div>
           <div>
             <label className={labelClass}>Chambres</label>
-            <input name="chambres" type="number" min="0" defaultValue={d?.chambres ?? 0} className={inputClass} />
+            <input name="chambres" type="number" min="0" value={values.chambres} onChange={(e) => updateValue("chambres", e.target.value)} className={inputClass} />
           </div>
         </div>
         <div className="grid sm:grid-cols-3 gap-5 mb-5">
           <div>
             <label className={labelClass}>Salles de bain</label>
-            <input name="salles_de_bain" type="number" min="0" defaultValue={d?.salles_de_bain ?? 0} className={inputClass} />
+            <input name="salles_de_bain" type="number" min="0" value={values.salles_de_bain} onChange={(e) => updateValue("salles_de_bain", e.target.value)} className={inputClass} />
           </div>
           <div>
             <label className={labelClass}>WC invités</label>
-            <input name="wc_invites" type="number" min="0" defaultValue={d?.wc_invites ?? ""} className={inputClass} />
+            <input name="wc_invites" type="number" min="0" value={values.wc_invites} onChange={(e) => updateValue("wc_invites", e.target.value)} className={inputClass} />
           </div>
           <div>
             <label className={labelClass}>Étage</label>
-            <input name="etage" defaultValue={d?.etage ?? ""} placeholder="2e étage sur 5" className={inputClass} />
+            <input name="etage" value={values.etage} onChange={(e) => updateValue("etage", e.target.value)} placeholder="2e étage sur 5" className={inputClass} />
           </div>
         </div>
         <div className="grid sm:grid-cols-2 gap-5">
           <div>
             <label className={labelClass}>État</label>
-            <select name="etat" defaultValue={d?.etat ?? ""} className={inputClass}>
+            <select name="etat" value={values.etat} onChange={(e) => updateValue("etat", e.target.value)} className={inputClass}>
               <option value="">—</option>
               <option value="neuf">Neuf</option>
               <option value="excellent_etat">Excellent état</option>
@@ -199,7 +243,7 @@ export default function ListingForm({
           </div>
           <div>
             <label className={labelClass}>Standing</label>
-            <select name="standing" defaultValue={d?.standing ?? "standard"} className={inputClass}>
+            <select name="standing" value={values.standing} onChange={(e) => updateValue("standing", e.target.value)} className={inputClass}>
               <option value="standard">Standard</option>
               <option value="haut_standing">Haut standing</option>
               <option value="prestige">Prestige</option>
@@ -222,7 +266,8 @@ export default function ListingForm({
               <input
                 type="checkbox"
                 name={name}
-                defaultChecked={d ? Boolean(d[name as keyof DbListingWithImages]) : false}
+                checked={Boolean(values[name as keyof typeof values])}
+                onChange={(e) => updateValue(name, e.target.checked)}
               />
               {label}
             </label>
@@ -232,7 +277,8 @@ export default function ListingForm({
           <label className={labelClass}>Autres équipements (séparés par des virgules)</label>
           <input
             name="equipements"
-            defaultValue={d?.equipements?.join(", ") ?? ""}
+            value={values.equipements}
+            onChange={(e) => updateValue("equipements", e.target.value)}
             placeholder="Cuisine américaine équipée, Serrure digitale, TV 50 pouces"
             className={inputClass}
           />
@@ -243,37 +289,37 @@ export default function ListingForm({
         <div className="grid sm:grid-cols-2 gap-5 mb-5">
           <div>
             <label className={labelClass}>Disponibilité</label>
-            <input name="disponibilite" defaultValue={d?.disponibilite ?? ""} placeholder="Immédiate" className={inputClass} />
+            <input name="disponibilite" value={values.disponibilite} onChange={(e) => updateValue("disponibilite", e.target.value)} placeholder="Immédiate" className={inputClass} />
           </div>
           <label className={`${checkboxRow} mt-6`}>
-            <input type="checkbox" name="charges_incluses" defaultChecked={d?.charges_incluses ?? false} />
+            <input type="checkbox" name="charges_incluses" checked={values.charges_incluses} onChange={(e) => updateValue("charges_incluses", e.target.checked)} />
             Charges / syndic inclus
           </label>
         </div>
         <div className="grid sm:grid-cols-2 gap-5 mb-5">
           <div>
             <label className={labelClass}>Caution</label>
-            <input name="caution" defaultValue={d?.caution ?? ""} placeholder="1 mois" className={inputClass} />
+            <input name="caution" value={values.caution} onChange={(e) => updateValue("caution", e.target.value)} placeholder="1 mois" className={inputClass} />
           </div>
           <div>
             <label className={labelClass}>Honoraires d&apos;agence</label>
-            <input name="honoraires_agence" defaultValue={d?.honoraires_agence ?? ""} placeholder="1 mois" className={inputClass} />
+            <input name="honoraires_agence" value={values.honoraires_agence} onChange={(e) => updateValue("honoraires_agence", e.target.value)} placeholder="1 mois" className={inputClass} />
           </div>
         </div>
         <div>
           <label className={labelClass}>Conditions particulières</label>
-          <input name="conditions_particulieres" defaultValue={d?.conditions_particulieres ?? ""} className={inputClass} />
+          <input name="conditions_particulieres" value={values.conditions_particulieres} onChange={(e) => updateValue("conditions_particulieres", e.target.value)} className={inputClass} />
         </div>
       </Section>
 
       <Section title="SEO (facultatif — généré automatiquement sinon)">
         <div className="mb-5">
           <label className={labelClass}>Titre SEO</label>
-          <input name="seo_title" defaultValue={d?.seo_title ?? ""} className={inputClass} />
+          <input name="seo_title" value={values.seo_title} onChange={(e) => updateValue("seo_title", e.target.value)} className={inputClass} />
         </div>
         <div>
           <label className={labelClass}>Meta description</label>
-          <textarea name="seo_description" defaultValue={d?.seo_description ?? ""} rows={2} className={inputClass} />
+          <textarea name="seo_description" value={values.seo_description} onChange={(e) => updateValue("seo_description", e.target.value)} rows={2} className={inputClass} />
         </div>
       </Section>
 

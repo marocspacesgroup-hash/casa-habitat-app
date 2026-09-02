@@ -28,17 +28,28 @@ async function revalidateForListing(
   revalidatePath(`/admin/listings/${listingId}/edit`);
 }
 
-export async function uploadPhotos(
+export interface PhotoUploadTarget {
+  path: string;
+  position: number;
+  mimeType: string;
+}
+
+export async function preparePhotoUploads(
   listingId: string,
-  reference: string,
-  formData: FormData
-): Promise<{ error?: string; success?: boolean }> {
+  files: { extension: string; mimeType: string }[]
+): Promise<{ targets?: PhotoUploadTarget[]; error?: string }> {
   const { isAdmin } = await requireAdmin();
   if (!isAdmin) return { error: "Non autorisé." };
+  if (files.length === 0) return { error: "Aucune photo sélectionnée." };
 
   const supabase = await createClient();
-  const files = formData.getAll("photos") as File[];
-  if (files.length === 0) return { error: "Aucune photo sélectionnée." };
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("reference")
+    .eq("id", listingId)
+    .maybeSingle();
+
+  if (!listing) return { error: "Bien introuvable." };
 
   const { data: existingImages } = await supabase
     .from("listing_images")
@@ -48,30 +59,101 @@ export async function uploadPhotos(
     .limit(1);
 
   let nextPosition = (existingImages?.[0]?.position ?? -1) + 1;
+  const targets: PhotoUploadTarget[] = [];
 
   for (const file of files) {
-    if (!file.type.startsWith("image/")) continue;
-    const ext = file.name.split(".").pop() || "webp";
-    const path = `${reference}/${String(nextPosition + 1).padStart(2, "0")}.${ext}`;
+    const extension = file.extension.toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (!file.mimeType.startsWith("image/") || !extension) continue;
 
-    const { error: uploadError } = await supabase.storage
-      .from("listing-photos")
-      .upload(path, file, { upsert: true, contentType: file.type });
-
-    if (uploadError) return { error: uploadError.message };
-
-    const { error: insertError } = await supabase.from("listing_images").insert({
-      listing_id: listingId,
-      storage_path: path,
+    targets.push({
+      path: `${listing.reference}/${String(nextPosition + 1).padStart(2, "0")}-${crypto.randomUUID()}.${extension}`,
       position: nextPosition,
-      is_primary: nextPosition === 0,
+      mimeType: file.mimeType,
     });
-
-    if (insertError) return { error: insertError.message };
     nextPosition += 1;
   }
 
+  if (targets.length === 0) return { error: "Aucune image valide sélectionnée." };
+  return { targets };
+}
+
+export async function registerPhoto(
+  listingId: string,
+  storagePath: string,
+  position: number,
+  mimeType: string
+): Promise<{ error?: string; success?: boolean }> {
+  const { isAdmin } = await requireAdmin();
+  if (!isAdmin) return { error: "Non autorisé." };
+
+  const supabase = await createClient();
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("reference")
+    .eq("id", listingId)
+    .maybeSingle();
+
+  if (!listing) return { error: "Bien introuvable." };
+  if (!storagePath.startsWith(`${listing.reference}/`)) {
+    return { error: "Chemin de photo invalide." };
+  }
+  if (!mimeType.startsWith("image/") || !Number.isInteger(position) || position < 0) {
+    return { error: "Métadonnées de photo invalides." };
+  }
+
+  const { error: insertError } = await supabase.from("listing_images").insert({
+    listing_id: listingId,
+    storage_path: storagePath,
+    position,
+    is_primary: position === 0,
+  });
+
+  if (insertError) {
+    const { data: existingImage } = await supabase
+      .from("listing_images")
+      .select("id")
+      .eq("storage_path", storagePath)
+      .maybeSingle();
+
+    if (!existingImage) {
+      await supabase.storage.from("listing-photos").remove([storagePath]);
+    }
+    return { error: insertError.message };
+  }
+
   await revalidateForListing(supabase, listingId);
+  return { success: true };
+}
+
+export async function cleanupPhotoUpload(
+  listingId: string,
+  storagePath: string
+): Promise<{ error?: string; success?: boolean }> {
+  const { isAdmin } = await requireAdmin();
+  if (!isAdmin) return { error: "Non autorisé." };
+
+  const supabase = await createClient();
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("reference")
+    .eq("id", listingId)
+    .maybeSingle();
+
+  if (!listing) return { error: "Bien introuvable." };
+  if (!storagePath.startsWith(`${listing.reference}/`)) {
+    return { error: "Chemin de photo invalide." };
+  }
+
+  const { data: existingImage } = await supabase
+    .from("listing_images")
+    .select("id")
+    .eq("storage_path", storagePath)
+    .maybeSingle();
+
+  if (existingImage) return { success: true };
+
+  const { error } = await supabase.storage.from("listing-photos").remove([storagePath]);
+  if (error) return { error: error.message };
   return { success: true };
 }
 
