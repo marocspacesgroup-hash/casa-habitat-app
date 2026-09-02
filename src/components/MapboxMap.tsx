@@ -1,52 +1,87 @@
- 'use client';
+"use client";
 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import { useEffect, useRef, useState } from "react";
 
-// Correction des icônes par défaut de Leaflet en React
-const defaultIcon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-});
+type MapMarker = {
+  id: string;
+  latitude: number;
+  longitude: number;
+  label: string;
+};
 
-interface MapboxMapProps {
-  latitude?: number | null;
-  longitude?: number | null;
-  zoom?: number;
-  name?: string;
-}
+const CASABLANCA_CENTER: [number, number] = [-7.6322, 33.5731];
 
 export default function MapboxMap({
-  latitude = 33.5731,
-  longitude = -7.5898,
-  zoom = 14,
-  name = 'Casablanca',
-}: MapboxMapProps) {
-  const position: [number, number] = [latitude ?? 33.5731, longitude ?? -7.5898];
+  markers = [],
+  center = CASABLANCA_CENTER,
+  zoom = 11,
+}: {
+  markers?: MapMarker[];
+  center?: [number, number];
+  zoom?: number;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [mapError, setMapError] = useState(false);
+  const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
-  return (
-    <div className="w-full h-[400px] rounded-xl overflow-hidden shadow-md z-0">
-      <MapContainer
-        center={position}
-        zoom={zoom}
-        scrollWheelZoom={false}
-        className="w-full h-full"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker position={position} icon={defaultIcon}>
-          <Popup>
-            <div className="text-sm font-semibold">Secteur : {name}</div>
-            <div className="text-xs text-gray-500">Zone générale de recherche</div>
-          </Popup>
-        </Marker>
-      </MapContainer>
-    </div>
-  );
+  useEffect(() => {
+    if (!containerRef.current || !token) return;
+
+    let map: import("mapbox-gl").Map | undefined;
+    let cancelled = false;
+
+    async function loadMap() {
+      const { default: mapboxgl } = await import("mapbox-gl");
+      if (cancelled || !containerRef.current) return;
+
+      mapboxgl.accessToken = token;
+      map = new mapboxgl.Map({
+        container: containerRef.current,
+        style: "mapbox://styles/mapbox/dark-v11",
+        center,
+        zoom,
+        attributionControl: true,
+      });
+
+      map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
+      map.on("error", () => setMapError(true));
+
+      markers.forEach((marker) => {
+        const element = document.createElement("button");
+        element.type = "button";
+        element.className = "casa-map-marker";
+        element.setAttribute("aria-label", `Zone générale : ${marker.label}`);
+        element.title = `Zone générale : ${marker.label}`;
+
+        new mapboxgl.Marker({ element })
+          .setLngLat([marker.longitude, marker.latitude])
+          .addTo(map!);
+      });
+    }
+
+    loadMap().catch(() => setMapError(true));
+
+    return () => {
+      cancelled = true;
+      map?.remove();
+    };
+  }, [center, markers, token, zoom]);
+
+  if (!token) {
+    return (
+      <div className="flex h-full min-h-[360px] items-center justify-center bg-navy-deep px-6 text-center text-sm text-ivory/70">
+        La carte interactive sera disponible prochainement.
+      </div>
+    );
+  }
+
+  if (mapError) {
+    return (
+      <div className="flex h-full min-h-[360px] items-center justify-center bg-navy-deep px-6 text-center text-sm text-ivory/70">
+        La carte est momentanément indisponible. Contactez Casa Habitat pour en savoir plus sur ce quartier.
+      </div>
+    );
+  }
+
+  return <div ref={containerRef} className="h-full min-h-[360px] w-full" aria-label="Carte générale de Casablanca" />;
 }
