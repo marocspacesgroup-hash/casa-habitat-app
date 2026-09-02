@@ -21,14 +21,9 @@ export async function login(
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-  // === DIAGNOSTIC TEMPORAIRE — À RETIRER UNE FOIS LA CAUSE IDENTIFIÉE ===
   if (error || !data.user) {
-    console.error("[DIAGNOSTIC LOGIN] Erreur Supabase réelle :", error);
-    return {
-      error: `Diagnostic : ${error?.name ?? "erreur inconnue"} — ${error?.message ?? "aucun utilisateur retourné"}`,
-    };
+    return { error: "Identifiants incorrects." };
   }
-  // === FIN DIAGNOSTIC TEMPORAIRE ===
 
   // Vérifie que ce compte authentifié est bien l'administrateur, pas
   // seulement un compte Supabase valide.

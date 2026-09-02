@@ -44,8 +44,7 @@ const PUBLIC_LISTING_SELECT = [
   "neighborhoods(nom)",
 ].join(", ");
 
-const PUBLIC_NEIGHBORHOOD_SELECT =
-  "slug, nom, ville, description, faits, latitude, longitude, zoom";
+const PUBLIC_NEIGHBORHOOD_SELECT = "slug, nom, ville, description, faits";
 
 function toDbTransaction(t: TransactionType) {
   return t === "courte-duree" ? "courte_duree" : t;
@@ -135,10 +134,7 @@ export async function getNeighborhoods(): Promise<Neighborhood[]> {
     nom: n.nom,
     ville: n.ville,
     description: n.description ?? "",
-    faits: n.faits ?? [],
-    latitude: n.latitude ?? null,
-    longitude: n.longitude ?? null,
-    zoom: n.zoom ?? undefined,
+    faits: n.faits,
   }));
 
   const bySlug = new Map(
@@ -157,9 +153,6 @@ export async function getNeighborhoods(): Promise<Neighborhood[]> {
       ville: existing?.ville ?? "Casablanca",
       description: existing?.description ?? "",
       faits: existing?.faits ?? [],
-      latitude: existing?.latitude,
-      longitude: existing?.longitude,
-      zoom: existing?.zoom,
     };
   });
 }
@@ -176,16 +169,7 @@ export async function getNeighborhoodBySlug(slug: string): Promise<Neighborhood 
     return (await getNeighborhoods()).find((neighborhood) => neighborhood.slug === slug) ?? null;
   }
   const n = data as DbNeighborhood;
-  return {
-    slug: n.slug,
-    nom: n.nom,
-    ville: n.ville,
-    description: n.description ?? "",
-    faits: n.faits ?? [],
-    latitude: n.latitude ?? null,
-    longitude: n.longitude ?? null,
-    zoom: n.zoom ?? undefined,
-  };
+  return { slug: n.slug, nom: n.nom, ville: n.ville, description: n.description ?? "", faits: n.faits };
 }
 
 /** Références de tous les biens publiés — pour generateStaticParams / sitemap. */
