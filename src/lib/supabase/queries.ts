@@ -73,7 +73,15 @@ export async function getPublishedListingsByTransaction(
     .eq("transaction", toDbTransaction(transaction))
     .order("created_at", { ascending: false });
 
-  if (error || !data) return [];
+  if (error) {
+    console.error("[supabase] Failed to load published listings by transaction", {
+      code: error.code,
+      message: error.message,
+    });
+    return [];
+  }
+
+  if (!data) return [];
   return adaptListingsForPublicSite(data as unknown as DbListingWithImages[]);
 }
 
