@@ -14,10 +14,10 @@ export const siteConfig = {
   locale: "fr-MA",
 
   contact: {
-    phones: ["+212632659054", "+212715028235"],
+    phones: ["+212632659054", "+212715028235", "+212600230256"],
     // Numéro utilisé pour les liens WhatsApp (wa.me n'accepte qu'un seul numéro à la fois)
     whatsappPrimary: "212632659054",
-    email: "casahabitat06@gmail.com",
+    email: "contact@casahabitatmaroc.com",
     address: {
       line1: "Socrate, Résidence Dan Hel, 1er étage, rue 40 Attabari",
       city: "Casablanca",
@@ -38,10 +38,14 @@ export const siteConfig = {
    * la page mentions légales affiche "à renseigner", jamais un faux numéro.
    */
   legal: {
-    formeJuridique: "",
-    rc: "",
-    ice: "",
-    carteProfessionnelle: "",
+    denominationSociale: "YKSD INTERNATIONAL GROUP",
+    formeJuridique: "SARL",
+    siegeSocial: "5 Rue Ennoussour, RDC, Casablanca, Maroc",
+    rc: "00952402 – Tribunal de Commerce de Casablanca",
+    ice: "003635561000070",
+    identifiantFiscal: "66186165",
+    telephone: "+212600-230256",
+    emailPro: "contact@casahabitatmaroc.com",
   },
 
   hosting: {

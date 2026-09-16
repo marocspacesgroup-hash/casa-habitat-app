@@ -13,11 +13,22 @@ export default function PropertyImage({
   className = "",
   sizes = "(min-width: 1024px) 50vw, 100vw",
   priority = false,
+  fit = "cover",
 }: {
   image: ListingImage;
   className?: string;
   sizes?: string;
   priority?: boolean;
+  /**
+   * Cadrage de la photo dans son cadre.
+   * "cover" (défaut) remplit le cadre en rognant — comportement historique,
+   * voulu pour les vignettes. "contain" affiche la photo entière sans la
+   * couper : c'est ce qu'attend une visionneuse plein écran.
+   * Passer la classe `object-contain` via `className` ne suffirait pas :
+   * les deux utilitaires ont la même spécificité et Tailwind déclare
+   * `object-cover` après `object-contain`, donc `cover` l'emporterait.
+   */
+  fit?: "cover" | "contain";
 }) {
   if (image.kind === "photo") {
     return (
@@ -28,7 +39,7 @@ export default function PropertyImage({
         height={image.height}
         sizes={sizes}
         priority={priority}
-        className={`w-full h-full object-cover ${className}`}
+        className={`w-full h-full ${fit === "contain" ? "object-contain" : "object-cover"} ${className}`}
       />
     );
   }

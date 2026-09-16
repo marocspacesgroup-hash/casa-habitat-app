@@ -46,11 +46,19 @@ export default function MentionsLegalesPage() {
             <h2 className="font-display text-lg text-ink mb-3">
               Identification professionnelle
             </h2>
+            <p className="mb-3">
+              {siteConfig.name}
+              <br />
+              Plateforme immobilière exploitée par{" "}
+              {siteConfig.legal.denominationSociale} {siteConfig.legal.formeJuridique}
+            </p>
             <div className="flex flex-col gap-1 text-sm">
+              <LegalField label="Dénomination sociale" value={siteConfig.legal.denominationSociale} />
               <LegalField label="Forme juridique" value={siteConfig.legal.formeJuridique} />
+              <LegalField label="Siège social" value={siteConfig.legal.siegeSocial} />
               <LegalField label="Registre du commerce (RC)" value={siteConfig.legal.rc} />
               <LegalField label="Identifiant commun de l'entreprise (ICE)" value={siteConfig.legal.ice} />
-              <LegalField label="Carte professionnelle d'agent immobilier" value={siteConfig.legal.carteProfessionnelle} />
+              <LegalField label="Identifiant fiscal (IF)" value={siteConfig.legal.identifiantFiscal} />
             </div>
           </section>
 

@@ -2,6 +2,7 @@ import { siteConfig } from "@/config/site";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppFloat from "@/components/layout/WhatsAppFloat";
+import ChatWidget from "@/components/chat/ChatWidget";
 import { FavoritesProvider } from "@/lib/favorites";
 
 const jsonLd = {
@@ -53,6 +54,7 @@ export default function PublicLayout({
         <main>{children}</main>
         <Footer />
         <WhatsAppFloat />
+        <ChatWidget />
       </FavoritesProvider>
     </>
   );

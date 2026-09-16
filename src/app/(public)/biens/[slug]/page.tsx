@@ -17,7 +17,7 @@ import {
 import { siteConfig } from "@/config/site";
 import ListingCard from "@/components/ui/ListingCard";
 import ShareButtons from "@/components/ui/ShareButtons";
-import PropertyImage from "@/components/ui/PropertyImage";
+import PropertyGallery from "@/components/ui/PropertyGallery";
 import ListingContactActions from "@/components/ui/ListingContactActions";
 import ListingViewTracker from "@/components/ui/ListingViewTracker";
 
@@ -151,33 +151,6 @@ export default async function ListingDetailPage({
         ...listing.images.filter((_, index) => index !== primaryIndex),
       ]
     : [listing.imagePrincipale];
-  const imageCount = galleryImages.length;
-  const visibleImages = imageCount >= 5 ? galleryImages.slice(0, 4) : galleryImages;
-  const extraImageCount = imageCount - visibleImages.length;
-
-  const renderImageTile = (
-    image: (typeof galleryImages)[number],
-    index: number,
-    showCounter = false
-  ) => (
-    <div
-      key={`${image.kind}-${index}`}
-      className="group relative h-full min-h-0 min-w-0 overflow-hidden bg-navy/5"
-    >
-      <PropertyImage
-        image={image}
-        priority={index === 0}
-        sizes="(min-width: 768px) 33vw, 50vw"
-        className="transition-transform duration-700 ease-out group-hover:scale-[1.025]"
-      />
-      {showCounter && extraImageCount > 0 && (
-        <span className="absolute inset-0 flex items-center justify-center bg-navy/30 px-3 text-center font-mono text-xs font-medium uppercase tracking-widest text-ivory backdrop-brightness-90">
-          +{extraImageCount} photos
-        </span>
-      )}
-    </div>
-  );
-
   return (
     <div className="pt-32 pb-24">
       <ListingViewTracker reference={listing.reference} />
@@ -211,43 +184,7 @@ export default async function ListingDetailPage({
         )}
 
         {/* Galerie */}
-        <div className="mb-12 aspect-[4/3] overflow-hidden rounded-md bg-ivory md:aspect-[2/1]">
-          {imageCount === 1 && renderImageTile(visibleImages[0], 0)}
-
-          {imageCount === 2 && (
-            <div className="grid h-full grid-cols-2 gap-2">
-              {visibleImages.map((image, index) => renderImageTile(image, index))}
-            </div>
-          )}
-
-          {imageCount === 3 && (
-            <div className="grid h-full grid-cols-2 grid-rows-2 gap-2">
-              <div className="row-span-2">
-                {renderImageTile(visibleImages[0], 0)}
-              </div>
-              {visibleImages.slice(1).map((image, index) =>
-                renderImageTile(image, index + 1)
-              )}
-            </div>
-          )}
-
-          {imageCount === 4 && (
-            <div className="grid h-full grid-cols-2 grid-rows-2 gap-2">
-              {visibleImages.map((image, index) => renderImageTile(image, index))}
-            </div>
-          )}
-
-          {imageCount >= 5 && (
-            <div className="grid h-full grid-cols-2 grid-rows-3 gap-2">
-              <div className="row-span-3">
-                {renderImageTile(visibleImages[0], 0)}
-              </div>
-              {visibleImages.slice(1).map((image, index) =>
-                renderImageTile(image, index + 1, index === visibleImages.length - 2)
-              )}
-            </div>
-          )}
-        </div>
+        <PropertyGallery images={galleryImages} />
 
         <div className="grid lg:grid-cols-3 gap-14">
           <div className="lg:col-span-2">
