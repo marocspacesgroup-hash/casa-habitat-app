@@ -10,7 +10,7 @@ export const siteConfig = {
   tagline: "Immobilier de Prestige",
   description:
     "Agence immobilière premium à Casablanca — vente, location et gestion de biens d'exception pour une clientèle exigeante, marocaine et internationale.",
-  url: "https://www.casahabitat.com",
+  url: "https://www.casahabitatmaroc.com",
   locale: "fr-MA",
 
   contact: {

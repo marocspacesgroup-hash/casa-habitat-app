@@ -78,7 +78,62 @@ export default function RootLayout({
         className={`${fraunces.variable} ${manrope.variable} ${plexMono.variable} antialiased`}
       >
         {children}
-        <Analytics />
+        <Analytics />{/* Schema.org - Casa Habitat */}
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": ["RealEstateAgent", "LocalBusiness"],
+      "name": "Casa Habitat",
+      "alternateName": "CASA Habitat",
+      "description": "Agence immobilière premium à Casablanca — vente, location et gestion de biens d'exception pour une clientèle exigeante, marocaine et internationale.",
+      "url": "https://www.casahabitatmaroc.com",
+      "logo": "https://www.casahabitatmaroc.com/favicon.ico",
+      "image": "https://www.casahabitatmaroc.com/favicon.ico",
+      "telephone": [
+        "+212632659054",
+        "+212715028235",
+        "+212600230256"
+      ],
+      "email": "contact@casahabitatmaroc.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Socrate, Résidence Dan Hel, 1er étage, rue 40 Attabari",
+        "addressLocality": "Casablanca",
+        "addressRegion": "Casablanca-Settat",
+        "postalCode": "20000",
+        "addressCountry": "MA"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "33.5731",
+        "longitude": "-7.5898"
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        "opens": "09:00",
+        "closes": "19:00"
+      },
+      "areaServed": {
+        "@type": "City",
+        "name": "Casablanca"
+      },
+      "priceRange": "$$$$",
+      "currenciesAccepted": "MAD",
+      "paymentAccepted": "Cash, Bank Transfer, Check",
+      "sameAs": []
+    })
+  }}
+/>
       </body>
     </html>
   );
