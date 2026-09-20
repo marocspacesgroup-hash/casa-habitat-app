@@ -37,6 +37,8 @@ const quartierSlugAliases: Record<string, string> = {
   "anfa-casa-anfa": "anfa",
   "casablanca-finance-city-cfc": "cfc",
   "corniche-ain-diab": "ain-diab",
+  "triangle-d-or": "triangle-dor",
+  "mer-sultan": "mers-sultan",
 };
 
 export function quartierSlug(nom: string) {

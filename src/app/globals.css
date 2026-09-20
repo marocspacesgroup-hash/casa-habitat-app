@@ -1,14 +1,40 @@
 @import "tailwindcss";
 @import "mapbox-gl/dist/mapbox-gl.css";
 
+/* Zone tactile de 44px (recommandation iOS/Android), pastille visible de 22px. */
 .casa-map-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.casa-map-marker::after {
+  content: "";
   width: 22px;
   height: 22px;
+  box-sizing: border-box;
   border: 3px solid #d4af37;
   border-radius: 9999px;
   background: #0a1838;
   box-shadow: 0 0 0 5px rgb(212 175 55 / 20%);
-  cursor: pointer;
+}
+
+.casa-map-marker:focus-visible::after {
+  outline: 2px solid #d4af37;
+  outline-offset: 4px;
+}
+
+.casa-map-popup .mapboxgl-popup-content {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #0a1838;
 }
 
 /*

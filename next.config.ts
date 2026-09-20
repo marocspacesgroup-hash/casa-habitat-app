@@ -13,6 +13,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Anciens slugs de quartier (publiés dans le sitemap) alignés sur ceux de Supabase.
+  async redirects() {
+    return [
+      { source: "/quartiers/triangle-d-or", destination: "/quartiers/triangle-dor", permanent: true },
+      { source: "/quartiers/mer-sultan", destination: "/quartiers/mers-sultan", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -10,6 +10,8 @@ import ListingCard from "@/components/ui/ListingCard";
 import { siteConfig } from "@/config/site";
 import MapboxMap from "@/components/MapboxMap";
 
+const CASABLANCA_CENTER: [number, number] = [-7.6322, 33.5731];
+
 // Pas de generateStaticParams : les quartiers viennent de Supabase et la
 // page est rendue à la demande (le client Supabase serveur utilise les
 // cookies de la requête, ce qui rend cette route dynamique de toute façon).
@@ -49,6 +51,21 @@ export default async function QuartierPage({
     getNeighborhoods(),
   ]);
   const others = allNeighborhoods.filter((n) => n.slug !== slug).slice(0, 5);
+
+  // Centre général du quartier (Supabase) ; à défaut, vue d'ensemble de Casablanca.
+  const { latitude, longitude, zoom } = neighborhood;
+  const hasCoordinates =
+    typeof latitude === "number" &&
+    typeof longitude === "number" &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude);
+  const mapCenter: [number, number] = hasCoordinates
+    ? [longitude, latitude]
+    : CASABLANCA_CENTER;
+  const mapZoom = zoom ?? (hasCoordinates ? 13 : 11);
+  const mapMarkers = hasCoordinates
+    ? [{ id: neighborhood.slug, longitude, latitude, label: neighborhood.nom }]
+    : [];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -129,10 +146,7 @@ export default async function QuartierPage({
             La carte présente une zone indicative de Casablanca et ne localise jamais précisément un immeuble.
           </p>
           <div className="h-[360px] overflow-hidden rounded-sm border border-ink/10 bg-navy">
-            <MapboxMap
-              center={[-7.6322, 33.5731]}
-              markers={[{ id: neighborhood.slug, longitude: -7.6322, latitude: 33.5731, label: neighborhood.nom }]}
-            />
+            <MapboxMap center={mapCenter} zoom={mapZoom} markers={mapMarkers} />
           </div>
         </section>
 

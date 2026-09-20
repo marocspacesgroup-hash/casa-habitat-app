@@ -126,4 +126,8 @@ export interface Neighborhood {
   ville: string;
   description: string;
   faits: string[]; // points pratiques courts, factuels
+  // Centre général du quartier (jamais l'adresse d'un bien) — null si inconnu.
+  latitude?: number | null;
+  longitude?: number | null;
+  zoom?: number | null;
 }

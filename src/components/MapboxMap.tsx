@@ -25,26 +25,52 @@ export default function MapboxMap({
   const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
   useEffect(() => {
-    if (!containerRef.current || !token) return;
+    const container = containerRef.current;
+    if (!container || !token) return;
+    const accessToken = token;
 
     let map: import("mapbox-gl").Map | undefined;
+    let resizeObserver: ResizeObserver | undefined;
     let cancelled = false;
 
     async function loadMap() {
       const { default: mapboxgl } = await import("mapbox-gl");
-      if (cancelled || !containerRef.current) return;
+      if (cancelled || !container) return;
 
-      mapboxgl.accessToken = token;
-      map = new mapboxgl.Map({
-        container: containerRef.current,
+      mapboxgl.accessToken = accessToken;
+      const instance = new mapboxgl.Map({
+        container,
         style: "mapbox://styles/mapbox/dark-v11",
         center,
         zoom,
         attributionControl: true,
       });
+      map = instance;
 
-      map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
-      map.on("error", () => setMapError(true));
+      instance.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
+
+      // Pas de boussole affichée : on bloque la rotation pour qu'un geste à deux
+      // doigts sur mobile ne laisse pas la carte tournée sans moyen de revenir au nord.
+      // Le zoom au pincement reste actif.
+      instance.dragRotate.disable();
+      instance.touchZoomRotate.disableRotation();
+
+      // Sur mobile, le conteneur peut changer de taille après l'initialisation :
+      // on recalcule les dimensions au chargement puis à chaque redimensionnement.
+      let loaded = false;
+      instance.once("load", () => {
+        loaded = true;
+        instance.resize();
+      });
+      resizeObserver = new ResizeObserver(() => instance.resize());
+      resizeObserver.observe(container);
+
+      // Seule une erreur avant le premier rendu (token, style) masque la carte ;
+      // une tuile en échec ensuite ne doit pas la remplacer par le message d'erreur.
+      instance.on("error", (event) => {
+        console.error("[MapboxMap]", event.error);
+        if (!loaded) setMapError(true);
+      });
 
       markers.forEach((marker) => {
         const element = document.createElement("button");
@@ -53,16 +79,25 @@ export default function MapboxMap({
         element.setAttribute("aria-label", `Zone générale : ${marker.label}`);
         element.title = `Zone générale : ${marker.label}`;
 
+        // Toucher / cliquer le marqueur affiche le nom du quartier (texte brut, pas de HTML).
+        const popup = new mapboxgl.Popup({ offset: 18, closeButton: false, className: "casa-map-popup" })
+          .setText(`Zone générale : ${marker.label}`);
+
         new mapboxgl.Marker({ element })
           .setLngLat([marker.longitude, marker.latitude])
-          .addTo(map!);
+          .setPopup(popup)
+          .addTo(instance);
       });
     }
 
-    loadMap().catch(() => setMapError(true));
+    loadMap().catch((error) => {
+      console.error("[MapboxMap]", error);
+      setMapError(true);
+    });
 
     return () => {
       cancelled = true;
+      resizeObserver?.disconnect();
       map?.remove();
     };
   }, [center, markers, token, zoom]);
