@@ -1,62 +1,66 @@
 /**
- * Limites et configuration de l'agent IA Casa Habitat.
+ * Configuration de l'agent IA Casa Habitat.
  *
- * Toutes les limites sont des constantes exportées, réunies dans un seul
- * fichier : elles doivent rester auditables d'un coup d'œil. Aucune n'est
- * lue depuis la conversation ni depuis le corps de la requête.
+ * Toutes les limites viennent de `finance/limits.ts`, source unique de
+ * vérité. Aucune n'est lue depuis la conversation ni depuis le corps de la
+ * requête. Le modèle et le nombre de tours ne sont PLUS configurables par
+ * variable d'environnement : `AI_AGENT_MODEL` et `AI_AGENT_MAX_TURNS` sont
+ * ignorées, pour qu'aucun réglage externe ne puisse dépasser le plafond
+ * financier.
  */
+import {
+  BODY_MAX_BYTES,
+  HISTORY_MAX_CHARS,
+  HISTORY_MAX_MESSAGES,
+  MAX_TURNS_PER_MESSAGE,
+  MESSAGE_MAX_CHARS,
+  MODEL_ID,
+  OUTPUT_CAP_TOKENS,
+  RESULTS_PER_REQUEST_MAX,
+  RESULTS_PER_SEARCH_MAX,
+  TOOL_CALLS_PER_REQUEST_MAX,
+  TOOL_CALLS_PER_TURN_MAX,
+} from "./finance/limits";
 
-/** Interrupteur global — permet de couper l'agent sans redéployer. */
+/**
+ * Interrupteur global. Ne peut que COUPER l'agent (valeur "false").
+ * Une modification de variable sur Vercel exige un redéploiement ; l'arrêt
+ * immédiat se fait par le drapeau `kill` dans Redis.
+ */
 export const AGENT_ENABLED = process.env.AI_AGENT_ENABLED !== "false";
 
-/**
- * Modèle utilisé. Surchargeable par variable d'environnement pour changer
- * sans toucher au code. Jamais préfixé NEXT_PUBLIC_ : reste côté serveur.
- */
-export const AGENT_MODEL = process.env.AI_AGENT_MODEL ?? "claude-opus-5";
+/** Modèle unique, verrouillé dans le code. */
+export const AGENT_MODEL = MODEL_ID;
 
-/**
- * Tours modèle maximum par requête. Un tour = un appel au modèle.
- * Valeur bornée : une variable d'environnement mal saisie (« abc », « 0 »)
- * donnerait sinon NaN ou zéro, et la boucle ne s'exécuterait jamais —
- * l'agent répondrait « je n'arrive pas à répondre » sans aucune trace.
- */
-function boundedTurns(raw: string | undefined): number {
-  const parsed = Number(raw);
-  if (!Number.isFinite(parsed) || parsed < 1) return 6;
-  return Math.min(Math.floor(parsed), 12);
-}
-
-export const MAX_TURNS = boundedTurns(process.env.AI_AGENT_MAX_TURNS);
+/** Tours modèle maximum par message visiteur. */
+export const MAX_TURNS = MAX_TURNS_PER_MESSAGE;
 
 /** Appels d'outils maximum sur l'ensemble d'une requête, tous outils confondus. */
-export const MAX_TOOL_CALLS = 8;
+export const MAX_TOOL_CALLS = TOOL_CALLS_PER_REQUEST_MAX;
+
+/** Appels d'outils maximum exécutés dans un même tour. */
+export const MAX_TOOL_CALLS_PER_TURN = TOOL_CALLS_PER_TURN_MAX;
 
 /** Caractères maximum acceptés dans un message visiteur. */
-export const MAX_MESSAGE_CHARS = 1500;
+export const MAX_MESSAGE_CHARS = MESSAGE_MAX_CHARS;
 
 /** Messages d'historique maximum transmis au modèle (hors message courant). */
-export const MAX_HISTORY_MESSAGES = 12;
+export const MAX_HISTORY_MESSAGES = HISTORY_MAX_MESSAGES;
+
+/** Caractères maximum de l'historique transmis (anciens messages retirés d'abord). */
+export const MAX_HISTORY_CHARS = HISTORY_MAX_CHARS;
 
 /** Biens maximum renvoyés par un seul appel de recherche. */
-export const MAX_RESULTS_PER_SEARCH = 5;
+export const MAX_RESULTS_PER_SEARCH = RESULTS_PER_SEARCH_MAX;
 
 /**
- * Biens maximum renvoyés sur l'ensemble d'une requête, tous appels confondus.
- * C'est ce plafond global — et non celui par appel — qui empêche l'extraction
- * du catalogue par appels successifs.
+ * Biens maximum renvoyés sur l'ensemble d'une requête, recherche ET détail.
+ * C'est ce plafond global qui empêche l'extraction du catalogue.
  */
-export const MAX_RESULTS_PER_REQUEST = 12;
+export const MAX_RESULTS_PER_REQUEST = RESULTS_PER_REQUEST_MAX;
 
-/** Durée maximale d'une requête complète, boucle d'outils comprise. */
-export const REQUEST_TIMEOUT_MS = 45_000;
-
-/**
- * Plafond de tokens de sortie par tour.
- * Le raisonnement adaptatif est actif par défaut sur les modèles récents et
- * consomme ce même budget : une valeur trop basse tronque la réponse visible.
- */
-export const MAX_OUTPUT_TOKENS = 2500;
+/** Plafond de tokens de sortie par tour (réflexion comprise). */
+export const MAX_OUTPUT_TOKENS = OUTPUT_CAP_TOKENS;
 
 /**
  * Profondeur de raisonnement. « medium » suffit à une qualification
@@ -64,25 +68,5 @@ export const MAX_OUTPUT_TOKENS = 2500;
  */
 export const AGENT_EFFORT = "medium" as const;
 
-/**
- * Limitation de débit par visiteur.
- *
- * Seuils choisis pour ne jamais gêner une conversation humaine : un visiteur
- * qui écrit un message toutes les dix secondes reste sous la barre de la
- * minute, et trente échanges dans l'heure couvrent plusieurs recherches
- * sérieuses. Le mécanisme est dans `rate-limit.ts` ; sa portée réelle y est
- * documentée sans détour.
- */
-export const RATE_LIMIT_PER_MINUTE = 5;
-export const RATE_LIMIT_PER_HOUR = 30;
-
-/** Requêtes simultanées par visiteur. Deux tolèrent un second onglet. */
-export const RATE_LIMIT_CONCURRENT = 2;
-
-/**
- * Taille maximale du corps d'une requête.
- * Douze messages d'historique plafonnés à 1 500 et 3 000 caractères tiennent
- * très largement en deçà : 64 Ko laissent de la marge sans permettre qu'un
- * corps de plusieurs mégaoctets soit lu en mémoire.
- */
-export const MAX_BODY_BYTES = 64 * 1024;
+/** Taille maximale du corps d'une requête. */
+export const MAX_BODY_BYTES = BODY_MAX_BYTES;

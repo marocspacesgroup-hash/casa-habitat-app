@@ -1,5 +1,6 @@
 import { Listing } from "@/data/types";
 import { formatPrice, propertyTypeLabel, statusLabel, transactionLabel } from "@/lib/format";
+import { redactLocation } from "./ai-safe";
 
 /**
  * Forme exacte d'un bien telle que l'agent la reçoit.
@@ -46,15 +47,19 @@ export interface PublicProperty {
 }
 
 /**
- * Convertit un `Listing` en `PublicProperty`.
+ * Convertit un `Listing` en `PublicProperty` — le DTO « AI-safe ».
  * Les champs absents de cette fonction ne parviennent jamais au modèle :
  * adresse, publication_status, slug_history, seo_*, images signées, id interne.
+ * Les champs texte libre passent par `redactLocation` : un nom de voie saisi
+ * dans un descriptif n'atteint pas le modèle. Le masquage précède la coupe à
+ * 400 caractères, pour qu'une adresse à cheval sur la limite ne passe pas à
+ * moitié.
  */
 export function toPublicProperty(listing: Listing): PublicProperty {
   return {
     reference: listing.reference,
     slug: listing.slug,
-    titre: listing.titre,
+    titre: redactLocation(listing.titre),
     transaction: transactionLabel(listing.transaction),
     typeBien: propertyTypeLabel(listing.typeBien),
     quartier: listing.quartierNom ?? listing.quartierSlug,
@@ -66,16 +71,17 @@ export function toPublicProperty(listing: Listing): PublicProperty {
     chambres: listing.chambres,
     sallesDeBain: listing.sallesDeBain,
     meuble: listing.meuble,
-    etage: listing.etage,
+    etage: listing.etage === undefined ? undefined : redactLocation(listing.etage),
     ascenseur: listing.ascenseur,
     parking: listing.parking,
     climatisation: listing.climatisation,
     chauffage: listing.chauffage,
     terrasseBalcon: listing.terrasseBalcon,
-    equipements: listing.equipements,
+    equipements: listing.equipements.map(redactLocation),
     statutAffiche: statusLabel(listing.statut),
-    disponibiliteAffichee: listing.disponibilite,
-    description: listing.description.slice(0, 400),
+    disponibiliteAffichee:
+      listing.disponibilite === undefined ? undefined : redactLocation(listing.disponibilite),
+    description: redactLocation(listing.description).slice(0, 400),
     lienFiche: `/biens/${listing.slug}`,
     estExemple: listing.isSample,
   };
