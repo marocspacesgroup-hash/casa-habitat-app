@@ -40,7 +40,9 @@ async function expectNoModelCall(store: ScriptStore) {
   expect(result).toMatchObject({ status: "refused", reason: "store_unavailable", modelCalled: false });
   expect(callModel).not.toHaveBeenCalled();
 
-  expect(await circuit.admit({ requestId: "req_failclosed_1", visitor: VISITOR, nowMs: NOW })).toEqual({
+  // `toMatchObject` : le refus et son motif sont la règle métier ; un
+  // diagnostic safe peut accompagner l'échec (C.3.8-B.6) sans la changer.
+  expect(await circuit.admit({ requestId: "req_failclosed_1", visitor: VISITOR, nowMs: NOW })).toMatchObject({
     allowed: false,
     reason: "store_unavailable",
   });

@@ -238,7 +238,13 @@ export function createChatHandler(resolveDeps: () => ChatHandlerDependencies) {
 
     const admitted = await deps.circuit.admit({ requestId, visitor, nowMs: t0 });
     if (!admitted.allowed) {
-      deps.log({ event: "admit_refused", requestId, visitor: visitorLogId(visitor), reason: admitted.reason });
+      deps.log({
+        event: "admit_refused",
+        requestId,
+        visitor: visitorLogId(visitor),
+        reason: admitted.reason,
+        ...diagFields(admitted.diag),
+      });
       const reason = admitted.reason;
       if (reason === "rate_minute" || reason === "rate_hour" || reason === "concurrency_visitor" || reason === "concurrency_global") {
         return errorStream("rate_limited", 429, retryAfterFor(reason, t0));

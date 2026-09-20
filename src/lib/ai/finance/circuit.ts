@@ -55,7 +55,10 @@ export type AdmitRefusal =
   | "invalid_identifier"
   | "store_unavailable";
 
-export type AdmitDecision = { allowed: true } | { allowed: false; reason: AdmitRefusal };
+export type AdmitDecision =
+  | { allowed: true }
+  /** `diag` n'accompagne que `store_unavailable` : genre d'échec du store, jamais de message. */
+  | { allowed: false; reason: AdmitRefusal; diag?: StoreDiagnostic };
 
 export type ReserveRefusal =
   | "killed"
@@ -256,9 +259,10 @@ export function createFinanceCircuit(store: ScriptStore, env: FinanceEnvironment
         if (typeof decision === "string" && ADMIT_REFUSALS.has(decision)) {
           return { allowed: false, reason: decision as AdmitRefusal };
         }
-        return { allowed: false, reason: "store_unavailable" };
-      } catch {
-        return { allowed: false, reason: "store_unavailable" };
+        return { allowed: false, reason: "store_unavailable", diag: diagOf(new BadReplyError()) };
+      } catch (error) {
+        // Refus inchangé (fail-closed) ; seul le diagnostic du store est conservé.
+        return { allowed: false, reason: "store_unavailable", diag: diagOf(error) };
       }
     },
 
