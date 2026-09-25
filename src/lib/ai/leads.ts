@@ -1,0 +1,150 @@
+import { createClient } from "@/lib/supabase/server";
+import { whatsappForListing, whatsappGeneral } from "@/lib/whatsapp";
+import { getPublishedListings } from "@/lib/supabase/queries";
+import type { Listing } from "@/data/types";
+
+export interface CreateLeadInput {
+  conversation_id: string;
+  transaction_type?: string;
+  property_type?: string;
+  neighborhood?: string;
+  budget_min?: number;
+  budget_max?: number;
+  bedrooms_min?: number;
+  surface_min?: number;
+  furnished?: boolean;
+  name?: string;
+  phone?: string;
+  email?: string;
+  whatsapp?: string;
+  preferred_contact?: string;
+  timing?: string;
+  urgency?: string;
+  occupants?: number;
+  viewed_properties?: string[];
+  requested_property_reference?: string;
+  consent: boolean;
+}
+
+function cleanText(value: unknown, max: number): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const v = value.trim();
+  return v ? v.slice(0, max) : undefined;
+}
+
+function cleanNumber(value: unknown, min = 0): number | undefined {
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) && n >= min ? n : undefined;
+}
+
+function uniqueRefs(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(
+    value
+      .filter((v): v is string => typeof v === "string")
+      .map((v) => v.trim().slice(0, 32))
+      .filter(Boolean)
+  )].slice(0, 12);
+}
+
+function scoreLead(input: CreateLeadInput): number {
+  let score = 25;
+  if (input.name) score += 10;
+  if (input.phone || input.whatsapp) score += 25;
+  if (input.email) score += 15;
+  if (input.requested_property_reference) score += 10;
+  if (input.transaction_type) score += 5;
+  if (input.neighborhood) score += 5;
+  if (input.budget_max !== undefined) score += 5;
+  return Math.min(score, 100);
+}
+
+export async function createLead(input: CreateLeadInput): Promise<{
+  created: boolean;
+  leadId?: string;
+  whatsappUrl: string;
+  message: string;
+}> {
+  if (!input.consent) {
+    return {
+      created: false,
+      whatsappUrl: whatsappGeneral(),
+      message: "Le consentement explicite est nécessaire avant l'enregistrement d'une demande de contact.",
+    };
+  }
+
+  const conversationId = cleanText(input.conversation_id, 120);
+  const name = cleanText(input.name, 120);
+  const phone = cleanText(input.phone, 40);
+  const whatsapp = cleanText(input.whatsapp, 40);
+  const email = cleanText(input.email, 254);
+
+  if (!conversationId || (!phone && !whatsapp && !email)) {
+    return {
+      created: false,
+      whatsappUrl: whatsappGeneral(),
+      message: "Un identifiant de conversation et au moins un moyen de contact sont nécessaires.",
+    };
+  }
+
+  const leadId = crypto.randomUUID();
+  const refs = uniqueRefs(input.viewed_properties);
+  const requestedReference = cleanText(input.requested_property_reference, 32);
+
+  const row = {
+    id: leadId,
+    conversation_id: conversationId,
+    transaction_type: cleanText(input.transaction_type, 40),
+    property_type: cleanText(input.property_type, 40),
+    neighborhood: cleanText(input.neighborhood, 80),
+    budget_min: cleanNumber(input.budget_min),
+    budget_max: cleanNumber(input.budget_max),
+    bedrooms_min: cleanNumber(input.bedrooms_min),
+    surface_min: cleanNumber(input.surface_min),
+    furnished: typeof input.furnished === "boolean" ? input.furnished : undefined,
+    name,
+    phone,
+    email,
+    whatsapp,
+    preferred_contact: cleanText(input.preferred_contact, 30),
+    timing: cleanText(input.timing, 120),
+    urgency: cleanText(input.urgency, 80),
+    occupants: cleanNumber(input.occupants, 1),
+    viewed_properties: refs,
+    requested_property_reference: requestedReference,
+    consent: true,
+    consent_at: new Date().toISOString(),
+  };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("leads").insert(row);
+
+  if (error) {
+    console.error("[ai] lead creation failed", {
+      code: error.code,
+      message: error.message,
+    });
+    return {
+      created: false,
+      whatsappUrl: whatsappGeneral(),
+      message: "La demande de contact n'a pas pu être enregistrée. Proposer néanmoins le contact WhatsApp direct.",
+    };
+  }
+
+  let whatsappUrl = whatsappGeneral();
+  if (requestedReference) {
+    const listings: Listing[] = await getPublishedListings();
+    const listing = listings.find((item) => item.reference === requestedReference);
+    if (listing) {
+      whatsappUrl = whatsappForListing(listing, listing.quartierNom);
+    }
+  }
+
+  const score = scoreLead(input);
+  return {
+    created: true,
+    leadId,
+    whatsappUrl,
+    message: `Lead enregistré (qualification interne ${score}/100). Présenter le lien WhatsApp au visiteur sans révéler le score ni l'identifiant interne.`,
+  };
+}
