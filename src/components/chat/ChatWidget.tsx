@@ -111,6 +111,7 @@ function renderText(text: string): ReactNode[] {
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [conversationId] = useState(() => crypto.randomUUID());
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -190,7 +191,7 @@ export default function ChatWidget() {
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text, history: messages }),
+          body: JSON.stringify({ message: text, history: messages, conversationId }),
         });
 
         if (!response.body) throw new Error("no-body");
@@ -244,7 +245,7 @@ export default function ChatWidget() {
         inputRef.current?.focus();
       }
     },
-    [busy, messages]
+    [busy, messages, conversationId]
   );
 
   return (
