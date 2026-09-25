@@ -154,6 +154,10 @@ function sweep(now: number) {
   }
 }
 
+function secondsUntilFree(timestamp: number, windowMs: number, now: number): number {
+  return Math.max(1, Math.ceil((timestamp + windowMs - now) / 1000));
+}
+
 function fallbackConsume(key: string): RateDecision {
   const now = Date.now();
   if (visitors.size > SWEEP_THRESHOLD) sweep(now);
