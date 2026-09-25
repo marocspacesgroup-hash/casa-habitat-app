@@ -7,51 +7,128 @@ import {
 /**
  * Limitation de débit de /api/chat.
  *
- * PORTÉE RÉELLE — à lire avant toute conclusion sur la sécurité :
- * les compteurs ci-dessous vivent dans la mémoire du processus. Sur un
- * hébergement serverless, plusieurs instances peuvent servir le même
- * visiteur, et elles ne partagent pas cette mémoire : un attaquant réparti
- * sur N instances obtient N fois le quota. Ce module réduit l'abus, il ne
- * le supprime pas.
+ * CONTRAT :
+ * - consume() compte une requête avant lecture du corps, comme auparavant.
+ * - acquireSlot() réserve une place juste avant l'appel modèle.
+ * - releaseSlot() libère exactement cette place, y compris sur annulation.
+ * - Les fonctions sont asynchrones car le stockage partagé est distant.
  *
- * Il est écrit ainsi faute de stockage partagé dans le projet : aucun client
- * KV, Redis ou Upstash n'est installé, aucune variable d'environnement n'en
- * désigne un, et la seule base disponible — Supabase — exigerait une table
- * de compteurs, création interdite dans ce périmètre. Plutôt que de simuler
- * une protection distribuée, le mécanisme est isolé ici : le jour où un
- * stockage partagé existera, seul ce fichier changera, sans toucher à la
- * route ni à l'agent.
+ * STOCKAGE :
+ * Upstash Redis REST est utilisé quand les deux variables serveur sont
+ * présentes. Les décisions qui dépendent d'une lecture puis d'une écriture
+ * sont exécutées dans Lua via EVAL afin de rester atomiques entre instances
+ * serverless.
  *
- * Ce qui, en revanche, protège quelle que soit l'instance : le plafond de
- * taille du corps et le nombre de réessais du SDK, tous deux appliqués par
- * requête et sans état.
+ * SECOURS :
+ * Si Upstash n'est pas configuré ou devient momentanément indisponible,
+ * un compteur mémoire local est utilisé. Cela préserve la disponibilité du
+ * conseiller, mais ne constitue pas une protection distribuée : ce mode est
+ * explicitement limité à l'instance Vercel courante.
  */
 
 interface Visitor {
-  /** Horodatages des requêtes retenues, les plus anciennes en tête. */
   hits: number[];
-  /** Requêtes actuellement en cours de traitement pour ce visiteur. */
   active: number;
 }
 
 const HOUR_MS = 3_600_000;
 const MINUTE_MS = 60_000;
+const FALLBACK_ACTIVE_TTL_MS = 60_000;
+const SWEEP_THRESHOLD = 5000;
 
 const visitors = new Map<string, Visitor>();
 
-/** Au-delà, on balaie la table pour qu'un flot d'IP distinctes ne la fasse pas croître sans fin. */
-const SWEEP_THRESHOLD = 5000;
+const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL?.trim().replace(/\/$/, "");
+const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
+const UPSTASH_ENABLED = Boolean(UPSTASH_URL && UPSTASH_TOKEN);
+
+const CONSUME_SCRIPT = `
+local hour = tonumber(redis.call("GET", KEYS[1]) or "0")
+local minute = tonumber(redis.call("GET", KEYS[2]) or "0")
+local hour_limit = tonumber(ARGV[1])
+local minute_limit = tonumber(ARGV[2])
+
+if hour >= hour_limit then
+  return {0, math.max(1, redis.call("TTL", KEYS[1])), 2}
+end
+
+if minute >= minute_limit then
+  return {0, math.max(1, redis.call("TTL", KEYS[2])), 1}
+end
+
+local next_hour = redis.call("INCR", KEYS[1])
+if next_hour == 1 then redis.call("EXPIRE", KEYS[1], 3600) end
+
+local next_minute = redis.call("INCR", KEYS[2])
+if next_minute == 1 then redis.call("EXPIRE", KEYS[2], 60) end
+
+return {1, 0, 0}
+`;
+
+const ACQUIRE_SCRIPT = `
+local current = tonumber(redis.call("GET", KEYS[1]) or "0")
+local limit = tonumber(ARGV[1])
+
+if current >= limit then
+  return {0, 2}
+end
+
+local next_value = redis.call("INCR", KEYS[1])
+redis.call("EXPIRE", KEYS[1], 60)
+return {1, next_value}
+`;
+
+const RELEASE_SCRIPT = `
+local current = tonumber(redis.call("GET", KEYS[1]) or "0")
+if current <= 1 then
+  redis.call("DEL", KEYS[1])
+  return 0
+end
+return redis.call("DECR", KEYS[1])
+`;
+
+type RedisScriptResult = number[] | string[] | null;
+
+async function redisEval(
+  script: string,
+  keys: string[],
+  args: Array<string | number>
+): Promise<RedisScriptResult> {
+  if (!UPSTASH_ENABLED) return null;
+
+  const response = await fetch(UPSTASH_URL!, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${UPSTASH_TOKEN!}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(["EVAL", script, String(keys.length), ...keys, ...args]),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Upstash HTTP ${response.status}`);
+  }
+
+  const payload = (await response.json()) as { result?: unknown; error?: string };
+  if (payload.error) throw new Error(payload.error);
+
+  return Array.isArray(payload.result) ? (payload.result as RedisScriptResult) : null;
+}
 
 /**
- * Identifie le visiteur.
- *
- * Sur Vercel, `x-forwarded-for` est réécrit par la plateforme et sa première
- * entrée est l'adresse réelle du client : elle est fiable. Hors de ce cadre —
- * exécution locale, ou hébergement sans proxy de confiance — l'en-tête est
- * fourni par le client et donc falsifiable. C'est le compromis assumé : aucune
- * empreinte de navigateur n'est calculée, aucune donnée personnelle
- * supplémentaire n'est collectée, et l'adresse ne sert qu'à ce comptage.
+ * Le même hash tag {visitor} garantit que les clés d'un visiteur restent
+ * dans le même slot Redis si le stockage évolue vers une topologie cluster.
  */
+function redisKeys(key: string) {
+  const safe = encodeURIComponent(key);
+  return {
+    hour: `casa:ai:rl:{${safe}}:hour`,
+    minute: `casa:ai:rl:{${safe}}:minute`,
+    active: `casa:ai:rl:{${safe}}:active`,
+  };
+}
+
 export function visitorKey(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
@@ -70,7 +147,6 @@ function visitor(key: string): Visitor {
   return entry;
 }
 
-/** Supprime les visiteurs sans requête récente ni requête en cours. */
 function sweep(now: number) {
   for (const [key, entry] of visitors) {
     const recent = entry.hits.length > 0 && now - entry.hits[entry.hits.length - 1] < HOUR_MS;
@@ -78,38 +154,26 @@ function sweep(now: number) {
   }
 }
 
-export interface RateDecision {
-  allowed: boolean;
-  retryAfterSeconds?: number;
-  /** Fenêtre ayant provoqué le refus — pour le journal de bord, jamais exposé au visiteur. */
-  reason?: "minute" | "heure" | "concurrence";
-}
-
-/**
- * Décide si la requête peut être traitée, et enregistre le passage.
- *
- * Appelée avant toute lecture du corps et avant tout appel au modèle : une
- * requête refusée ne coûte ni analyse JSON, ni jeton Anthropic.
- */
-export function consume(key: string): RateDecision {
+function fallbackConsume(key: string): RateDecision {
   const now = Date.now();
   if (visitors.size > SWEEP_THRESHOLD) sweep(now);
 
   const entry = visitor(key);
   while (entry.hits.length > 0 && now - entry.hits[0] >= HOUR_MS) entry.hits.shift();
 
-  const inHour = entry.hits.length;
-  if (inHour >= RATE_LIMIT_PER_HOUR) {
+  if (entry.hits.length >= RATE_LIMIT_PER_HOUR) {
     return {
       allowed: false,
       reason: "heure",
-      retryAfterSeconds: secondsUntilFree(entry.hits[0], HOUR_MS, now),
+      retryAfterSeconds: secondsUntilFree(entry.hits[0], HOUR_LIMIT_MS, now),
     };
   }
 
   const minuteStart = now - MINUTE_MS;
   const firstInMinute = entry.hits.find((t) => t > minuteStart);
-  const inMinute = firstInMinute === undefined ? 0 : entry.hits.length - entry.hits.indexOf(firstInMinute);
+  const inMinute =
+    firstInMinute === undefined ? 0 : entry.hits.length - entry.hits.indexOf(firstInMinute);
+
   if (inMinute >= RATE_LIMIT_PER_MINUTE) {
     return {
       allowed: false,
@@ -122,28 +186,80 @@ export function consume(key: string): RateDecision {
   return { allowed: true };
 }
 
-function secondsUntilFree(oldest: number, window: number, now: number): number {
-  return Math.max(1, Math.ceil((oldest + window - now) / 1000));
+const HOUR_LIMIT_MS = HOUR_MS;
+
+export interface RateDecision {
+  allowed: boolean;
+  retryAfterSeconds?: number;
+  reason?: "minute" | "heure" | "concurrence";
 }
 
-/**
- * Réserve une place de traitement simultané.
- * Séparée de `consume` pour que les requêtes rejetées plus loin — corps
- * invalide, message trop long — ne laissent jamais une place occupée.
- */
-export function acquireSlot(key: string): RateDecision {
+export async function consume(key: string): Promise<RateDecision> {
+  if (!UPSTASH_ENABLED) return fallbackConsume(key);
+
+  try {
+    const keys = redisKeys(key);
+    const result = await redisEval(CONSUME_SCRIPT, [keys.hour, keys.minute], [
+      RATE_LIMIT_PER_HOUR,
+      RATE_LIMIT_PER_MINUTE,
+    ]);
+
+    if (!result || result.length < 3) throw new Error("Invalid Upstash consume response");
+
+    const allowed = Number(result[0]) === 1;
+    if (allowed) return { allowed: true };
+
+    const retryAfterSeconds = Math.max(1, Number(result[1]) || 1);
+    const reason = Number(result[2]) === 2 ? "heure" : "minute";
+    return { allowed: false, reason, retryAfterSeconds };
+  } catch {
+    // Disponibilité prioritaire : on conserve le comportement de secours,
+    // sans jamais exposer l'erreur Redis au visiteur.
+    return fallbackConsume(key);
+  }
+}
+
+function fallbackAcquire(key: string): RateDecision {
   const entry = visitor(key);
   if (entry.active >= RATE_LIMIT_CONCURRENT) {
-    // Refus immédiat plutôt qu'une attente : le visiteur ne doit pas rester
-    // suspendu jusqu'au délai de 45 secondes pour apprendre qu'il est en trop.
     return { allowed: false, reason: "concurrence", retryAfterSeconds: 2 };
   }
   entry.active += 1;
   return { allowed: true };
 }
 
-/** Libère la place. Toujours appelée, y compris si le flux est interrompu. */
-export function releaseSlot(key: string) {
+export async function acquireSlot(key: string): Promise<RateDecision> {
+  if (!UPSTASH_ENABLED) return fallbackAcquire(key);
+
+  try {
+    const result = await redisEval(ACQUIRE_SCRIPT, [redisKeys(key).active], [
+      RATE_LIMIT_CONCURRENT,
+    ]);
+
+    if (!result || result.length < 2) throw new Error("Invalid Upstash acquire response");
+
+    if (Number(result[0]) === 1) return { allowed: true };
+    return { allowed: false, reason: "concurrence", retryAfterSeconds: Number(result[1]) || 2 };
+  } catch {
+    return fallbackAcquire(key);
+  }
+}
+
+function fallbackRelease(key: string) {
   const entry = visitors.get(key);
   if (entry && entry.active > 0) entry.active -= 1;
+}
+
+export async function releaseSlot(key: string): Promise<void> {
+  if (!UPSTASH_ENABLED) {
+    fallbackRelease(key);
+    return;
+  }
+
+  try {
+    await redisEval(RELEASE_SCRIPT, [redisKeys(key).active], []);
+  } catch {
+    // Rien à faire côté visiteur : le TTL Redis évite qu'une réservation
+    // oubliée reste bloquée indéfiniment.
+  }
 }
