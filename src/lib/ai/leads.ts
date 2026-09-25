@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { siteConfig } from "@/config/site";
 import { whatsappForListing, whatsappGeneral } from "@/lib/whatsapp";
 import { getPublishedListings } from "@/lib/supabase/queries";
+import { notifyNewLeadByEmail, type LeadNotificationStatus } from "./notifications";
 import type { Listing } from "@/data/types";
 
 export interface CreateLeadInput {
@@ -51,6 +52,7 @@ function uniqueRefs(value: unknown): string[] {
 export async function createLead(input: CreateLeadInput): Promise<{
   created: boolean;
   leadId?: string;
+  notificationStatus?: LeadNotificationStatus;
   whatsappUrl: string;
   email: string;
   message: string;
@@ -133,11 +135,39 @@ export async function createLead(input: CreateLeadInput): Promise<{
     }
   }
 
+  const notification = await notifyNewLeadByEmail({
+    leadId,
+    name,
+    phone,
+    whatsapp,
+    email,
+    preferredContact: cleanText(input.preferred_contact, 30),
+    transactionType: cleanText(input.transaction_type, 40),
+    propertyType: cleanText(input.property_type, 40),
+    neighborhood: cleanText(input.neighborhood, 80),
+    budgetMin: cleanNumber(input.budget_min),
+    budgetMax: cleanNumber(input.budget_max),
+    bedroomsMin: cleanNumber(input.bedrooms_min),
+    surfaceMin: cleanNumber(input.surface_min),
+    furnished: typeof input.furnished === "boolean" ? input.furnished : undefined,
+    timing: cleanText(input.timing, 120),
+    urgency: cleanText(input.urgency, 80),
+    occupants: cleanNumber(input.occupants, 1),
+    requestedPropertyReference: requestedReference,
+    viewedProperties: refs,
+  });
+
+  const message =
+    notification.status === "sent"
+      ? "Lead enregistré et notification Casa Habitat envoyée. Présenter le lien WhatsApp et l'email professionnel au visiteur. Ne révéler ni l'identifiant interne ni les informations techniques."
+      : "Lead enregistré. La notification automatique Casa Habitat n'est pas confirmée ; ne jamais dire qu'un conseiller a été alerté. Présenter le lien WhatsApp et l'email professionnel au visiteur.";
+
   return {
     created: true,
     leadId,
+    notificationStatus: notification.status,
     whatsappUrl,
     email: siteConfig.contact.email,
-    message: "Lead enregistré. Présenter le lien WhatsApp et l'email professionnel au visiteur pour poursuivre avec Casa Habitat, sans révéler l'identifiant interne ni les informations techniques.",
+    message,
   };
 }
