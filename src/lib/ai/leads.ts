@@ -47,18 +47,6 @@ function uniqueRefs(value: unknown): string[] {
   )].slice(0, 12);
 }
 
-function scoreLead(input: CreateLeadInput): number {
-  let score = 25;
-  if (input.name) score += 10;
-  if (input.phone || input.whatsapp) score += 25;
-  if (input.email) score += 15;
-  if (input.requested_property_reference) score += 10;
-  if (input.transaction_type) score += 5;
-  if (input.neighborhood) score += 5;
-  if (input.budget_max !== undefined) score += 5;
-  return Math.min(score, 100);
-}
-
 export async function createLead(input: CreateLeadInput): Promise<{
   created: boolean;
   leadId?: string;
@@ -140,11 +128,10 @@ export async function createLead(input: CreateLeadInput): Promise<{
     }
   }
 
-  const score = scoreLead(input);
   return {
     created: true,
     leadId,
     whatsappUrl,
-    message: `Lead enregistré (qualification interne ${score}/100). Présenter le lien WhatsApp au visiteur sans révéler le score ni l'identifiant interne.`,
+    message: "Lead enregistré. Présenter le lien WhatsApp au visiteur pour poursuivre avec Casa Habitat, sans révéler l'identifiant interne ni les informations techniques.",
   };
 }
