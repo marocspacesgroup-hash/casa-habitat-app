@@ -62,7 +62,15 @@ export async function* runAgent(params: {
   // Le consentement doit provenir du message utilisateur courant. L'historique
   // envoyé par le navigateur est utile au dialogue, mais ne constitue pas une
   // preuve fiable de consentement puisqu'il peut être falsifié côté client.
-  const explicitConsent = /(?:j['’]?(?:accepte|autorise)|je consens|vous pouvez enregistrer|d['’]accord,?\s*(?:vous pouvez|j['’]accepte)|i\s+(?:agree|consent)|نعم\s*(?:أوافق|موافق)|أوافق\s*على\s*(?:تسجيل|حفظ)\s*(?:بياناتي|معلوماتي))/iu.test(params.message);
+  //
+  // Les formulations naturelles de consentement sont acceptées lorsqu'elles
+  // expriment clairement l'accord au stockage/recontact : « Oui, je suis
+  // d'accord » est notamment une réponse naturelle à la question de consentement
+  // posée par l'agent. Un simple « oui » reste volontairement insuffisant.
+  const explicitConsent =
+    /(?:j['’]?(?:accepte|autorise)|je consens|je suis d['’]accord|je donne mon accord|mon accord est donné|vous pouvez enregistrer|vous pouvez (?:stocker|conserver) (?:mes coordonnées|mes données|mes informations)|d['’]accord,?\s*(?:vous pouvez|j['’]accepte)|i\s+(?:agree|consent)|yes,?\s*(?:i\s+agree|you\s+may\s+(?:store|save)\s+(?:my\s+(?:contact|details|information)|my\s+data))|نعم\s*(?:أوافق|موافق)|أوافق\s*على\s*(?:تسجيل|حفظ)\s*(?:بياناتي|معلوماتي))/iu.test(
+      params.message,
+    );
 
   let toolCallsUsed = 0;
   let resultsUsed = 0;
