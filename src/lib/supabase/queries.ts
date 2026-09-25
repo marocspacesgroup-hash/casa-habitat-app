@@ -86,6 +86,19 @@ export async function getPublishedListingsByTransaction(
   return adaptListingsForPublicSite(data as unknown as DbListingWithImages[]);
 }
 
+export async function getPublishedListingByReference(reference: string): Promise<Listing | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("listings")
+    .select(PUBLIC_LISTING_SELECT)
+    .eq("publication_status", "publie")
+    .eq("reference", reference)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return adaptListingForPublicSite(data as unknown as DbListingWithImages);
+}
+
 export async function getPublishedListingBySlug(slug: string): Promise<Listing | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
