@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { siteConfig } from "@/config/site";
 import { whatsappForListing, whatsappGeneral } from "@/lib/whatsapp";
 import { getPublishedListings } from "@/lib/supabase/queries";
 import type { Listing } from "@/data/types";
@@ -51,12 +52,14 @@ export async function createLead(input: CreateLeadInput): Promise<{
   created: boolean;
   leadId?: string;
   whatsappUrl: string;
+  email: string;
   message: string;
 }> {
   if (!input.consent) {
     return {
       created: false,
       whatsappUrl: whatsappGeneral(),
+      email: siteConfig.contact.email,
       message: "Le consentement explicite est nécessaire avant l'enregistrement d'une demande de contact.",
     };
   }
@@ -71,6 +74,7 @@ export async function createLead(input: CreateLeadInput): Promise<{
     return {
       created: false,
       whatsappUrl: whatsappGeneral(),
+      email: siteConfig.contact.email,
       message: "Un identifiant de conversation et au moins un moyen de contact sont nécessaires.",
     };
   }
@@ -115,6 +119,7 @@ export async function createLead(input: CreateLeadInput): Promise<{
     return {
       created: false,
       whatsappUrl: whatsappGeneral(),
+      email: siteConfig.contact.email,
       message: "La demande de contact n'a pas pu être enregistrée. Proposer néanmoins le contact WhatsApp direct.",
     };
   }
@@ -132,6 +137,7 @@ export async function createLead(input: CreateLeadInput): Promise<{
     created: true,
     leadId,
     whatsappUrl,
-    message: "Lead enregistré. Présenter le lien WhatsApp au visiteur pour poursuivre avec Casa Habitat, sans révéler l'identifiant interne ni les informations techniques.",
+    email: siteConfig.contact.email,
+    message: "Lead enregistré. Présenter le lien WhatsApp et l'email professionnel au visiteur pour poursuivre avec Casa Habitat, sans révéler l'identifiant interne ni les informations techniques.",
   };
 }
