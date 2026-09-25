@@ -105,7 +105,7 @@ export async function POST(request: Request) {
 
   // Le quota est vérifié en tout premier : une requête en trop ne consomme
   // ni lecture du corps, ni analyse JSON, ni appel au modèle.
-  const quota = consume(visitor);
+  const quota = await consume(visitor);
   if (!quota.allowed) return errorStream("rate_limited", 429, quota.retryAfterSeconds);
 
   // Refus sur l'en-tête déclaré quand il est présent : rien n'est lu du tout.
@@ -133,7 +133,7 @@ export async function POST(request: Request) {
 
   // Réservée seulement maintenant : une requête écartée plus haut pour un
   // corps invalide ne doit jamais laisser une place occupée derrière elle.
-  const slot = acquireSlot(visitor);
+  const slot = await acquireSlot(visitor);
   if (!slot.allowed) return errorStream("rate_limited", 429, slot.retryAfterSeconds);
 
   // `cancel()` et le `finally` du flux peuvent se déclencher tous les deux :
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
   const release = () => {
     if (released) return;
     released = true;
-    releaseSlot(visitor);
+    void releaseSlot(visitor);
   };
 
   const controller = new AbortController();
