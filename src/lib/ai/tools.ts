@@ -1,5 +1,6 @@
 import {
   getNeighborhoods,
+  getPublishedListingByReference,
   getPublishedListingBySlug,
   getPublishedListings,
   getPublishedListingsByTransaction,
@@ -158,13 +159,16 @@ export async function searchProperties(
   return { count: total, properties, note };
 }
 
-/** Détails publics d'un bien publié, par slug. */
+/** Détails publics d'un bien publié, par référence Casa Habitat ou slug. */
 export async function getPropertyDetails(
   input: Record<string, unknown>
 ): Promise<{ found: boolean; property?: PublicProperty }> {
+  const reference = typeof input.reference === "string" ? input.reference.trim().toUpperCase() : "";
   const slug = typeof input.slug === "string" ? input.slug.trim() : "";
-  if (!slug) return { found: false };
-  const listing = await getPublishedListingBySlug(slug);
+  if (!reference && !slug) return { found: false };
+  const listing = reference
+    ? await getPublishedListingByReference(reference)
+    : await getPublishedListingBySlug(slug);
   if (!listing) return { found: false };
   return { found: true, property: toPublicProperty(listing) };
 }
@@ -175,7 +179,7 @@ export async function getPropertyDetails(
  */
 export async function requestHumanContact(
   input: Record<string, unknown>
-): Promise<{ whatsappUrl: string; message: string }> {
+): Promise<{ whatsappUrl: string; email: string; message: string }> {
   const reference = typeof input.reference === "string" ? input.reference.trim() : "";
 
   if (reference) {
@@ -184,6 +188,7 @@ export async function requestHumanContact(
     if (listing) {
       return {
         whatsappUrl: whatsappForListing(listing, listing.quartierNom),
+        email: "contact@casahabitatmaroc.com",
         message: `Lien WhatsApp préparé pour le bien ${listing.reference}. Inviter le visiteur à cliquer pour poursuivre avec un conseiller Casa Habitat. Ne promettre aucun délai de réponse.`,
       };
     }
@@ -191,6 +196,7 @@ export async function requestHumanContact(
 
   return {
     whatsappUrl: whatsappGeneral(),
+    email: "contact@casahabitatmaroc.com",
     message:
       "Lien WhatsApp général préparé. Inviter le visiteur à cliquer pour poursuivre avec un conseiller Casa Habitat. Ne promettre aucun délai de réponse.",
   };
@@ -256,13 +262,13 @@ export const TOOL_DEFINITIONS: AgentToolDefinition[] = [
   {
     name: "get_property_details",
     description:
-      "Récupère les informations publiques détaillées d'un bien publié à partir de son slug. Renvoie found=false si le bien n'existe pas ou n'est pas publié.",
+      "Récupère les informations publiques détaillées d'un bien publié à partir de sa référence Casa Habitat (ex. CH-010) ou de son slug. Si le visiteur donne une référence, utiliser reference. Renvoie found=false si le bien n'existe pas ou n'est pas publié.",
     inputSchema: {
       type: "object",
       properties: {
-        slug: { type: "string", description: "Slug du bien, ex. « maarif-studio-… »." },
+        reference: { type: "string", description: "Référence Casa Habitat, ex. « CH-010 »." },
+        slug: { type: "string", description: "Slug du bien si aucune référence n'est disponible." },
       },
-      required: ["slug"],
       additionalProperties: false,
     },
   },
@@ -301,7 +307,7 @@ export const TOOL_DEFINITIONS: AgentToolDefinition[] = [
   {
     name: "request_human_contact",
     description:
-      "Prépare un lien WhatsApp vers un conseiller Casa Habitat. N'enregistre aucune donnée et ne contacte personne — se contente de fournir le lien à présenter au visiteur.",
+      "Prépare les coordonnées de contact direct de Casa Habitat. N'enregistre aucune donnée et ne contacte personne. Renvoie toujours WhatsApp et l'email professionnel ; si une référence de bien est fournie, le WhatsApp est contextualisé sur ce bien.",
     inputSchema: {
       type: "object",
       properties: {
