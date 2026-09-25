@@ -7,6 +7,7 @@ import {
 import { SYSTEM_PROMPT } from "./prompt";
 import { getProvider, LlmError } from "./provider";
 import {
+  createCommercialLead,
   getPropertyDetails,
   requestHumanContact,
   searchProperties,
@@ -33,6 +34,7 @@ function statusFor(name: string): string {
   if (name === "search_properties") return "Recherche dans le catalogue…";
   if (name === "get_property_details") return "Consultation de la fiche…";
   if (name === "request_human_contact") return "Préparation du contact…";
+  if (name === "create_lead") return "Enregistrement de votre demande…";
   return "Traitement…";
 }
 
@@ -48,6 +50,7 @@ export async function* runAgent(params: {
   message: string;
   history: AgentMessage[];
   signal: AbortSignal;
+  conversationId: string;
 }): AsyncGenerator<AgentEvent> {
   const provider = getProvider();
 
@@ -132,7 +135,7 @@ export async function* runAgent(params: {
       yield { type: "status", label: statusFor(call.name) };
 
       try {
-        const payload = await executeTool(call, MAX_RESULTS_PER_REQUEST - resultsUsed);
+        const payload = await executeTool(call, MAX_RESULTS_PER_REQUEST - resultsUsed, params.conversationId);
         if (call.name === "search_properties" && "properties" in payload) {
           resultsUsed += (payload.properties as unknown[]).length;
         }
@@ -158,7 +161,8 @@ export async function* runAgent(params: {
 
 async function executeTool(
   call: AgentToolCall,
-  remainingResults: number
+  remainingResults: number,
+  conversationId: string
 ): Promise<Record<string, unknown>> {
   if (call.name === "search_properties") {
     return { ...(await searchProperties(call.input, remainingResults)) };
@@ -168,6 +172,9 @@ async function executeTool(
   }
   if (call.name === "request_human_contact") {
     return { ...(await requestHumanContact(call.input)) };
+  }
+  if (call.name === "create_lead") {
+    return { ...(await createCommercialLead({ ...call.input, conversation_id: conversationId })) };
   }
   return { error: "Outil inconnu." };
 }
