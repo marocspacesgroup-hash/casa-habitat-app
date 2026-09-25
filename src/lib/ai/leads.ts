@@ -85,6 +85,23 @@ export async function createLead(input: CreateLeadInput): Promise<{
   const refs = uniqueRefs(input.viewed_properties);
   const requestedReference = cleanText(input.requested_property_reference, 32);
 
+  // Défense en profondeur : une référence demandée doit correspondre à un
+  // bien actuellement publié avant d'être enregistrée dans le CRM. Le modèle
+  // ne peut donc pas créer un faux rattachement vers une référence inventée.
+  let requestedListing: Listing | undefined;
+  if (requestedReference) {
+    const listings: Listing[] = await getPublishedListings();
+    requestedListing = listings.find((item) => item.reference === requestedReference);
+    if (!requestedListing) {
+      return {
+        created: false,
+        whatsappUrl: whatsappGeneral(),
+        email: siteConfig.contact.email,
+        message: "La référence du bien ne peut pas être confirmée. Ne pas enregistrer la demande comme liée à ce bien ; proposer le contact général.",
+      };
+    }
+  }
+
   const row = {
     id: leadId,
     conversation_id: conversationId,
@@ -127,12 +144,8 @@ export async function createLead(input: CreateLeadInput): Promise<{
   }
 
   let whatsappUrl = whatsappGeneral();
-  if (requestedReference) {
-    const listings: Listing[] = await getPublishedListings();
-    const listing = listings.find((item) => item.reference === requestedReference);
-    if (listing) {
-      whatsappUrl = whatsappForListing(listing, listing.quartierNom);
-    }
+  if (requestedListing) {
+    whatsappUrl = whatsappForListing(requestedListing, requestedListing.quartierNom);
   }
 
   const notification = await notifyNewLeadByEmail({
