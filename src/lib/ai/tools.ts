@@ -5,6 +5,7 @@ import {
   getPublishedListingsByTransaction,
 } from "@/lib/supabase/queries";
 import { whatsappForListing, whatsappGeneral } from "@/lib/whatsapp";
+import { createLead } from "./leads";
 import { MAX_RESULTS_PER_SEARCH } from "./config";
 import { toPublicProperty, type AgentToolDefinition, type PublicProperty } from "./types";
 import type { Listing, TransactionType } from "@/data/types";
@@ -195,6 +196,33 @@ export async function requestHumanContact(
   };
 }
 
+
+/** Enregistre un prospect après consentement explicite et prépare le handoff WhatsApp. */
+export async function createCommercialLead(input: Record<string, unknown>) {
+  return createLead({
+    conversation_id: typeof input.conversation_id === "string" ? input.conversation_id : "",
+    transaction_type: typeof input.transaction_type === "string" ? input.transaction_type : undefined,
+    property_type: typeof input.property_type === "string" ? input.property_type : undefined,
+    neighborhood: typeof input.neighborhood === "string" ? input.neighborhood : undefined,
+    budget_min: typeof input.budget_min === "number" ? input.budget_min : undefined,
+    budget_max: typeof input.budget_max === "number" ? input.budget_max : undefined,
+    bedrooms_min: typeof input.bedrooms_min === "number" ? input.bedrooms_min : undefined,
+    surface_min: typeof input.surface_min === "number" ? input.surface_min : undefined,
+    furnished: typeof input.furnished === "boolean" ? input.furnished : undefined,
+    name: typeof input.name === "string" ? input.name : undefined,
+    phone: typeof input.phone === "string" ? input.phone : undefined,
+    email: typeof input.email === "string" ? input.email : undefined,
+    whatsapp: typeof input.whatsapp === "string" ? input.whatsapp : undefined,
+    preferred_contact: typeof input.preferred_contact === "string" ? input.preferred_contact : undefined,
+    timing: typeof input.timing === "string" ? input.timing : undefined,
+    urgency: typeof input.urgency === "string" ? input.urgency : undefined,
+    occupants: typeof input.occupants === "number" ? input.occupants : undefined,
+    viewed_properties: Array.isArray(input.viewed_properties) ? input.viewed_properties.filter((v): v is string => typeof v === "string") : undefined,
+    requested_property_reference: typeof input.requested_property_reference === "string" ? input.requested_property_reference : undefined,
+    consent: input.consent === true,
+  });
+}
+
 export const TOOL_DEFINITIONS: AgentToolDefinition[] = [
   {
     name: "search_properties",
@@ -235,6 +263,38 @@ export const TOOL_DEFINITIONS: AgentToolDefinition[] = [
         slug: { type: "string", description: "Slug du bien, ex. « maarif-studio-… »." },
       },
       required: ["slug"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "create_lead",
+    description:
+      "Enregistre un prospect Casa Habitat après consentement explicite. Utiliser uniquement lorsque le visiteur a clairement accepté d'être recontacté, a fourni son nom si possible et au moins un moyen de contact (téléphone/WhatsApp/email). Ne jamais inventer un consentement ou une coordonnée. Le résultat contient un lien WhatsApp de handoff à présenter au visiteur.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        conversation_id: { type: "string", description: "Identifiant de conversation fourni par l'application." },
+        transaction_type: { type: "string", description: "Location longue durée, location courte durée ou achat." },
+        property_type: { type: "string", description: "Type de bien recherché." },
+        neighborhood: { type: "string", description: "Quartier souhaité." },
+        budget_min: { type: "number", description: "Budget minimum en DH." },
+        budget_max: { type: "number", description: "Budget maximum en DH." },
+        bedrooms_min: { type: "number", description: "Nombre minimum de chambres." },
+        surface_min: { type: "number", description: "Surface minimale en m²." },
+        furnished: { type: "boolean", description: "Préférence meublé/non meublé." },
+        name: { type: "string", description: "Nom du prospect, s'il a été fourni." },
+        phone: { type: "string", description: "Téléphone du prospect, s'il a été fourni." },
+        email: { type: "string", description: "Email du prospect, s'il a été fourni." },
+        whatsapp: { type: "string", description: "Numéro WhatsApp du prospect, s'il a été fourni." },
+        preferred_contact: { type: "string", description: "Canal préféré : whatsapp, phone ou email." },
+        timing: { type: "string", description: "Date ou délai souhaité." },
+        urgency: { type: "string", description: "Niveau d'urgence exprimé par le prospect." },
+        occupants: { type: "number", description: "Nombre d'occupants si pertinent." },
+        viewed_properties: { type: "array", items: { type: "string" }, description: "Références Casa Habitat déjà présentées ou consultées dans la conversation." },
+        requested_property_reference: { type: "string", description: "Référence du bien précis qui motive la demande, si connue." },
+        consent: { type: "boolean", description: "true uniquement après accord explicite du visiteur pour être recontacté." },
+      },
+      required: ["conversation_id", "consent"],
       additionalProperties: false,
     },
   },
