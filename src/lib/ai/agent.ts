@@ -59,6 +59,11 @@ export async function* runAgent(params: {
     { role: "user", text: params.message },
   ];
 
+  // Le consentement doit provenir du message utilisateur courant. L'historique
+  // envoyé par le navigateur est utile au dialogue, mais ne constitue pas une
+  // preuve fiable de consentement puisqu'il peut être falsifié côté client.
+  const explicitConsent = /(?:j['’]?(?:accepte|autorise)|je consens|vous pouvez enregistrer|d['’]accord,?\s*(?:vous pouvez|j['’]accepte)|i\s+(?:agree|consent)|نعم\s*(?:أوافق|موافق)|أوافق\s*على\s*(?:تسجيل|حفظ)\s*(?:بياناتي|معلوماتي))/iu.test(params.message);
+
   let toolCallsUsed = 0;
   let resultsUsed = 0;
   const callSignatures = new Set<string>();
@@ -135,7 +140,12 @@ export async function* runAgent(params: {
       yield { type: "status", label: statusFor(call.name) };
 
       try {
-        const payload = await executeTool(call, MAX_RESULTS_PER_REQUEST - resultsUsed, params.conversationId);
+        const payload = await executeTool(
+          call,
+          MAX_RESULTS_PER_REQUEST - resultsUsed,
+          params.conversationId,
+          explicitConsent,
+        );
         if (call.name === "search_properties" && "properties" in payload) {
           resultsUsed += (payload.properties as unknown[]).length;
         }
@@ -162,7 +172,8 @@ export async function* runAgent(params: {
 async function executeTool(
   call: AgentToolCall,
   remainingResults: number,
-  conversationId: string
+  conversationId: string,
+  explicitConsent: boolean,
 ): Promise<Record<string, unknown>> {
   if (call.name === "search_properties") {
     return { ...(await searchProperties(call.input, remainingResults)) };
@@ -174,7 +185,13 @@ async function executeTool(
     return { ...(await requestHumanContact(call.input)) };
   }
   if (call.name === "create_lead") {
-    return { ...(await createCommercialLead({ ...call.input, conversation_id: conversationId })) };
+    return {
+      ...(await createCommercialLead({
+        ...call.input,
+        conversation_id: conversationId,
+        consent: call.input.consent === true && explicitConsent,
+      })),
+    };
   }
   return { error: "Outil inconnu." };
 }
