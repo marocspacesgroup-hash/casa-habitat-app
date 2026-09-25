@@ -275,7 +275,7 @@ export const TOOL_DEFINITIONS: AgentToolDefinition[] = [
   {
     name: "create_lead",
     description:
-      "Enregistre un prospect Casa Habitat après consentement explicite. Utiliser uniquement lorsque le visiteur a clairement accepté d'être recontacté, a fourni son nom si possible et au moins un moyen de contact (téléphone/WhatsApp/email). Ne jamais inventer un consentement ou une coordonnée. Le résultat contient un lien WhatsApp de handoff à présenter au visiteur.",
+      "Enregistre un prospect Casa Habitat après consentement explicite. Utiliser ce parcours lorsqu'un visiteur demande que sa demande soit transmise, envoyée, enregistrée ou remise à un conseiller, ou accepte d'être recontacté. Avant l'appel, recueillir le nom si nécessaire, au moins un moyen de contact et un consentement explicite. Ne jamais inventer un consentement ou une coordonnée. Ne pas remplacer ce parcours par request_human_contact lorsque le visiteur demande une transmission de sa demande. Le résultat contient un lien WhatsApp de handoff à présenter au visiteur.",
     inputSchema: {
       type: "object",
       properties: {
@@ -307,7 +307,7 @@ export const TOOL_DEFINITIONS: AgentToolDefinition[] = [
   {
     name: "request_human_contact",
     description:
-      "Prépare les coordonnées de contact direct de Casa Habitat. N'enregistre aucune donnée et ne contacte personne. Renvoie toujours WhatsApp et l'email professionnel ; si une référence de bien est fournie, le WhatsApp est contextualisé sur ce bien.",
+      "Fournit uniquement les coordonnées directes de Casa Habitat sans enregistrer de prospect. Utiliser seulement si le visiteur refuse explicitement l'enregistrement de ses données mais souhaite contacter Casa Habitat, ou demande explicitement les coordonnées directes sans demander la transmission de sa demande. Ne pas utiliser pour une demande du type « transmettez ma demande », « prévenez un conseiller » ou « je veux être recontacté » : ces formulations doivent suivre le parcours create_lead après collecte du contact et du consentement. Renvoie WhatsApp et l'email professionnel ; si une référence de bien est fournie, le WhatsApp est contextualisé sur ce bien.",
     inputSchema: {
       type: "object",
       properties: {
