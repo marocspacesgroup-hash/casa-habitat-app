@@ -23,6 +23,7 @@ export const dynamic = "force-dynamic";
 interface ChatRequestBody {
   message?: unknown;
   history?: unknown;
+  conversationId?: unknown;
 }
 
 /** N'accepte de l'historique que la forme exacte attendue. */
@@ -130,6 +131,10 @@ export async function POST(request: Request) {
   if (message.length > MAX_MESSAGE_CHARS) return errorStream("message_too_long", 413);
 
   const history = parseHistory(body.history);
+  const conversationId =
+    typeof body.conversationId === "string" && body.conversationId.trim()
+      ? body.conversationId.trim().slice(0, 120)
+      : crypto.randomUUID();
 
   // Réservée seulement maintenant : une requête écartée plus haut pour un
   // corps invalide ne doit jamais laisser une place occupée derrière elle.
@@ -160,6 +165,7 @@ export async function POST(request: Request) {
           message,
           history,
           signal: controller.signal,
+          conversationId,
         })) {
           if (event.type === "status") push({ type: "status", label: event.label });
           if (event.type === "message") push({ type: "message", text: event.text });
