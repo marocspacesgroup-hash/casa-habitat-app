@@ -11,27 +11,18 @@ export async function generateMetadata() {
   return metadata;
 }
 
-const reasons = [
-  {
-    titre: "{t.reason1Title}",
-    texte: "{t.reason1Text}",
-  },
-  {
-    titre: "{t.reason2Title}",
-    texte: "{t.reason2Text}",
-  },
-  {
-    titre: "{t.reason3Title}",
-    texte: "{t.reason3Text}",
-  },
-  {
-    titre: "{t.reason4Title}",
-    texte: "{t.reason4Text}",
-  },
-];
+
 
 export default async function ConfierMonBienPage() {
-  const neighborhoods = await getNeighborhoods();\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.owner;
+  const neighborhoods = await getNeighborhoods();
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.owner;
+  const reasons = [
+    { titre: t.reason1Title, texte: t.reason1Text },
+    { titre: t.reason2Title, texte: t.reason2Text },
+    { titre: t.reason3Title, texte: t.reason3Text },
+    { titre: t.reason4Title, texte: t.reason4Text },
+  ];
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -63,7 +54,7 @@ export default async function ConfierMonBienPage() {
       <section className="bg-navy py-20 mb-20">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <span className="eyebrow inline-block px-3 py-1.5 rounded-sm mb-6 bg-gold text-navy">
-            Propriétaires
+            {t.eyebrow}
           </span>
           <h1 className="font-display text-ivory text-[clamp(28px,4vw,44px)] mb-6">
             {t.title}{" "}
@@ -97,8 +88,7 @@ export default async function ConfierMonBienPage() {
               {t.formTitle}
             </h2>
             <p className="text-ink-soft mb-10">
-              Quelques informations suffisent — nous vous recontactons
-              rapidement pour en discuter.
+              {t.formText}
             </p>
             <OwnerLeadForm neighborhoods={neighborhoods} />
           </div>
