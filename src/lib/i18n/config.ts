@@ -1,5 +1,7 @@
 import { translations, type Language, isLanguage } from "@/locales";
 
+export type { Language } from "@/locales";
+
 export const defaultLanguage: Language = "fr";
 export const supportedLanguages: Language[] = ["fr", "en", "ar", "es", "it"];
 export const localeCookie = "casa-habitat-language";
