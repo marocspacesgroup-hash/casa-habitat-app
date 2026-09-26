@@ -7,7 +7,9 @@ export async function generateMetadata() {
   return getPageMetadata("about", "/a-propos");
 }
 
-export default async function AProposPage() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.about;
+export default async function AProposPage() {
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.about;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-3xl mx-auto px-6">
