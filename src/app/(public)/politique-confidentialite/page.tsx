@@ -7,7 +7,9 @@ export async function generateMetadata() {
   return metadata;
 }
 
-export default async function PolitiqueConfidentialitePage() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.privacy;
+export default async function PolitiqueConfidentialitePage() {
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.privacy;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-2xl mx-auto px-6">
