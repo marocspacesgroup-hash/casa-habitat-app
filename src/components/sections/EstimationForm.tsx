@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { siteConfig } from "@/config/site";
 import { trackEvent } from "@/lib/analytics";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Errors {
   nom?: string;
@@ -12,6 +13,8 @@ interface Errors {
 }
 
 export default function EstimationForm() {
+  const { translation } = useTranslation();
+  const t = translation.forms;
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [telephone, setTelephone] = useState("");
@@ -24,11 +27,11 @@ export default function EstimationForm() {
 
   const validate = (): boolean => {
     const next: Errors = {};
-    if (!nom.trim()) next.nom = "Votre nom est requis.";
-    if (!email.trim()) next.email = "Votre e-mail est requis.";
-    else if (!/^\S+@\S+\.\S+$/.test(email)) next.email = "E-mail invalide.";
-    if (!telephone.trim()) next.telephone = "Votre téléphone est requis.";
-    if (!ville.trim()) next.ville = "Précisez le quartier ou la ville du bien.";
+    if (!nom.trim()) next.nom = t.requiredName;
+    if (!email.trim()) next.email = t.requiredEmail;
+    else if (!/^\S+@\S+\.\S+$/.test(email)) next.email = t.invalidEmail;
+    if (!telephone.trim()) next.telephone = t.requiredPhone;
+    if (!ville.trim()) next.ville = t.requiredCity;
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -65,54 +68,54 @@ export default function EstimationForm() {
     <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
       <div className="grid sm:grid-cols-2 gap-5">
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="nom">Nom complet</label>
+          <label className={labelClass} htmlFor="nom">{t.fullName}</label>
           <input id="nom" className={inputClass} value={nom} onChange={(e) => setNom(e.target.value)} />
           {errors.nom && <p className="text-red-600 text-xs">{errors.nom}</p>}
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="telephone">Téléphone</label>
+          <label className={labelClass} htmlFor="telephone">{t.phone}</label>
           <input id="telephone" className={inputClass} value={telephone} onChange={(e) => setTelephone(e.target.value)} />
           {errors.telephone && <p className="text-red-600 text-xs">{errors.telephone}</p>}
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className={labelClass} htmlFor="email">E-mail</label>
+        <label className={labelClass} htmlFor="email">{t.email}</label>
         <input id="email" type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} />
         {errors.email && <p className="text-red-600 text-xs">{errors.email}</p>}
       </div>
 
       <div className="grid sm:grid-cols-2 gap-5">
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="typeBien">Type de bien</label>
+          <label className={labelClass} htmlFor="typeBien">{t.propertyType}</label>
           <select id="typeBien" className={inputClass} value={typeBien} onChange={(e) => setTypeBien(e.target.value)}>
-            <option value="appartement">Appartement</option>
-            <option value="studio">Studio</option>
-            <option value="villa">Villa</option>
-            <option value="bureau">Bureau</option>
-            <option value="autre">Autre</option>
+            <option value="appartement">{t.apartment}</option>
+            <option value="studio">{t.studio}</option>
+            <option value="villa">{t.villa}</option>
+            <option value="bureau">{t.office}</option>
+            <option value="autre">{t.other}</option>
           </select>
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="surface">Surface approximative (m²)</label>
+          <label className={labelClass} htmlFor="surface">{t.surface}</label>
           <input id="surface" type="number" min="0" className={inputClass} value={surface} onChange={(e) => setSurface(e.target.value)} />
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className={labelClass} htmlFor="ville">Quartier / ville du bien</label>
-        <input id="ville" className={inputClass} value={ville} onChange={(e) => setVille(e.target.value)} placeholder="ex. Maarif, Casablanca" />
+        <label className={labelClass} htmlFor="ville">{t.neighborhoodCity}</label>
+        <input id="ville" className={inputClass} value={ville} onChange={(e) => setVille(e.target.value)} placeholder={t.neighborhoodPlaceholder} />
         {errors.ville && <p className="text-red-600 text-xs">{errors.ville}</p>}
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className={labelClass} htmlFor="details">Détails complémentaires</label>
+        <label className={labelClass} htmlFor="details">{t.details}</label>
         <textarea
           id="details"
           className={`${inputClass} min-h-[90px] resize-y`}
           value={details}
           onChange={(e) => setDetails(e.target.value)}
-          placeholder="État du bien, année, particularités..."
+          placeholder={t.detailsPlaceholder}
         />
       </div>
 
