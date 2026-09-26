@@ -1,11 +1,9 @@
-import type { Metadata } from "next";
 import EstimationForm from "@/components/sections/EstimationForm";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Estimation gratuite",
-  description: "Demandez une estimation gratuite de votre bien à Casablanca avec Casa Habitat.",
-  alternates: { canonical: "/estimation" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("estimation", "/estimation");
+}
 
 export default function EstimationPage() {
   return (
