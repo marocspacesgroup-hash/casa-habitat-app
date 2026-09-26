@@ -1,13 +1,10 @@
-import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 import { whatsappGeneral } from "@/lib/whatsapp";
 
-export const metadata: Metadata = {
-  title: "À propos",
-  description:
-    "Casa Habitat, agence immobilière premium à Casablanca — vente, location, gestion et conseil en investissement.",
-  alternates: { canonical: "/a-propos" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("about", "/a-propos");
+}
 
 export default function AProposPage() {
   return (
