@@ -1,45 +1,9 @@
 import type { Locale } from "./fr";
-
 export const en: Locale = {
-  nav: {
-    rentals: "Rentals",
-    sales: "Sales",
-    shortStay: "Short stay",
-    neighborhoods: "Neighborhoods",
-    about: "About",
-    contact: "Contact",
-    listProperty: "List your property",
-  },
-  hero: {
-    title: "Find your property in Casablanca, without compromise.",
-    subtitle: "A verified selection with one dedicated point of contact.",
-    searchPlaceholder: "Search for a property",
-    ctaButton: "View properties",
-  },
-  filters: {
-    propertyType: "Property type",
-    city: "City",
-    budget: "Budget",
-    search: "Search",
-  },
-  properties: {
-    featuredTitle: "Properties chosen, not just listed.",
-    rooms: "rooms",
-    bathrooms: "baths",
-    area: "sqm",
-    viewDetails: "View property",
-  },
-  contact: {
-    title: "One point of contact, from first conversation to keys.",
-    namePlaceholder: "Your name",
-    emailPlaceholder: "Your email address",
-    phonePlaceholder: "Your phone number",
-    messagePlaceholder: "Your message",
-    submitButton: "Send message",
-    successMessage: "Thank you, your message has been sent.",
-  },
-  footer: {
-    tagline: "Luxury real estate in Casablanca.",
-    rights: "All rights reserved.",
-  },
-};
+nav:{rentals:"Rentals",sales:"Sales",shortStay:"Short stay",neighborhoods:"Neighborhoods",about:"About",contact:"Contact",listProperty:"List your property"},
+hero:{title:"Find your property in Casablanca,",highlight:"without compromise.",subtitle:"A verified selection with one dedicated point of contact.",searchPlaceholder:"Search for a property",ctaButton:"View properties"},
+filters:{propertyType:"Property type",city:"City",budget:"Budget",search:"Search"},
+properties:{featuredTitle:"Properties chosen, not just listed.",rooms:"rooms",bathrooms:"baths",area:"sqm",viewDetails:"View property"},
+home:{cabinet:"Real Estate Agency",looking:"You are looking",lookingTitle:"I am looking for a property",lookingText:"Rent, sale or short stay — browse a verified selection in Casablanca.",lookingCta:"View properties →",owner:"You own a property",ownerTitle:"I am a property owner",ownerText:"Entrust your property to Casa Habitat — accurate valuation and qualified visitors.",ownerCta:"List my property →",premium:"Premium selection",premiumDescription:"A preview of our portfolio — availability changes with viewings; contact us for the latest status.",comingSoon:"New listings coming very soon — contact us directly in the meantime.",allProperties:"View all properties →",services:"What we do",servicesTitle:"Four areas of expertise,",servicesEmphasis:"one shared standard.",serviceSale:"Sales",serviceSaleText:"Accurate valuation, careful presentation and negotiation through to signature.",serviceRent:"Rentals",serviceRentText:"Tenant selection, verified files, furnished and unfurnished properties.",serviceShortStay:"Short stay",serviceShortStayText:"Furnished properties ready for guests, designed for stays from a few nights to several months.",serviceManagement:"Management & advisory",serviceManagementText:"Rental monitoring, collections, maintenance and market insight for investors.",coverage:"Coverage area",neighborhoodsTitle:"The neighborhoods",neighborhoodsEmphasis:"we know.",allNeighborhoods:"View all neighborhoods →",agency:"The agency",agencyTitle:"One dedicated point of contact,",agencyEmphasis:"from first conversation to keys.",agencyText:"Casa Habitat serves a demanding clientele — expatriates and residents — with bilingual support, a focused selection and complete discretion on every file.",agencyCta:"Learn more about the agency →",projectTitle:"Have a project in mind?",projectText:"Write to us directly — reply within one business day, or immediately on WhatsApp.",whatsapp:"Write on WhatsApp",contactForm:"Contact form"},
+contact:{title:"One point of contact, from first conversation to keys.",namePlaceholder:"Your name",emailPlaceholder:"Your email address",phonePlaceholder:"Your phone number",messagePlaceholder:"Your message",submitButton:"Send message",successMessage:"Thank you, your message has been sent."},
+footer:{tagline:"Luxury real estate in Casablanca.",rights:"All rights reserved.",agency:"Agency",legal:"Legal"}};
