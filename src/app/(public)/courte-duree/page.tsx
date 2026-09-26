@@ -1,12 +1,9 @@
-import type { Metadata } from "next";
 import ListingsPageContent from "@/components/sections/ListingsPageContent";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Locations courte durée à Casablanca",
-  description:
-    "Appartements et studios meublés pour des séjours courts à Casablanca.",
-  alternates: { canonical: "/courte-duree" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("shortStay", "/courte-duree");
+}
 
 export default async function CourteDureePage({
   searchParams,
