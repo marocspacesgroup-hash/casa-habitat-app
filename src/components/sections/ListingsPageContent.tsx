@@ -89,8 +89,7 @@ export default async function ListingsPageContent({
 
         <div className="max-w-2xl mb-4">
           <span className="eyebrow inline-block px-3 py-1.5 rounded-sm mb-5 bg-navy text-gold-bright">
-            {results.length} bien{results.length > 1 ? "s" : ""} trouvé
-            {results.length > 1 ? "s" : ""}
+            {results.length} {results.length > 1 ? translation.pages.listings.foundPlural : translation.pages.listings.found}
           </span>
           <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-4">
             {title}{" "}
