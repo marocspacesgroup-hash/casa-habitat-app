@@ -6,7 +6,9 @@ export async function generateMetadata() {
   return getPageMetadata("estimation", "/estimation");
 }
 
-export default async function EstimationPage() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.estimation;
+export default async function EstimationPage() {
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.estimation;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-2xl mx-auto px-6">
