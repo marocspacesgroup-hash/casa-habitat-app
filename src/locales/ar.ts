@@ -1,45 +1,9 @@
 import type { Locale } from "./fr";
-
 export const ar: Locale = {
-  nav: {
-    rentals: "الإيجار",
-    sales: "البيع",
-    shortStay: "إيجار قصير المدة",
-    neighborhoods: "الأحياء",
-    about: "من نحن",
-    contact: "اتصل بنا",
-    listProperty: "اعرض عقارك",
-  },
-  hero: {
-    title: "اعثر على عقارك في الدار البيضاء دون تنازلات.",
-    subtitle: "اختيار موثوق مع جهة اتصال واحدة مخصصة.",
-    searchPlaceholder: "ابحث عن عقار",
-    ctaButton: "عرض العقارات",
-  },
-  filters: {
-    propertyType: "نوع العقار",
-    city: "المدينة",
-    budget: "الميزانية",
-    search: "بحث",
-  },
-  properties: {
-    featuredTitle: "عقارات مختارة، وليست مجرد قوائم.",
-    rooms: "غرف",
-    bathrooms: "حمامات",
-    area: "م²",
-    viewDetails: "عرض العقار",
-  },
-  contact: {
-    title: "جهة اتصال واحدة، من أول تواصل إلى تسليم المفاتيح.",
-    namePlaceholder: "اسمك",
-    emailPlaceholder: "بريدك الإلكتروني",
-    phonePlaceholder: "رقم هاتفك",
-    messagePlaceholder: "رسالتك",
-    submitButton: "إرسال الرسالة",
-    successMessage: "شكرًا، تم إرسال رسالتك.",
-  },
-  footer: {
-    tagline: "عقارات فاخرة في الدار البيضاء.",
-    rights: "جميع الحقوق محفوظة.",
-  },
-};
+nav:{rentals:"الإيجار",sales:"البيع",shortStay:"إيجار قصير المدة",neighborhoods:"الأحياء",about:"من نحن",contact:"اتصل بنا",listProperty:"اعرض عقارك"},
+hero:{title:"اعثر على عقارك في الدار البيضاء",highlight:"دون تنازلات.",subtitle:"اختيار موثوق مع جهة اتصال واحدة مخصصة.",searchPlaceholder:"ابحث عن عقار",ctaButton:"عرض العقارات"},
+filters:{propertyType:"نوع العقار",city:"المدينة",budget:"الميزانية",search:"بحث"},
+properties:{featuredTitle:"عقارات مختارة، وليست مجرد قوائم.",rooms:"غرف",bathrooms:"حمامات",area:"م²",viewDetails:"عرض العقار"},
+home:{cabinet:"وكالة عقارية",looking:"تبحث عن عقار",lookingTitle:"أبحث عن عقار",lookingText:"للإيجار أو البيع أو الإقامة القصيرة — تصفح مجموعة موثوقة في الدار البيضاء.",lookingCta:"عرض العقارات →",owner:"لديك عقار",ownerTitle:"أنا مالك عقار",ownerText:"أوكل عقارك إلى Casa Habitat — تقييم دقيق وزوار مؤهلون.",ownerCta:"اعرض عقارك →",premium:"مجموعة مميزة",premiumDescription:"لمحة عن محفظتنا — التوفر يتغير مع الزيارات، تواصل معنا لمعرفة الحالة الحالية.",comingSoon:"إعلانات جديدة قريبًا جدًا — تواصل معنا مباشرة في هذه الأثناء.",allProperties:"عرض جميع العقارات →",services:"خدماتنا",servicesTitle:"أربعة مجالات،",servicesEmphasis:"ومعيار واحد.",serviceSale:"البيع",serviceSaleText:"تقييم دقيق، إبراز متقن وتفاوض حتى توقيع العقد.",serviceRent:"الإيجار",serviceRentText:"اختيار المستأجرين، ملفات موثقة، وعقارات مفروشة وغير مفروشة.",serviceShortStay:"الإقامة القصيرة",serviceShortStayText:"عقارات مفروشة جاهزة للإقامة، من بضع ليالٍ إلى عدة أشهر.",serviceManagement:"الإدارة والاستشارة",serviceManagementText:"متابعة الإيجار، التحصيل، الصيانة وقراءة السوق للمستثمرين.",coverage:"منطقة التغطية",neighborhoodsTitle:"الأحياء",neighborhoodsEmphasis:"التي نعرفها.",allNeighborhoods:"عرض جميع الأحياء →",agency:"الوكالة",agencyTitle:"جهة اتصال واحدة،",agencyEmphasis:"من أول تواصل إلى تسليم المفاتيح.",agencyText:"ترافق Casa Habitat عملاء متطلبين — مقيمين ومغتربين — بدعم ثنائي اللغة، واختيار دقيق وسرية تامة في كل ملف.",agencyCta:"اكتشف المزيد عن الوكالة →",projectTitle:"لديك مشروع عقاري؟",projectText:"اكتب إلينا مباشرة — نجيب خلال يوم عمل، أو فورًا عبر واتساب.",whatsapp:"اكتب عبر واتساب",contactForm:"نموذج الاتصال"},
+contact:{title:"جهة اتصال واحدة، من أول تواصل إلى تسليم المفاتيح.",namePlaceholder:"اسمك",emailPlaceholder:"بريدك الإلكتروني",phonePlaceholder:"رقم هاتفك",messagePlaceholder:"رسالتك",submitButton:"إرسال الرسالة",successMessage:"شكرًا، تم إرسال رسالتك."},
+footer:{tagline:"عقارات فاخرة في الدار البيضاء.",rights:"جميع الحقوق محفوظة.",agency:"الوكالة",legal:"قانوني"}};
