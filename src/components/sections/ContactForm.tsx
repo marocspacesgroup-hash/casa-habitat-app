@@ -106,8 +106,8 @@ export default function ContactForm() {
       </button>
       <p className="text-ink-soft text-xs">
         {sent
-          ? "Votre application e-mail va s'ouvrir avec le message pré-rempli — il ne reste qu'à l'envoyer."
-          : "Réponse sous 24h ouvrées."}
+          ? t.mailOpened
+          : t.reply}
       </p>
     </form>
   );
