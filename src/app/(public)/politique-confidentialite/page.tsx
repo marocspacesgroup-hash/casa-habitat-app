@@ -1,11 +1,10 @@
-import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Politique de confidentialité",
-  description: "Politique de confidentialité de Casa Habitat.",
-  alternates: { canonical: "/politique-confidentialite" },
-};
+export async function generateMetadata() {
+  const metadata = await getPageMetadata("privacy", "/politique-confidentialite");
+  return metadata;
+}
 
 export default function PolitiqueConfidentialitePage() {
   return (
