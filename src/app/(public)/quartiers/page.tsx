@@ -1,13 +1,10 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 import { getNeighborhoods } from "@/lib/supabase/queries";
 
-export const metadata: Metadata = {
-  title: "Quartiers de Casablanca",
-  description:
-    "Découvrez les quartiers de Casablanca couverts par Casa Habitat : Maarif, Racine, Gauthier, Anfa, et plus.",
-  alternates: { canonical: "/quartiers" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("neighborhoods", "/quartiers");
+}
 
 export default async function QuartiersPage() {
   const neighborhoods = await getNeighborhoods();
