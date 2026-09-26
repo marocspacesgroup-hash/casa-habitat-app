@@ -1,4 +1,4 @@
-import { type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { applyI18n } from "@/middleware-i18n";
 import { localeCookie, localeHeader } from "@/lib/i18n/config";
