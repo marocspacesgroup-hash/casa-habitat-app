@@ -1,17 +1,18 @@
 import { siteConfig } from "@/config/site";
 import { getPageMetadata } from "@/lib/i18n/metadata";
 import { whatsappGeneral } from "@/lib/whatsapp";
+import { getServerTranslation } from "@/lib/i18n/server";
 
 export async function generateMetadata() {
   return getPageMetadata("about", "/a-propos");
 }
 
-export default function AProposPage() {
+export default async function AProposPage() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.about;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-3xl mx-auto px-6">
         <span className="eyebrow inline-block px-3 py-1.5 rounded-sm mb-5 bg-navy text-gold-bright">
-          L&apos;agence
+          {t.eyebrow}
         </span>
         <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-8">
           {siteConfig.name} — <em className="text-gold not-italic italic">{siteConfig.tagline}</em>
@@ -21,28 +22,22 @@ export default function AProposPage() {
           {siteConfig.description}
         </p>
         <p className="text-ink-soft mb-6 leading-relaxed">
-          Casa Habitat accompagne la vente, la location et la gestion de
-          biens à Casablanca, avec un interlocuteur unique du premier échange
-          jusqu&apos;à la remise des clés. Chaque bien est visité et qualifié
-          avant d&apos;être proposé — pas de catalogue générique.
+          {t.intro}
         </p>
         <p className="text-ink-soft mb-12 leading-relaxed">
-          L&apos;agence s&apos;adresse aussi bien à une clientèle résidente
-          qu&apos;à une clientèle internationale, avec un accompagnement
-          bilingue et une attention particulière portée à la discrétion de
-          chaque dossier.
+          {t.international}
         </p>
 
         <div className="bg-navy rounded-sm p-8 md:p-10">
           <h2 className="font-display text-ivory text-xl mb-4">
-            Nos domaines d&apos;intervention
+            {t.domains}
           </h2>
           <ul className="grid sm:grid-cols-2 gap-3 text-ivory/75 text-sm mb-8">
-            <li>— Vente</li>
-            <li>— Location</li>
-            <li>— Location courte durée</li>
-            <li>— Gestion immobilière</li>
-            <li>— Conseil en investissement</li>
+            <li>— {t.sale}</li>
+            <li>— {t.rent}</li>
+            <li>— {t.shortStay}</li>
+            <li>— {t.management}</li>
+            <li>— {t.investment}</li>
           </ul>
           <a
             href={whatsappGeneral()}
@@ -50,7 +45,7 @@ export default function AProposPage() {
             rel="noopener noreferrer"
             className="inline-block bg-gold text-navy font-semibold text-xs uppercase tracking-widest px-8 py-3.5 rounded-sm hover:bg-gold-bright transition-colors"
           >
-            Discuter de votre projet
+            {t.project}
           </a>
         </div>
       </div>
