@@ -1,5 +1,6 @@
 import { siteConfig } from "@/config/site";
 import { getPageMetadata } from "@/lib/i18n/metadata";
+import { getServerTranslation } from "@/lib/i18n/server";
 
 export async function generateMetadata() {
   const metadata = await getPageMetadata("legal", "/mentions-legales");
@@ -9,12 +10,12 @@ export async function generateMetadata() {
 function LegalField({ label, value }: { label: string; value: string }) {
   return (
     <p>
-      {label} : {value || <span className="italic text-ink-soft/70">à renseigner</span>}
+      {label} : {value || <span className="italic text-ink-soft/70">{t.toComplete}</span>}
     </p>
   );
 }
 
-export default function MentionsLegalesPage() {
+export default async function MentionsLegalesPage() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.legal;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-2xl mx-auto px-6">
@@ -27,7 +28,7 @@ export default function MentionsLegalesPage() {
 
         <div className="flex flex-col gap-10 text-ink-soft leading-relaxed">
           <section>
-            <h2 className="font-display text-lg text-ink mb-3">Éditeur du site</h2>
+            <h2 className="font-display text-lg text-ink mb-3">{t.publisher}</h2>
             <p>
               {siteConfig.name} — {siteConfig.tagline}
               <br />
@@ -62,7 +63,7 @@ export default function MentionsLegalesPage() {
           </section>
 
           <section>
-            <h2 className="font-display text-lg text-ink mb-3">Hébergement</h2>
+            <h2 className="font-display text-lg text-ink mb-3">{t.hosting}</h2>
             <p>
               {siteConfig.hosting.name}
               <br />
