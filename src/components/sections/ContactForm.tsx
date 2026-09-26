@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { siteConfig } from "@/config/site";
 import { trackEvent } from "@/lib/analytics";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Errors {
   nom?: string;
@@ -12,6 +13,8 @@ interface Errors {
 }
 
 export default function ContactForm() {
+  const { translation } = useTranslation();
+  const t = translation.forms;
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
   const [telephone, setTelephone] = useState("");
@@ -22,11 +25,11 @@ export default function ContactForm() {
 
   const validate = (): boolean => {
     const next: Errors = {};
-    if (!nom.trim()) next.nom = "Votre nom est requis.";
-    if (!email.trim()) next.email = "Votre e-mail est requis.";
-    else if (!/^\S+@\S+\.\S+$/.test(email)) next.email = "E-mail invalide.";
-    if (!telephone.trim()) next.telephone = "Votre téléphone est requis.";
-    if (!message.trim()) next.message = "Décrivez votre besoin en quelques mots.";
+    if (!nom.trim()) next.nom = t.requiredName;
+    if (!email.trim()) next.email = t.requiredEmail;
+    else if (!/^\S+@\S+\.\S+$/.test(email)) next.email = t.invalidEmail;
+    if (!telephone.trim()) next.telephone = t.requiredPhone;
+    if (!message.trim()) next.message = t.requiredMessage;
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -61,36 +64,36 @@ export default function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
       <div className="flex flex-col gap-2">
-        <label className={labelClass} htmlFor="nom">Nom complet</label>
+        <label className={labelClass} htmlFor="nom">{t.fullName}</label>
         <input id="nom" className={inputClass} value={nom} onChange={(e) => setNom(e.target.value)} />
         {errors.nom && <p className="text-red-600 text-xs">{errors.nom}</p>}
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className={labelClass} htmlFor="email">E-mail</label>
+        <label className={labelClass} htmlFor="email">{t.email}</label>
         <input id="email" type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} />
         {errors.email && <p className="text-red-600 text-xs">{errors.email}</p>}
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className={labelClass} htmlFor="telephone">Téléphone</label>
+        <label className={labelClass} htmlFor="telephone">{t.phone}</label>
         <input id="telephone" className={inputClass} value={telephone} onChange={(e) => setTelephone(e.target.value)} />
         {errors.telephone && <p className="text-red-600 text-xs">{errors.telephone}</p>}
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className={labelClass} htmlFor="bien">Bien concerné (référence, facultatif)</label>
+        <label className={labelClass} htmlFor="bien">{t.property}</label>
         <input id="bien" className={inputClass} value={bien} onChange={(e) => setBien(e.target.value)} placeholder="ex. CH-0001" />
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className={labelClass} htmlFor="message">Votre projet</label>
+        <label className={labelClass} htmlFor="message">{t.project}</label>
         <textarea
           id="message"
           className={`${inputClass} min-h-[100px] resize-y`}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Achat, location, gestion — décrivez votre besoin en quelques lignes."
+          placeholder={t.projectPlaceholder}
         />
         {errors.message && <p className="text-red-600 text-xs">{errors.message}</p>}
       </div>
