@@ -154,6 +154,8 @@ class AnthropicProvider implements LlmProvider {
         phase: "provider_error",
         error_type: error instanceof Anthropic.APIError ? "api_error" : error?.constructor?.name ?? "unknown",
         status: error instanceof Anthropic.APIError ? error.status ?? null : null,
+        message: error instanceof Anthropic.APIError ? error.message.slice(0, 300) : null,
+        request_id: error instanceof Anthropic.APIError ? error.requestID ?? null : null,
       });
       if (error instanceof Anthropic.RateLimitError) {
         throw new LlmError("rate_limited", true);
