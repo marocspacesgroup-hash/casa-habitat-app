@@ -1,14 +1,14 @@
 import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { applyI18n } from "@/middleware-i18n";
-import { getLocaleFromPath, localeCookie } from "@/lib/i18n/config";
+import { localeCookie, localeHeader } from "@/lib/i18n/config";
 
 export async function middleware(request: NextRequest) {
   const redirect = applyI18n(request);
   if (redirect) return redirect;
 
   const response = await updateSession(request);
-  const locale = getLocaleFromPath(request.nextUrl.pathname);
+  const locale = request.headers.get(localeHeader);
   if (locale) {
     response.cookies.set(localeCookie, locale, {
       path: "/",
