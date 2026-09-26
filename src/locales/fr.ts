@@ -23,5 +23,7 @@ export type Locale = {
   properties:{featuredTitle:string;rooms:string;bathrooms:string;area:string;viewDetails:string};
   home:{cabinet:string;looking:string;lookingTitle:string;lookingText:string;lookingCta:string;owner:string;ownerTitle:string;ownerText:string;ownerCta:string;premium:string;premiumDescription:string;comingSoon:string;allProperties:string;services:string;servicesTitle:string;servicesEmphasis:string;serviceSale:string;serviceSaleText:string;serviceRent:string;serviceRentText:string;serviceShortStay:string;serviceShortStayText:string;serviceManagement:string;serviceManagementText:string;coverage:string;neighborhoodsTitle:string;neighborhoodsEmphasis:string;allNeighborhoods:string;agency:string;agencyTitle:string;agencyEmphasis:string;agencyText:string;agencyCta:string;projectTitle:string;projectText:string;whatsapp:string;contactForm:string};
   contact:{title:string;namePlaceholder:string;emailPlaceholder:string;phonePlaceholder:string;messagePlaceholder:string;submitButton:string;successMessage:string};
-  footer:{tagline:string;rights:string;agency:string;legal:string};\n  pages:any;\n  forms:any;
+  footer:{tagline:string;rights:string;agency:string;legal:string};
+  pages:any;
+  forms:any;
 };
