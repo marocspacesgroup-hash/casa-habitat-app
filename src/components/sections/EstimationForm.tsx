@@ -127,8 +127,8 @@ export default function EstimationForm() {
       </button>
       <p className="text-ink-soft text-xs">
         {sent
-          ? "Votre application e-mail va s'ouvrir avec le message pré-rempli — il ne reste qu'à l'envoyer."
-          : "Estimation gratuite et sans engagement."}
+          ? t.mailOpened
+          : t.freeEstimate}
       </p>
     </form>
   );
