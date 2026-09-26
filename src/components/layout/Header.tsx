@@ -10,17 +10,12 @@ import { fr } from "@/locales/fr";
 import { es } from "@/locales/es";
 import { it } from "@/locales/it";
 import { getLocaleFromPath, prefixLocale, type Language } from "@/lib/i18n/config";
+import { translations as localeTranslations, languageFlags as localeFlags, languageNames as localeNames } from "@/locales";
 
-const languageFlags: Record<Language, string> = { fr: "🇫🇷", en: "🇬🇧", ar: "🇲🇦", es: "🇪🇸", it: "🇮🇹" };
-const translations: Record<Language, (typeof fr)> = { fr, en, ar, es, it };
+const translations = localeTranslations;
+const languageFlags = localeFlags;
 
-const languageNames: Record<Language, string> = {
-  fr: "Français",
-  en: "English",
-  ar: "العربية",
-  es: "Español",
-  it: "Italiano",
-};
+const languageNames = localeNames;
 
 function getNextLanguage(language: Language): Language {
   const languages: Language[] = ["fr", "en", "ar", "es", "it"];
