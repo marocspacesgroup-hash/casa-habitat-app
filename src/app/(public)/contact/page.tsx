@@ -1,15 +1,13 @@
-import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 import { whatsappGeneral } from "@/lib/whatsapp";
 import ContactForm from "@/components/sections/ContactForm";
 import AgencyLocation from "@/components/sections/AgencyLocation";
 import TrackedLink from "@/components/ui/TrackedLink";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description: "Contactez Casa Habitat à Casablanca — téléphone, e-mail, WhatsApp.",
-  alternates: { canonical: "/contact" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("contact", "/contact");
+}
 
 export default function ContactPage() {
   return (
