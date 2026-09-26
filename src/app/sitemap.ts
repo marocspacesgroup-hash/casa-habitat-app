@@ -1,10 +1,24 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
 import { getAllPublishedSlugs, getNeighborhoods } from "@/lib/supabase/queries";
+import { supportedLanguages } from "@/lib/i18n/config";
+
+const localized = (pathname: string, lastModified: Date): MetadataRoute.Sitemap[number] => {
+  const clean = pathname === "/" ? "" : pathname;
+  const languages = Object.fromEntries(
+    supportedLanguages.map((locale) => [locale, `${siteConfig.url}/${locale}${clean}`])
+  );
+  return {
+    url: `${siteConfig.url}/fr${clean}`,
+    lastModified,
+    alternates: { languages },
+  };
+};
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date();
   const staticRoutes = [
-    "",
+    "/",
     "/locations",
     "/locations/meublees",
     "/locations/vides",
@@ -17,28 +31,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/confier-mon-bien",
     "/mentions-legales",
     "/politique-confidentialite",
-  ].map((route) => ({
-    url: `${siteConfig.url}${route}`,
-    lastModified: new Date(),
-  }));
+  ].map((route) => localized(route, now));
 
   const [slugs, neighborhoods] = await Promise.all([
     getAllPublishedSlugs(),
     getNeighborhoods(),
   ]);
 
-  // Seuls les biens publiés (publication_status = "publie") sont renvoyés
-  // par getAllPublishedSlugs — brouillons et archives n'apparaissent jamais
-  // dans le sitemap, conformément à la règle d'indexabilité.
-  const listingRoutes = slugs.map((slug) => ({
-    url: `${siteConfig.url}/biens/${slug}`,
-    lastModified: new Date(),
-  }));
-
-  const neighborhoodRoutes = neighborhoods.map((n) => ({
-    url: `${siteConfig.url}/quartiers/${n.slug}`,
-    lastModified: new Date(),
-  }));
+  // Seuls les biens publiés sont inclus : les brouillons et archives restent exclus.
+  const listingRoutes = slugs.map((slug) => localized(`/biens/${slug}`, now));
+  const neighborhoodRoutes = neighborhoods.map((n) =>
+    localized(`/quartiers/${n.slug}`, now)
+  );
 
   return [...staticRoutes, ...listingRoutes, ...neighborhoodRoutes];
 }
