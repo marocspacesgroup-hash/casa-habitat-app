@@ -31,11 +31,5 @@ export function applyI18n(request: NextRequest): NextResponse | null {
   request.nextUrl.pathname = cleanPath;
   request.headers.set(localeHeader, locale);
 
-  const response = NextResponse.next({ request });
-  response.cookies.set(localeCookie, locale, {
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-    sameSite: "lax",
-  });
-  return response;
+  return null;
 }
