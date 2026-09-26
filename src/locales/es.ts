@@ -1,45 +1,9 @@
 import type { Locale } from "./fr";
-
 export const es: Locale = {
-  nav: {
-    rentals: "Alquileres",
-    sales: "Ventas",
-    shortStay: "Alquiler de corta estancia",
-    neighborhoods: "Barrios",
-    about: "Sobre nosotros",
-    contact: "Contacto",
-    listProperty: "Confiar mi propiedad",
-  },
-  hero: {
-    title: "Encuentre su propiedad en Casablanca, sin renunciar a nada.",
-    subtitle: "Una selección verificada con un único interlocutor.",
-    searchPlaceholder: "Buscar una propiedad",
-    ctaButton: "Ver propiedades",
-  },
-  filters: {
-    propertyType: "Tipo de propiedad",
-    city: "Ciudad",
-    budget: "Presupuesto",
-    search: "Buscar",
-  },
-  properties: {
-    featuredTitle: "Propiedades elegidas, no solo anunciadas.",
-    rooms: "habitaciones",
-    bathrooms: "baños",
-    area: "m²",
-    viewDetails: "Ver propiedad",
-  },
-  contact: {
-    title: "Un único interlocutor, desde el primer contacto hasta las llaves.",
-    namePlaceholder: "Su nombre",
-    emailPlaceholder: "Su correo electrónico",
-    phonePlaceholder: "Su teléfono",
-    messagePlaceholder: "Su mensaje",
-    submitButton: "Enviar mensaje",
-    successMessage: "Gracias, su mensaje ha sido enviado.",
-  },
-  footer: {
-    tagline: "Inmobiliaria de lujo en Casablanca.",
-    rights: "Todos los derechos reservados.",
-  },
-};
+nav:{rentals:"Alquileres",sales:"Ventas",shortStay:"Alquiler de corta estancia",neighborhoods:"Barrios",about:"Sobre nosotros",contact:"Contacto",listProperty:"Confiar mi propiedad"},
+hero:{title:"Encuentre su propiedad en Casablanca,",highlight:"sin renunciar a nada.",subtitle:"Una selección verificada con un único interlocutor.",searchPlaceholder:"Buscar una propiedad",ctaButton:"Ver propiedades"},
+filters:{propertyType:"Tipo de propiedad",city:"Ciudad",budget:"Presupuesto",search:"Buscar"},
+properties:{featuredTitle:"Propiedades elegidas, no solo anunciadas.",rooms:"habitaciones",bathrooms:"baños",area:"m²",viewDetails:"Ver propiedad"},
+home:{cabinet:"Agencia inmobiliaria",looking:"Busca una propiedad",lookingTitle:"Busco una propiedad",lookingText:"Alquiler, venta o corta estancia — explore una selección verificada en Casablanca.",lookingCta:"Ver propiedades →",owner:"Tiene una propiedad",ownerTitle:"Soy propietario",ownerText:"Confíe su propiedad a Casa Habitat — valoración precisa y visitantes cualificados.",ownerCta:"Confiar mi propiedad →",premium:"Selección premium",premiumDescription:"Una vista de nuestra cartera — la disponibilidad cambia con las visitas; contáctenos para conocer el estado actualizado.",comingSoon:"Nuevos anuncios próximamente — contáctenos directamente mientras tanto.",allProperties:"Ver todas las propiedades →",services:"Lo que hacemos",servicesTitle:"Cuatro especialidades,",servicesEmphasis:"un mismo nivel de exigencia.",serviceSale:"Venta",serviceSaleText:"Valoración precisa, presentación cuidada y negociación hasta la firma.",serviceRent:"Alquiler",serviceRentText:"Selección de inquilinos, expedientes verificados, propiedades amuebladas y sin amueblar.",serviceShortStay:"Corta estancia",serviceShortStayText:"Propiedades amuebladas listas para recibirle, desde unas noches hasta varios meses.",serviceManagement:"Gestión y asesoramiento",serviceManagementText:"Seguimiento del alquiler, cobros, mantenimiento y lectura del mercado para inversores.",coverage:"Zona de cobertura",neighborhoodsTitle:"Los barrios",neighborhoodsEmphasis:"que conocemos.",allNeighborhoods:"Ver todos los barrios →",agency:"La agencia",agencyTitle:"Un único interlocutor,",agencyEmphasis:"desde el primer contacto hasta las llaves.",agencyText:"Casa Habitat acompaña a una clientela exigente — expatriados y residentes — con atención bilingüe, una selección precisa y total discreción.",agencyCta:"Más información sobre la agencia →",projectTitle:"¿Tiene un proyecto en mente?",projectText:"Escríbanos directamente — respondemos en un día laborable o inmediatamente por WhatsApp.",whatsapp:"Escribir por WhatsApp",contactForm:"Formulario de contacto"},
+contact:{title:"Un único interlocutor, desde el primer contacto hasta las llaves.",namePlaceholder:"Su nombre",emailPlaceholder:"Su correo electrónico",phonePlaceholder:"Su teléfono",messagePlaceholder:"Su mensaje",submitButton:"Enviar mensaje",successMessage:"Gracias, su mensaje ha sido enviado."},
+footer:{tagline:"Inmobiliaria de lujo en Casablanca.",rights:"Todos los derechos reservados.",agency:"Agencia",legal:"Legal"}};
