@@ -36,9 +36,9 @@ export default async function MentionsLegalesPage() {
               <br />
               {siteConfig.contact.address.line1}, {siteConfig.contact.address.city}, {siteConfig.contact.address.country}
               <br />
-              E-mail : {siteConfig.contact.email}
+              {translation.nav.contact} : {siteConfig.contact.email}
               <br />
-              Téléphone : {siteConfig.contact.phones.join(" · ")}
+              {translation.nav.contact} : {siteConfig.contact.phones.join(" · ")}
               <br />
               Responsable de la publication : Charles Konan
             </p>
