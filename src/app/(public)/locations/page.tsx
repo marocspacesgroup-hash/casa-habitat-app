@@ -1,12 +1,9 @@
-import type { Metadata } from "next";
 import ListingsPageContent from "@/components/sections/ListingsPageContent";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Locations à Casablanca",
-  description:
-    "Appartements, studios et villas à louer à Casablanca — sélection Casa Habitat, meublés et non meublés.",
-  alternates: { canonical: "/locations" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("locations", "/locations");
+}
 
 export default async function LocationsPage({
   searchParams,
