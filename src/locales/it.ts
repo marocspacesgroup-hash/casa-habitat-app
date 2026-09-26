@@ -1,45 +1,9 @@
 import type { Locale } from "./fr";
-
 export const it: Locale = {
-  nav: {
-    rentals: "Affitti",
-    sales: "Vendite",
-    shortStay: "Affitti brevi",
-    neighborhoods: "Quartieri",
-    about: "Chi siamo",
-    contact: "Contatti",
-    listProperty: "Affida il tuo immobile",
-  },
-  hero: {
-    title: "Trova il tuo immobile a Casablanca, senza compromessi.",
-    subtitle: "Una selezione verificata con un unico interlocutore dedicato.",
-    searchPlaceholder: "Cerca un immobile",
-    ctaButton: "Vedi gli immobili",
-  },
-  filters: {
-    propertyType: "Tipo di immobile",
-    city: "Città",
-    budget: "Budget",
-    search: "Cerca",
-  },
-  properties: {
-    featuredTitle: "Immobili scelti, non semplicemente elencati.",
-    rooms: "locali",
-    bathrooms: "bagni",
-    area: "m²",
-    viewDetails: "Vedi immobile",
-  },
-  contact: {
-    title: "Un unico interlocutore, dal primo contatto alla consegna delle chiavi.",
-    namePlaceholder: "Il tuo nome",
-    emailPlaceholder: "Il tuo indirizzo e-mail",
-    phonePlaceholder: "Il tuo telefono",
-    messagePlaceholder: "Il tuo messaggio",
-    submitButton: "Invia messaggio",
-    successMessage: "Grazie, il tuo messaggio è stato inviato.",
-  },
-  footer: {
-    tagline: "Immobili di prestigio a Casablanca.",
-    rights: "Tutti i diritti riservati.",
-  },
-};
+nav:{rentals:"Affitti",sales:"Vendite",shortStay:"Affitti brevi",neighborhoods:"Quartieri",about:"Chi siamo",contact:"Contatti",listProperty:"Affida il tuo immobile"},
+hero:{title:"Trova il tuo immobile a Casablanca,",highlight:"senza compromessi.",subtitle:"Una selezione verificata con un unico interlocutore dedicato.",searchPlaceholder:"Cerca un immobile",ctaButton:"Vedi gli immobili"},
+filters:{propertyType:"Tipo di immobile",city:"Città",budget:"Budget",search:"Cerca"},
+properties:{featuredTitle:"Immobili scelti, non semplicemente elencati.",rooms:"locali",bathrooms:"bagni",area:"m²",viewDetails:"Vedi immobile"},
+home:{cabinet:"Agenzia immobiliare",looking:"Cerchi un immobile",lookingTitle:"Cerco un immobile",lookingText:"Affitto, vendita o soggiorno breve — scopri una selezione verificata a Casablanca.",lookingCta:"Vedi gli immobili →",owner:"Possiedi un immobile",ownerTitle:"Sono proprietario",ownerText:"Affida il tuo immobile a Casa Habitat — valutazione accurata e visitatori qualificati.",ownerCta:"Affida il tuo immobile →",premium:"Selezione premium",premiumDescription:"Una panoramica del nostro portafoglio — la disponibilità cambia con le visite; contattaci per lo stato aggiornato.",comingSoon:"Nuovi annunci in arrivo — contattaci direttamente nel frattempo.",allProperties:"Vedi tutti gli immobili →",services:"Cosa facciamo",servicesTitle:"Quattro competenze,",servicesEmphasis:"un unico standard.",serviceSale:"Vendita",serviceSaleText:"Valutazione accurata, presentazione curata e trattativa fino alla firma.",serviceRent:"Affitti",serviceRentText:"Selezione degli inquilini, dossier verificati, immobili arredati e non arredati.",serviceShortStay:"Affitti brevi",serviceShortStayText:"Immobili arredati pronti ad accogliere soggiorni da poche notti a diversi mesi.",serviceManagement:"Gestione e consulenza",serviceManagementText:"Monitoraggio locativo, incassi, manutenzione e analisi del mercato per gli investitori.",coverage:"Area servita",neighborhoodsTitle:"I quartieri",neighborhoodsEmphasis:"che conosciamo.",allNeighborhoods:"Vedi tutti i quartieri →",agency:"L'agenzia",agencyTitle:"Un unico interlocutore,",agencyEmphasis:"dal primo contatto alle chiavi.",agencyText:"Casa Habitat accompagna una clientela esigente — espatriati e residenti — con supporto bilingue, una selezione mirata e totale discrezione.",agencyCta:"Scopri di più sull'agenzia →",projectTitle:"Hai un progetto in mente?",projectText:"Scrivici direttamente — risposta entro un giorno lavorativo o subito su WhatsApp.",whatsapp:"Scrivi su WhatsApp",contactForm:"Modulo di contatto"},
+contact:{title:"Un unico interlocutore, dal primo contatto alla consegna delle chiavi.",namePlaceholder:"Il tuo nome",emailPlaceholder:"Il tuo indirizzo e-mail",phonePlaceholder:"Il tuo telefono",messagePlaceholder:"Il tuo messaggio",submitButton:"Invia messaggio",successMessage:"Grazie, il tuo messaggio è stato inviato."},
+footer:{tagline:"Immobili di prestigio a Casablanca.",rights:"Tutti i diritti riservati.",agency:"Agenzia",legal:"Legale"}};
