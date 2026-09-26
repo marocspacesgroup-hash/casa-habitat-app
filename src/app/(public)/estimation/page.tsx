@@ -1,11 +1,12 @@
 import EstimationForm from "@/components/sections/EstimationForm";
 import { getPageMetadata } from "@/lib/i18n/metadata";
+import { getServerTranslation } from "@/lib/i18n/server";
 
 export async function generateMetadata() {
   return getPageMetadata("estimation", "/estimation");
 }
 
-export default function EstimationPage() {
+export default async function EstimationPage() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.estimation;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-2xl mx-auto px-6">
@@ -13,11 +14,10 @@ export default function EstimationPage() {
           Estimation
         </span>
         <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-4">
-          Quelle est la valeur de <em className="text-gold not-italic italic">votre bien ?</em>
+          {t.title} <em className="text-gold not-italic italic">{t.emphasis}</em>
         </h1>
         <p className="text-ink-soft mb-14">
-          Quelques informations suffisent pour démarrer — nous revenons vers
-          vous avec une estimation argumentée, basée sur le marché casablancais actuel.
+          {t.description}
         </p>
         <EstimationForm />
       </div>
