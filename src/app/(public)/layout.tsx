@@ -29,7 +29,7 @@ const jsonLd = {
   sameAs: Object.values(siteConfig.social).filter(Boolean),
 };
 
-const websiteJsonLd = {
+const websiteJsonLd = (locale: Language) => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: siteConfig.name,
@@ -37,7 +37,7 @@ const websiteJsonLd = {
   description: siteConfig.description,
   publisher: { "@type": "Organization", name: siteConfig.name },
   inLanguage: locale === "ar" ? "ar-MA" : `${locale}-MA`,
-};
+});
 
 export default async function PublicLayout({
   children,
