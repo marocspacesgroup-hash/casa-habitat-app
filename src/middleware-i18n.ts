@@ -7,7 +7,7 @@ import {
   stripLocaleFromPath,
 } from "@/lib/i18n/config";
 
-const PUBLIC_PREFIXES = ["/admin", "/api", "/_next"];
+const PUBLIC_PREFIXES = ["/admin", "/api", "/_next", "/sitemap.xml", "/robots.txt"];
 
 export function applyI18n(request: NextRequest): NextResponse | null {
   const pathname = request.nextUrl.pathname;
