@@ -4,12 +4,13 @@ import { whatsappGeneral } from "@/lib/whatsapp";
 import ContactForm from "@/components/sections/ContactForm";
 import AgencyLocation from "@/components/sections/AgencyLocation";
 import TrackedLink from "@/components/ui/TrackedLink";
+import { getServerTranslation } from "@/lib/i18n/server";
 
 export async function generateMetadata() {
   return getPageMetadata("contact", "/contact");
 }
 
-export default function ContactPage() {
+export default async function ContactPage() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.contactPage;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-6xl mx-auto px-6">
@@ -17,7 +18,7 @@ export default function ContactPage() {
           Contact
         </span>
         <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-14">
-          Discutons de <em className="text-gold not-italic italic">votre projet.</em>
+          {t.title} <em className="text-gold not-italic italic">{t.emphasis}</em>
         </h1>
 
         <div className="grid md:grid-cols-2 gap-16">
@@ -25,25 +26,25 @@ export default function ContactPage() {
 
           <div>
             <h2 className="font-display text-xl text-ink mb-6">
-              Coordonnées de l&apos;agence
+              {t.coordinates}
             </h2>
             <dl className="divide-y divide-ink/10">
-              <Row k="Adresse" v={`${siteConfig.contact.address.line1}, ${siteConfig.contact.address.city}`} />
+              <Row k={t.address} v={`${siteConfig.contact.address.line1}, ${siteConfig.contact.address.city}`} />
               <Row
                 k="Téléphone"
                 v={siteConfig.contact.phones.join(" · ")}
               />
-              <Row k="E-mail" v={siteConfig.contact.email} />
-              <Row k="Web" v={siteConfig.url.replace("https://", "")} />
+              <Row k={t.email} v={siteConfig.contact.email} />
+              <Row k={t.web} v={siteConfig.url.replace("https://", "")} />
             </dl>
 
             <div className="flex items-center gap-4 mt-8 bg-navy rounded-sm p-6">
               <div className="flex-1">
                 <h3 className="text-ivory text-sm font-semibold mb-1">
-                  Réponse la plus rapide
+                  {t.fastest}
                 </h3>
                 <p className="text-ivory/60 text-xs">
-                  Écrivez-nous directement sur WhatsApp.
+                  {t.fastestText}
                 </p>
               </div>
               <TrackedLink
