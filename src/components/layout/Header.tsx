@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { startTransition, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { navLinks, ownerNavLink, siteConfig } from "@/config/site";
 import { ar } from "@/locales/ar";
 import { en } from "@/locales/en";
 import { fr } from "@/locales/fr";
 import { es } from "@/locales/es";
 import { it } from "@/locales/it";
+import { getLocaleFromPath, prefixLocale, type Language } from "@/lib/i18n/config";
 
 const languageFlags = { fr: "🇫🇷", en: "🇬🇧", ar: "🇲🇦", es: "🇪🇸", it: "🇮🇹" } as const;
-
 const translations = { fr, en, ar, es, it } as const;
-type Language = keyof typeof translations;
 
 const languageNames: Record<Language, string> = {
   fr: "Français",
@@ -70,22 +70,25 @@ const navigationLabels: Record<Language, Record<string, string>> = {
   },
 };
 
+function localHref(pathname: string, locale: Language): string {
+  return prefixLocale(pathname, locale);
+}
+
 export default function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [language, setLanguage] = useState<Language>("fr");
-
-  const currentLocale = translations[language];
+  const [language, setLanguage] = useState<Language>(() => getLocaleFromPath(pathname) ?? "fr");
 
   useEffect(() => {
+    const pathLocale = getLocaleFromPath(window.location.pathname);
+    if (pathLocale) {
+      startTransition(() => setLanguage(pathLocale));
+      return;
+    }
     const savedLanguage = window.localStorage.getItem("casa-habitat-language");
-    if (
-      savedLanguage === "fr" ||
-      savedLanguage === "en" ||
-      savedLanguage === "ar" ||
-      savedLanguage === "es" ||
-      savedLanguage === "it"
-    ) {
+    if (savedLanguage === "fr" || savedLanguage === "en" || savedLanguage === "ar" || savedLanguage === "es" || savedLanguage === "it") {
       startTransition(() => setLanguage(savedLanguage));
     }
   }, []);
@@ -95,13 +98,12 @@ export default function Header() {
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
   }, [language]);
 
-  const toggleLanguage = () => {
+  const switchLanguage = () => {
     const nextLanguage = getNextLanguage(language);
-    setLanguage(nextLanguage);
     window.localStorage.setItem("casa-habitat-language", nextLanguage);
-    window.dispatchEvent(
-      new CustomEvent("casa-habitat-language-change", { detail: nextLanguage })
-    );
+    document.cookie = `casa-habitat-language=${nextLanguage}; Path=/; Max-Age=31536000; SameSite=Lax`;
+    setLanguage(nextLanguage);
+    router.push(localHref(window.location.pathname, nextLanguage));
   };
 
   useEffect(() => {
@@ -110,17 +112,15 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const currentLocale = translations[language];
+
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 bg-navy/95 backdrop-blur border-b border-gold/20 transition-[padding] duration-500 ${
-        scrolled ? "py-3" : "py-5"
-      }`}
+      className={`fixed top-0 inset-x-0 z-50 bg-navy/95 backdrop-blur border-b border-gold/20 transition-[padding] duration-500 ${scrolled ? "py-3" : "py-5"}`}
     >
       <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="w-9 h-9 rounded-full border border-gold flex items-center justify-center font-display text-gold text-sm">
-            CH
-          </span>
+        <Link href={localHref("/", language)} className="flex items-center gap-3">
+          <span className="w-9 h-9 rounded-full border border-gold flex items-center justify-center font-display text-gold text-sm">CH</span>
           <span className="font-display text-ivory text-[17px] tracking-wide">
             CASA <em className="text-gold not-italic font-normal italic">Habitat</em>
           </span>
@@ -128,80 +128,37 @@ export default function Header() {
 
         <nav className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-[13px] font-medium text-ivory/85 hover:text-gold transition-colors"
-            >
+            <Link key={link.href} href={localHref(link.href, language)} className="text-[13px] font-medium text-ivory/85 hover:text-gold transition-colors">
               {navigationLabels[language][link.href] ?? link.label}
             </Link>
           ))}
-          <Link
-            href={ownerNavLink.href}
-            className="border border-gold text-gold text-xs uppercase tracking-wider px-5 py-2.5 rounded-sm hover:bg-gold hover:text-navy transition-colors"
-          >
+          <Link href={localHref(ownerNavLink.href, language)} className="border border-gold text-gold text-xs uppercase tracking-wider px-5 py-2.5 rounded-sm hover:bg-gold hover:text-navy transition-colors">
             {currentLocale.nav.listProperty}
           </Link>
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            className="border border-ivory/40 text-ivory text-xs uppercase tracking-wider px-3 py-2.5 rounded-sm hover:border-gold hover:text-gold transition-colors"
-            aria-label={`Switch to ${languageNames[getNextLanguage(language)]}`}
-          >
+          <button type="button" onClick={switchLanguage} className="border border-ivory/40 text-ivory text-xs uppercase tracking-wider px-3 py-2.5 rounded-sm hover:border-gold hover:text-gold transition-colors" aria-label={`Switch to ${languageNames[getNextLanguage(language)]}`}>
             <span aria-hidden="true">{languageFlags[language]}</span> {language.toUpperCase()}
           </button>
         </nav>
 
-        <button
-          className="lg:hidden text-ivory"
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          aria-expanded={mobileOpen}
-          onClick={() => setMobileOpen((v) => !v)}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M4 6h16M4 12h16M4 18h16"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-            />
-          </svg>
+        <button className="lg:hidden text-ivory" aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} onClick={() => setMobileOpen((v) => !v)}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
         </button>
       </div>
 
       {mobileOpen && (
         <div className="lg:hidden bg-navy border-t border-gold/20 px-6 py-6 flex flex-col gap-5">
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              className="text-ivory/90 text-sm"
-            >
+            <Link key={link.href} href={localHref(link.href, language)} onClick={() => setMobileOpen(false)} className="text-ivory/90 text-sm">
               {navigationLabels[language][link.href] ?? link.label}
             </Link>
           ))}
-          <Link
-            href={ownerNavLink.href}
-            onClick={() => setMobileOpen(false)}
-            className="text-gold text-sm font-medium"
-          >
+          <Link href={localHref(ownerNavLink.href, language)} onClick={() => setMobileOpen(false)} className="text-gold text-sm font-medium">
             {currentLocale.nav.listProperty} →
           </Link>
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            className="text-gold text-sm font-medium text-left"
-            aria-label={`Switch to ${languageNames[getNextLanguage(language)]}`}
-          >
+          <button type="button" onClick={switchLanguage} className="text-gold text-sm font-medium text-left" aria-label={`Switch to ${languageNames[getNextLanguage(language)]}`}>
             <span aria-hidden="true">{languageFlags[language]}</span> {language.toUpperCase()}
           </button>
-          <a
-            href={`tel:${siteConfig.contact.phones[0]}`}
-            className="text-ivory/60 text-xs font-mono"
-          >
-            {siteConfig.contact.phones[0]}
-          </a>
+          <a href={`tel:${siteConfig.contact.phones[0]}`} className="text-ivory/60 text-xs font-mono">{siteConfig.contact.phones[0]}</a>
         </div>
       )}
     </header>
