@@ -1,12 +1,13 @@
 import { siteConfig } from "@/config/site";
 import { getPageMetadata } from "@/lib/i18n/metadata";
+import { getServerTranslation } from "@/lib/i18n/server";
 
 export async function generateMetadata() {
   const metadata = await getPageMetadata("privacy", "/politique-confidentialite");
   return metadata;
 }
 
-export default function PolitiqueConfidentialitePage() {
+export default async function PolitiqueConfidentialitePage() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.privacy;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-2xl mx-auto px-6">
@@ -19,7 +20,7 @@ export default function PolitiqueConfidentialitePage() {
 
         <div className="text-ink-soft space-y-8 text-[15px] leading-relaxed">
           <section>
-            <h2 className="font-display text-lg text-ink mb-2">Données collectées</h2>
+            <h2 className="font-display text-lg text-ink mb-2">{t.collected}</h2>
             <p>
               Lorsque vous utilisez les formulaires de contact ou d&apos;estimation,
               nous vous demandons votre nom, votre e-mail, votre téléphone et
@@ -30,7 +31,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="font-display text-lg text-ink mb-2">Favoris</h2>
+            <h2 className="font-display text-lg text-ink mb-2">{t.favorites}</h2>
             <p>
               La liste de vos biens favoris est enregistrée uniquement sur
               votre appareil (stockage local du navigateur) et n&apos;est
@@ -39,7 +40,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="font-display text-lg text-ink mb-2">Utilisation des données</h2>
+            <h2 className="font-display text-lg text-ink mb-2">{t.use}</h2>
             <p>
               Les informations transmises via les formulaires sont utilisées
               exclusivement pour répondre à votre demande (visite, estimation,
@@ -49,7 +50,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="font-display text-lg text-ink mb-2">Vos droits</h2>
+            <h2 className="font-display text-lg text-ink mb-2">{t.rights}</h2>
             <p>
               Vous pouvez à tout moment demander la consultation, la
               correction ou la suppression des données vous concernant en
@@ -58,7 +59,7 @@ export default function PolitiqueConfidentialitePage() {
           </section>
 
           <section>
-            <h2 className="font-display text-lg text-ink mb-2">Contact</h2>
+            <h2 className="font-display text-lg text-ink mb-2">{t.contact}</h2>
             <p>
               Pour toute question relative à cette politique, contactez{" "}
               {siteConfig.name} à {siteConfig.contact.email} ou au{" "}
