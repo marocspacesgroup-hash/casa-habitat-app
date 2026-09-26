@@ -126,3 +126,31 @@ export async function getPageMetadata(key: SeoKey, pathname: string): Promise<Me
 }
 
 export const defaultMetadataLocale = defaultLanguage;
+
+export async function getDynamicMetadata(
+  title: string,
+  description: string,
+  pathname: string
+): Promise<Metadata> {
+  const locale = await requestLocale();
+  const localizedPath = `/${locale}${pathname === "/" ? "" : pathname}`;
+  const languages = Object.fromEntries(
+    Object.keys(seo).map((lang) => [lang, `/${lang}${pathname === "/" ? "" : pathname}`])
+  );
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: localizedPath,
+      languages: { ...languages, "x-default": pathname },
+    },
+    openGraph: {
+      locale: locale === "ar" ? "ar_MA" : `${locale}_MA`,
+      title,
+      description,
+      url: `${siteConfig.url}${localizedPath}`,
+      siteName: siteConfig.name,
+      type: "website",
+    },
+  };
+}
