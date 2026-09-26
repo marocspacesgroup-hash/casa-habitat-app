@@ -1,12 +1,9 @@
-import type { Metadata } from "next";
 import ListingsPageContent from "@/components/sections/ListingsPageContent";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Biens à vendre à Casablanca",
-  description:
-    "Appartements, villas et bureaux à vendre à Casablanca — sélection Casa Habitat.",
-  alternates: { canonical: "/vente" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("sales", "/vente");
+}
 
 export default async function VentePage({
   searchParams,
