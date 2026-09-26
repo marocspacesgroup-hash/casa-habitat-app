@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useFavorites } from "@/lib/favorites";
 import { PublicListingCard } from "@/data/types";
 import ListingCard from "@/components/ui/ListingCard";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function FavorisContent({ listings }: { listings: PublicListingCard[] }) {
   const { favorites } = useFavorites();
+  const { translation } = useTranslation();
   const favoriteListings = listings.filter((l) =>
     favorites.includes(l.reference)
   );
