@@ -10,12 +10,14 @@ export async function generateMetadata() {
   return getPageMetadata("contact", "/contact");
 }
 
-export default async function ContactPage() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.contactPage;
+export default async function ContactPage() {
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.contactPage;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-6xl mx-auto px-6">
         <span className="eyebrow inline-block px-3 py-1.5 rounded-sm mb-5 bg-navy text-gold-bright">
-          Contact
+          {t.eyebrow}
         </span>
         <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-14">
           {t.title} <em className="text-gold not-italic italic">{t.emphasis}</em>
@@ -31,7 +33,7 @@ export default async function ContactPage() {\n  const { translation } = await g
             <dl className="divide-y divide-ink/10">
               <Row k={t.address} v={`${siteConfig.contact.address.line1}, ${siteConfig.contact.address.city}`} />
               <Row
-                k="Téléphone"
+                k={t.phone}
                 v={siteConfig.contact.phones.join(" · ")}
               />
               <Row k={t.email} v={siteConfig.contact.email} />
