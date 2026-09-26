@@ -7,20 +7,22 @@ export async function generateMetadata() {
   return metadata;
 }
 
-function LegalField({ label, value }: { label: string; value: string }) {
+function LegalField({ label, value, emptyLabel }: { label: string; value: string; emptyLabel: string }) {
   return (
     <p>
-      {label} : {value || <span className="italic text-ink-soft/70">{t.toComplete}</span>}
+      {label} : {value || <span className="italic text-ink-soft/70">{emptyLabel}</span>}
     </p>
   );
 }
 
-export default async function MentionsLegalesPage() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.legal;
+export default async function MentionsLegalesPage() {
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.legal;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-2xl mx-auto px-6">
         <span className="eyebrow inline-block px-3 py-1.5 rounded-sm mb-5 bg-navy text-gold-bright">
-          Informations légales
+          {t.eyebrow}
         </span>
         <h1 className="font-display text-[clamp(28px,3.6vw,38px)] text-ink mb-10">
           Mentions légales
@@ -44,7 +46,7 @@ export default async function MentionsLegalesPage() {\n  const { translation } =
 
           <section>
             <h2 className="font-display text-lg text-ink mb-3">
-              Identification professionnelle
+              {t.professional}
             </h2>
             <p className="mb-3">
               {siteConfig.name}
@@ -53,12 +55,12 @@ export default async function MentionsLegalesPage() {\n  const { translation } =
               {siteConfig.legal.denominationSociale} {siteConfig.legal.formeJuridique}
             </p>
             <div className="flex flex-col gap-1 text-sm">
-              <LegalField label="Dénomination sociale" value={siteConfig.legal.denominationSociale} />
-              <LegalField label="Forme juridique" value={siteConfig.legal.formeJuridique} />
-              <LegalField label="Siège social" value={siteConfig.legal.siegeSocial} />
-              <LegalField label="Registre du commerce (RC)" value={siteConfig.legal.rc} />
-              <LegalField label="Identifiant commun de l'entreprise (ICE)" value={siteConfig.legal.ice} />
-              <LegalField label="Identifiant fiscal (IF)" value={siteConfig.legal.identifiantFiscal} />
+              <LegalField label="Dénomination sociale" value={siteConfig.legal.denominationSociale} emptyLabel={t.toComplete} />
+              <LegalField label="Forme juridique" value={siteConfig.legal.formeJuridique} emptyLabel={t.toComplete} />
+              <LegalField label="Siège social" value={siteConfig.legal.siegeSocial} emptyLabel={t.toComplete} />
+              <LegalField label="Registre du commerce (RC)" value={siteConfig.legal.rc} emptyLabel={t.toComplete} />
+              <LegalField label="Identifiant commun de l'entreprise (ICE)" value={siteConfig.legal.ice} emptyLabel={t.toComplete} />
+              <LegalField label="Identifiant fiscal (IF)" value={siteConfig.legal.identifiantFiscal} emptyLabel={t.toComplete} />
             </div>
           </section>
 
@@ -83,7 +85,7 @@ export default async function MentionsLegalesPage() {\n  const { translation } =
 
           <section>
             <h2 className="font-display text-lg text-ink mb-3">
-              Propriété intellectuelle
+              {t.intellectual}
             </h2>
             <p>
               L&apos;ensemble des contenus présents sur ce site (textes,
@@ -95,7 +97,7 @@ export default async function MentionsLegalesPage() {\n  const { translation } =
 
           <section>
             <h2 className="font-display text-lg text-ink mb-3">
-              Annonces immobilières
+              {t.listings}
             </h2>
             <p>
               Les informations relatives aux biens (prix, surface,
