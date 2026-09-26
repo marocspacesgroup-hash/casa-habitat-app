@@ -4,6 +4,7 @@ import { getPublishedListingsByTransaction } from "@/lib/supabase/queries";
 import ListingCard from "@/components/ui/ListingCard";
 import { whatsappGeneral } from "@/lib/whatsapp";
 import { siteConfig } from "@/config/site";
+import { getServerTranslation } from "@/lib/i18n/server";
 
 export interface ListingFilters {
   type?: string;
@@ -50,6 +51,7 @@ export default async function ListingsPageContent({
   /** Optionnel — affiche un CTA WhatsApp sous la description (ex. courte durée) */
   whatsappCta?: string;
 }) {
+  const { translation } = await getServerTranslation();
   let results = await getPublishedListingsByTransaction(transaction);
   if (meubleOnly === true) results = results.filter((l) => l.meuble);
   if (meubleOnly === false) results = results.filter((l) => !l.meuble);
@@ -80,7 +82,7 @@ export default async function ListingsPageContent({
       />
       <div className="max-w-6xl mx-auto px-6">
         <nav className="text-xs font-mono text-ink-soft mb-8 flex gap-2">
-          <Link href="/" className="hover:text-gold">Accueil</Link>
+          <Link href="/" className="hover:text-gold">{translation.pages.listings.home}</Link>
           <span>/</span>
           <span className="text-ink">{breadcrumb}</span>
         </nav>
@@ -109,9 +111,9 @@ export default async function ListingsPageContent({
 
         {results.length === 0 ? (
           <div className="border border-ink/10 rounded-sm p-12 text-center mt-10">
-            <p className="text-ink-soft mb-2">Aucun bien ne correspond à ces critères pour le moment.</p>
+            <p className="text-ink-soft mb-2">{translation.pages.listings.noResults}</p>
             <p className="text-ink-soft text-sm">
-              Contactez-nous directement — de nouveaux biens sont ajoutés régulièrement.
+              {translation.pages.listings.noResultsHelp}
             </p>
           </div>
         ) : (
