@@ -11,8 +11,8 @@ import { es } from "@/locales/es";
 import { it } from "@/locales/it";
 import { getLocaleFromPath, prefixLocale, type Language } from "@/lib/i18n/config";
 
-const languageFlags = { fr: "🇫🇷", en: "🇬🇧", ar: "🇲🇦", es: "🇪🇸", it: "🇮🇹" } as const;
-const translations = { fr, en, ar, es, it } as const;
+const languageFlags: Record<Language, string> = { fr: "🇫🇷", en: "🇬🇧", ar: "🇲🇦", es: "🇪🇸", it: "🇮🇹" };
+const translations: Record<Language, (typeof fr)> = { fr, en, ar, es, it };
 
 const languageNames: Record<Language, string> = {
   fr: "Français",
