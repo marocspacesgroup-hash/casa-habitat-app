@@ -1,11 +1,9 @@
-import type { Metadata } from "next";
 import ListingsPageContent from "@/components/sections/ListingsPageContent";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Locations meublées à Casablanca",
-  description: "Appartements et studios meublés à louer à Casablanca.",
-  alternates: { canonical: "/locations/meublees" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("furnished", "/locations/meublees");
+}
 
 export default async function LocationsMeubleesPage({
   searchParams,
