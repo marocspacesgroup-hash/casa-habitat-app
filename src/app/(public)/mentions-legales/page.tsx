@@ -1,11 +1,10 @@
-import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Mentions légales",
-  description: "Mentions légales de Casa Habitat.",
-  alternates: { canonical: "/mentions-legales" },
-};
+export async function generateMetadata() {
+  const metadata = await getPageMetadata("legal", "/mentions-legales");
+  return metadata;
+}
 
 function LegalField({ label, value }: { label: string; value: string }) {
   return (
