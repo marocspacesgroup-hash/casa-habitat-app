@@ -1,22 +1,14 @@
-import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 import { whatsappOwner } from "@/lib/whatsapp";
 import { getNeighborhoods } from "@/lib/supabase/queries";
 import OwnerLeadForm from "@/components/sections/OwnerLeadForm";
 import TrackedLink from "@/components/ui/TrackedLink";
 
-export const metadata: Metadata = {
-  title: "Propriétaire : confier un bien à une agence à Casablanca",
-  description:
-    "Vous êtes propriétaire à Casablanca ? Casa Habitat vous accompagne pour estimer, vendre ou mettre en location votre appartement, villa ou bureau.",
-  alternates: { canonical: "/confier-mon-bien" },
-  openGraph: {
-    title: "Confiez votre bien à Casa Habitat",
-    description: "Estimation, vente et mise en location de biens à Casablanca avec un accompagnement professionnel.",
-    url: `${siteConfig.url}/confier-mon-bien`,
-    type: "website",
-  },
-};
+export async function generateMetadata() {
+  const metadata = await getPageMetadata("owner", "/confier-mon-bien");
+  return metadata;
+}
 
 const reasons = [
   {
