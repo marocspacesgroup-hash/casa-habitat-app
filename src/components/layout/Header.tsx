@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { navLinks, ownerNavLink, siteConfig } from "@/config/site";
 import { ar } from "@/locales/ar";
 import { en } from "@/locales/en";
@@ -70,7 +70,6 @@ function localHref(pathname: string, locale: Language): string {
 }
 
 export default function Header() {
-  const router = useRouter();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -79,7 +78,7 @@ export default function Header() {
   const switchLanguage = () => {
     const nextLanguage = getNextLanguage(language);
     document.cookie = `casa-habitat-language=${nextLanguage}; Path=/; Max-Age=31536000; SameSite=Lax`;
-    router.push(localHref(pathname, nextLanguage));
+    window.location.assign(localHref(pathname, nextLanguage));
   };
 
   useEffect(() => {
