@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { startTransition, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { navLinks, ownerNavLink, siteConfig } from "@/config/site";
 import { ar } from "@/locales/ar";
@@ -74,31 +74,12 @@ export default function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [language, setLanguage] = useState<Language>(() => getLocaleFromPath(pathname) ?? "fr");
-
-  useEffect(() => {
-    const pathLocale = getLocaleFromPath(window.location.pathname);
-    if (pathLocale) {
-      startTransition(() => setLanguage(pathLocale));
-      return;
-    }
-    const savedLanguage = window.localStorage.getItem("casa-habitat-language");
-    if (savedLanguage === "fr" || savedLanguage === "en" || savedLanguage === "ar" || savedLanguage === "es" || savedLanguage === "it") {
-      startTransition(() => setLanguage(savedLanguage));
-    }
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
-  }, [language]);
+  const language: Language = getLocaleFromPath(pathname) ?? "fr";
 
   const switchLanguage = () => {
     const nextLanguage = getNextLanguage(language);
-    window.localStorage.setItem("casa-habitat-language", nextLanguage);
     document.cookie = `casa-habitat-language=${nextLanguage}; Path=/; Max-Age=31536000; SameSite=Lax`;
-    setLanguage(nextLanguage);
-    router.push(localHref(window.location.pathname, nextLanguage));
+    router.push(localHref(pathname, nextLanguage));
   };
 
   useEffect(() => {
