@@ -72,6 +72,11 @@ export async function* runAgent(params: {
       params.message,
     );
 
+  function logAgentDiagnostic(data: Record<string, unknown>): void {
+    if (process.env.VERCEL_ENV !== "preview" || process.env.AI_AGENT_DIAGNOSTICS === "false") return;
+    console.info("[AI_DIAGNOSTIC]", JSON.stringify(data));
+  }
+
   let toolCallsUsed = 0;
   let resultsUsed = 0;
   const callSignatures = new Set<string>();
@@ -96,6 +101,15 @@ export async function* runAgent(params: {
       yield { type: "error", code };
       return;
     }
+
+    logAgentDiagnostic({
+      phase: "agent_turn",
+      turn,
+      stop_reason: result.stopReason,
+      text_length: result.text.length,
+      tool_call_count: result.calls.length,
+      tool_names: result.calls.map((call) => call.name),
+    });
 
     if (result.stopReason === "refusal") {
       yield { type: "error", code: "no_answer" };
