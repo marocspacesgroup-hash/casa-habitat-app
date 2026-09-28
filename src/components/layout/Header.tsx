@@ -76,10 +76,23 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const language: Language = getLocaleFromPath(pathname) ?? "fr";
 
+  // Les cinq URL localisées sont réécrites par le proxy vers un même chemin
+  // interne (/en/a-propos comme /fr/a-propos aboutissent à /a-propos). L'arbre
+  // de segments du routeur est donc identique d'une langue à l'autre : Next.js
+  // conclut qu'aucun segment n'a changé et renvoie un payload sans les layouts
+  // ni la page. Mesuré : le document conserve lang="fr" et le texte serveur
+  // reste en français, alors que ce composant client, qui lit usePathname(),
+  // affiche déjà la nouvelle langue.
+  //
+  // router.refresh() est ici le plus petit correctif possible : il force le
+  // serveur à réémettre l'arbre complet pour la nouvelle URL, donc avec la
+  // locale que le proxy vient de transmettre. La navigation reste une
+  // navigation client Next.js, sans rechargement du document.
   const switchLanguage = () => {
     const nextLanguage = getNextLanguage(language);
     document.cookie = `casa-habitat-language=${nextLanguage}; Path=/; Max-Age=31536000; SameSite=Lax`;
     router.push(localHref(pathname, nextLanguage));
+    router.refresh();
   };
 
   useEffect(() => {
