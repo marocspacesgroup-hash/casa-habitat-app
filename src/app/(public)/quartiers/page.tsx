@@ -8,7 +8,9 @@ export async function generateMetadata() {
 }
 
 export default async function QuartiersPage() {
-  const neighborhoods = await getNeighborhoods();\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.neighborhoods;
+  const neighborhoods = await getNeighborhoods();
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.neighborhoods;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-6xl mx-auto px-6">

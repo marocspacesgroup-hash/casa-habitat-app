@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getServerTranslation } from "@/lib/i18n/server";
 
-export default async function NotFound() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.notFound;
+export default async function NotFound() {
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.notFound;
   return (
     <div className="min-h-[70vh] flex items-center justify-center pt-24">
       <div className="text-center px-6">

@@ -4,7 +4,9 @@ const agencyAddress = "40 Rue Attabari, Résidence Dan Hel 1er étage, Maârif, 
 const mapUrl =
   "https://maps.google.com/maps?q=40+Rue+Attabari%2C+R%C3%A9sidence+Dan+Hel%2C+Casablanca&t=&z=17&ie=UTF8&iwloc=&output=embed";
 
-export default async function AgencyLocation() {\n  const { translation } = await getServerTranslation();\n  const t = translation.pages.agencyLocation;
+export default async function AgencyLocation() {
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.agencyLocation;
   return (
     <section className="bg-navy text-ivory py-16 px-4 sm:px-6 lg:px-8 border-t border-gold/20">
       <div className="max-w-7xl mx-auto">
