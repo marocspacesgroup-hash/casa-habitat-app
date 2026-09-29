@@ -61,10 +61,7 @@ export default async function PublicLayout({
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@graph": [
-              { "@type": "Organization", "@id": `${siteConfig.url}/#organization-meta`, name: siteConfig.name },
-              { "@context": "https://schema.org", ...organizationJsonLd },
-            ],
+            "@graph": [organizationJsonLd],
           }),
         }}
       />
