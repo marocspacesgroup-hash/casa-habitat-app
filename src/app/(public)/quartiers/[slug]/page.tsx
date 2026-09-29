@@ -72,7 +72,7 @@ export default async function QuartierPage({
     "@type": "WebPage",
     name: `Immobilier à ${neighborhood.nom}, Casablanca`,
     description: neighborhood.description,
-    url: `${siteConfig.url}/${locale}/quartiers/${neighborhood.slug}`
+    url: `${siteConfig.url}/${locale}/quartiers/${neighborhood.slug}`,
     about: { "@type": "Place", name: neighborhood.nom, containedInPlace: { "@type": "City", name: "Casablanca" } },
     mainEntity: {
       "@type": "ItemList",
@@ -90,10 +90,6 @@ export default async function QuartierPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <div className="max-w-6xl mx-auto px-6">
         <nav className="text-xs font-mono text-ink-soft mb-8 flex gap-2">
