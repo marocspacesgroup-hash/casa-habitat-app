@@ -88,7 +88,10 @@ export async function getPublishedListingsByTransaction(
   return adaptListingsForPublicSite(data as unknown as DbListingWithImages[]);
 }
 
-export async function getPublishedListingBySlug(slug: string): Promise<Listing | null> {
+export async function getPublishedListingBySlug(
+  slug: string,
+  locale = "fr"
+): Promise<Listing | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
@@ -99,7 +102,27 @@ export async function getPublishedListingBySlug(slug: string): Promise<Listing |
     .maybeSingle();
 
   if (error || !data) return null;
-  return adaptListingForPublicSite(data as unknown as DbListingWithImages);
+  const listing = await adaptListingForPublicSite(data as unknown as DbListingWithImages);
+  if (locale === "fr") return listing;
+
+  const { data: translation, error: translationError } = await supabase
+    .from("listing_translations")
+    .select("titre, description, conditions_particulieres")
+    .eq("listing_id", listing.id)
+    .eq("locale", locale)
+    .maybeSingle();
+
+  if (translationError || !translation?.titre || !translation?.description) {
+    return listing;
+  }
+
+  return {
+    ...listing,
+    titre: translation.titre,
+    description: translation.description,
+    conditionsParticulieres:
+      translation.conditions_particulieres ?? listing.conditionsParticulieres,
+  };
 }
 
 export async function getPublishedListingsByNeighborhood(
