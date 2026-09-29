@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { getDynamicMetadata } from "@/lib/i18n/metadata";
-import { notFound } from "next/navigation";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getServerLocale, getServerTranslation } from "@/lib/i18n/server";
+import { prefixLocale } from "@/lib/i18n/config";
 import {
+  getListingTranslation,
   getPublishedListingBySlug,
   getSimilarPublishedListings,
   getNeighborhoodBySlug,
@@ -12,8 +14,6 @@ import {
   formatPrice,
   propertyTypeLabel,
   seoTitle,
-  statusLabel,
-  transactionLabel,
 } from "@/lib/format";
 import { siteConfig } from "@/config/site";
 import ListingCard from "@/components/ui/ListingCard";
@@ -22,11 +22,43 @@ import PropertyGallery from "@/components/ui/PropertyGallery";
 import ListingContactActions from "@/components/ui/ListingContactActions";
 import ListingViewTracker from "@/components/ui/ListingViewTracker";
 
-// Pas de generateStaticParams : les biens viennent de Supabase et peuvent
-// changer à tout moment depuis l'admin (prix, statut, photos...). La page
-// est rendue à la demande et revalidée explicitement par les server actions
-// admin (revalidatePath) après chaque modification — jamais besoin d'un
-// nouveau build pour qu'un changement apparaisse publiquement.
+const transactionLabels = {
+  fr: { location: "Location", vente: "Vente", "courte-duree": "Courte durée" },
+  en: { location: "Rental", vente: "For sale", "courte-duree": "Short stay" },
+  ar: { location: "إيجار", vente: "للبيع", "courte-duree": "إقامة قصيرة" },
+  es: { location: "Alquiler", vente: "Venta", "courte-duree": "Corta estancia" },
+  it: { location: "Affitto", vente: "Vendita", "courte-duree": "Affitto breve" },
+} as const;
+
+const statusLabels = {
+  fr: { reserve: "Réservé", loue: "Loué", vendu: "Vendu" },
+  en: { reserve: "Reserved", loue: "Rented", vendu: "Sold" },
+  ar: { reserve: "محجوز", loue: "مؤجر", vendu: "مباع" },
+  es: { reserve: "Reservado", loue: "Alquilado", vendu: "Vendido" },
+  it: { reserve: "Prenotato", loue: "Affittato", vendu: "Venduto" },
+} as const;
+
+const conditionLabels = {
+  fr: { neuf: "Neuf", "excellent-etat": "Excellent état", "bon-etat": "Bon état", "a-rafraichir": "À rafraîchir", "a-renover": "À rénover" },
+  en: { neuf: "New", "excellent-etat": "Excellent condition", "bon-etat": "Good condition", "a-rafraichir": "Needs refresh", "a-renover": "Needs renovation" },
+  ar: { neuf: "جديد", "excellent-etat": "حالة ممتازة", "bon-etat": "حالة جيدة", "a-rafraichir": "يحتاج إلى تجديد خفيف", "a-renover": "يحتاج إلى تجديد" },
+  es: { neuf: "Nuevo", "excellent-etat": "Excelente estado", "bon-etat": "Buen estado", "a-rafraichir": "Necesita actualización", "a-renover": "Necesita reforma" },
+  it: { neuf: "Nuovo", "excellent-etat": "Ottime condizioni", "bon-etat": "Buone condizioni", "a-rafraichir": "Da rinfrescare", "a-renover": "Da ristrutturare" },
+} as const;
+
+function transactionLabel(transaction: keyof typeof transactionLabels.fr, locale: keyof typeof transactionLabels) {
+  return transactionLabels[locale][transaction];
+}
+
+function localizedPath(locale: string, path: string) {
+  return prefixLocale(path, locale as keyof typeof transactionLabels.fr);
+}
+
+function availabilitySchema(status: string) {
+  if (status === "disponible") return "https://schema.org/InStock";
+  if (status === "reserve") return "https://schema.org/LimitedAvailability";
+  return "https://schema.org/OutOfStock";
+}
 
 export async function generateMetadata({
   params,
@@ -34,27 +66,68 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const listing = await getPublishedListingBySlug(slug);
+  const locale = await getServerLocale();
+  const listing = await getPublishedListingBySlug(slug, locale);
   if (!listing) return {};
+
+  const translation = await getListingTranslation(listing.id, locale);
+  const isLocalized = locale === "fr" || Boolean(translation);
   const neighborhood = await getNeighborhoodBySlug(listing.quartierSlug);
   const title = seoTitle(listing, neighborhood?.nom);
-  const metaDescription = `${seoTitle(listing, neighborhood?.nom)}. ${listing.description.slice(0, 135)}${listing.description.length > 135 ? "…" : ""}`;
-  const ogImage =
-    listing.imagePrincipale.kind === "photo"
-      ? [
-          {
-            url: listing.imagePrincipale.src,
-            width: listing.imagePrincipale.width,
-            height: listing.imagePrincipale.height,
-            alt: listing.imagePrincipale.alt,
-          },
-        ]
-      : undefined;
-  const base = await getDynamicMetadata(title, metaDescription, `/biens/${listing.slug}`);
+  const metaDescription =
+    listing.transaction === "courte-duree"
+      ? `${title}. ${listing.surfaceM2} m²${listing.meuble ? ", furnished" : ""}${listing.parking ? ", parking" : ""}. ${listing.description.slice(0, 135)}${listing.description.length > 135 ? "…" : ""}`
+      : `${title}. ${listing.surfaceM2} m²${listing.chambres > 0 ? `, ${listing.chambres} ${listing.chambres > 1 ? "bedrooms" : "bedroom"}` : ""}${listing.meuble ? ", furnished" : ""}${listing.parking ? ", parking" : ""}. ${listing.description.slice(0, 135)}${listing.description.length > 135 ? "…" : ""}`;
+  const canonical = `${siteConfig.url}/${locale}/biens/${listing.slug}`;
+  const languageAlternates = isLocalized
+    ? {
+        fr: `${siteConfig.url}/fr/biens/${listing.slug}`,
+        ...(locale === "en" || translation
+          ? { en: `${siteConfig.url}/en/biens/${listing.slug}` }
+          : {}),
+      }
+    : undefined;
+
   return {
-    ...base,
-    openGraph: { ...base.openGraph, title: `${title} | ${siteConfig.name}`, type: "article", images: ogImage },
-    twitter: { card: "summary_large_image", title, description: metaDescription, images: ogImage },
+    title,
+    description: metaDescription,
+    robots: listing.statut === "loue" || listing.statut === "vendu"
+      ? { index: false, follow: true }
+      : isLocalized
+        ? { index: true, follow: true }
+        : { index: false, follow: true },
+    alternates: {
+      canonical,
+      ...(languageAlternates
+        ? { languages: { ...languageAlternates, "x-default": `${siteConfig.url}/fr/biens/${listing.slug}` } }
+        : {}),
+    },
+    openGraph: {
+      title: `${title} | ${siteConfig.name}`,
+      description: metaDescription,
+      url: canonical,
+      siteName: siteConfig.name,
+      type: "article",
+      locale: locale === "ar" ? "ar_MA" : `${locale}_MA`,
+      images:
+        listing.imagePrincipale.kind === "photo"
+          ? [{
+              url: new URL(listing.imagePrincipale.src, siteConfig.url).toString(),
+              width: listing.imagePrincipale.width,
+              height: listing.imagePrincipale.height,
+              alt: listing.imagePrincipale.alt,
+            }]
+          : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: metaDescription,
+      images:
+        listing.imagePrincipale.kind === "photo"
+          ? [new URL(listing.imagePrincipale.src, siteConfig.url).toString()]
+          : undefined,
+    },
   };
 }
 
@@ -64,49 +137,57 @@ export default async function ListingDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const listing = await getPublishedListingBySlug(slug);
+  const locale = await getServerLocale();
+  const { translation } = await getServerTranslation();
+  const t = translation.listingDetail;
+  const listing = await getPublishedListingBySlug(slug, locale);
   if (!listing) notFound();
+
+  const localizedTranslation = await getListingTranslation(listing.id, locale);
+  const isLocalized = locale === "fr" || Boolean(localizedTranslation);
 
   const [neighborhood, similar] = await Promise.all([
     getNeighborhoodBySlug(listing.quartierSlug),
-    getSimilarPublishedListings(listing),
+    getSimilarPublishedListings(listing, 3, locale),
   ]);
+
+  const title = seoTitle(listing, neighborhood?.nom);
+  const canonical = `${siteConfig.url}/${locale}/biens/${listing.slug}`;
+  const primaryImage =
+    listing.imagePrincipale.kind === "photo"
+      ? new URL(listing.imagePrincipale.src, siteConfig.url).toString()
+      : undefined;
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
-    "@id": `${siteConfig.url}/biens/${listing.slug}#listing`,
-    name: seoTitle(listing, neighborhood?.nom),
-    url: `${siteConfig.url}/biens/${listing.slug}`,
-    mainEntityOfPage: `${siteConfig.url}/biens/${listing.slug}`,
+    "@id": `${canonical}#listing`,
+    name: title,
+    url: canonical,
+    mainEntityOfPage: canonical,
     provider: { "@id": `${siteConfig.url}/#organization` },
     description: listing.description,
     sku: listing.reference,
-    image:
-      listing.imagePrincipale.kind === "photo"
-        ? `${siteConfig.url}${listing.imagePrincipale.src}`
-        : undefined,
+    ...(primaryImage ? { image: primaryImage } : {}),
+    dateModified: listing.dateMiseAJour,
     about: {
       "@type": "Place",
       name: neighborhood?.nom ?? listing.ville,
     },
     additionalProperty: [
-      {
-        "@type": "PropertyValue",
-        name: "Type de bien",
-        value: propertyTypeLabel(listing.typeBien),
-      },
-      { "@type": "PropertyValue", name: "Surface", value: `${listing.surfaceM2} m²` },
+      { "@type": "PropertyValue", name: t.type, value: propertyTypeLabel(listing.typeBien) },
+      { "@type": "PropertyValue", name: t.surface, value: `${listing.surfaceM2} m²` },
+      { "@type": "PropertyValue", name: t.bedrooms, value: String(listing.chambres) },
+      { "@type": "PropertyValue", name: t.bathrooms, value: String(listing.sallesDeBain) },
+      { "@type": "PropertyValue", name: t.furnished, value: listing.meuble ? t.yes : t.no },
+      { "@type": "PropertyValue", name: t.parking, value: listing.parking ? t.yes : t.no },
     ],
     offers: {
       "@type": "Offer",
-      price: listing.prix ?? undefined,
+      ...(listing.prix !== null ? { price: listing.prix } : {}),
       priceCurrency: "MAD",
-      availability:
-        listing.statut === "disponible"
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
-      url: `${siteConfig.url}/biens/${listing.slug}`,
+      availability: availabilitySchema(listing.statut),
+      url: canonical,
     },
   };
 
@@ -114,115 +195,111 @@ export default async function ListingDetailPage({
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: siteConfig.url },
+      { "@type": "ListItem", position: 1, name: t.home, item: `${siteConfig.url}/${locale}` },
       {
         "@type": "ListItem",
         position: 2,
-        name: transactionLabel(listing.transaction),
-        item: `${siteConfig.url}/${
-          listing.transaction === "vente" ? "vente" : "locations"
-        }`,
+        name: transactionLabel(listing.transaction, locale as keyof typeof transactionLabels),
+        item: `${siteConfig.url}${localizedPath(locale, listing.transaction === "vente" ? "/vente" : "/locations")}`,
       },
-      { "@type": "ListItem", position: 3, name: listing.titre },
+      ...(neighborhood
+        ? [{
+            "@type": "ListItem",
+            position: 3,
+            name: neighborhood.nom,
+            item: `${siteConfig.url}${localizedPath(locale, `/quartiers/${neighborhood.slug}`)}`,
+          }]
+        : []),
+      { "@type": "ListItem", position: neighborhood ? 4 : 3, name: title, item: canonical },
     ],
   };
 
-  // Place l'image principale en premier sans perdre les autres photos, même
-  // lorsque l'admin a choisi une photo qui n'est pas la première positionnée.
-  const primaryPhoto = listing.imagePrincipale.kind === "photo"
-    ? listing.imagePrincipale
-    : null;
+  const primaryPhoto = listing.imagePrincipale.kind === "photo" ? listing.imagePrincipale : null;
   const primaryIndex = primaryPhoto
-    ? listing.images.findIndex(
-        (img) => img.kind === "photo" && img.src === primaryPhoto.src
-      )
+    ? listing.images.findIndex((img) => img.kind === "photo" && img.src === primaryPhoto.src)
     : 0;
   const galleryImages = listing.images.length > 0
-    ? [
-        listing.imagePrincipale,
-        ...listing.images.filter((_, index) => index !== primaryIndex),
-      ]
+    ? [listing.imagePrincipale, ...listing.images.filter((_, index) => index !== primaryIndex)]
     : [listing.imagePrincipale];
+
   return (
     <div className="pt-32 pb-24">
       <ListingViewTracker reference={listing.reference} />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
       <div className="max-w-6xl mx-auto px-6">
         <nav className="text-xs font-mono text-ink-soft mb-8 flex gap-2 flex-wrap">
-          <Link href="/" className="hover:text-gold">Accueil</Link>
+          <Link href={localizedPath(locale, "/")} className="hover:text-gold">{t.home}</Link>
           <span>/</span>
           <Link
-            href={listing.transaction === "vente" ? "/vente" : "/locations"}
+            href={localizedPath(locale, listing.transaction === "vente" ? "/vente" : "/locations")}
             className="hover:text-gold"
           >
-            {transactionLabel(listing.transaction)}
+            {transactionLabel(listing.transaction, locale as keyof typeof transactionLabels)}
           </Link>
+          {neighborhood && (
+            <>
+              <span>/</span>
+              <Link href={localizedPath(locale, `/quartiers/${neighborhood.slug}`)} className="hover:text-gold">
+                {neighborhood.nom}
+              </Link>
+            </>
+          )}
           <span>/</span>
-          <span className="text-ink">{listing.titre}</span>
+          <span className="text-ink">{title}</span>
         </nav>
 
-        {listing.isSample && (
+        {!isLocalized && locale !== "fr" && (
           <div className="bg-navy/5 border border-navy/15 text-ink-soft text-sm px-4 py-3 rounded-sm mb-8">
-            Fiche présentée à titre d&apos;exemple — les annonces réelles de Casa Habitat seront publiées ici.
+            {t.example} — {locale.toUpperCase()} translation is not yet available for this property.
           </div>
         )}
 
-        {/* Galerie */}
+        {listing.statut !== "disponible" && (
+          <div className="bg-navy/5 border border-navy/15 text-ink-soft text-sm px-4 py-3 rounded-sm mb-8">
+            {statusLabels[locale as keyof typeof statusLabels][listing.statut as "reserve" | "loue" | "vendu"] ?? t.notAvailable}
+          </div>
+        )}
+
         <PropertyGallery images={galleryImages} />
 
         <div className="grid lg:grid-cols-3 gap-14">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-3 flex-wrap">
               <div className="font-mono text-[10.5px] uppercase tracking-widest text-gold">
-                {neighborhood?.nom ?? listing.ville} · Réf. {listing.reference}
+                {neighborhood?.nom ?? listing.ville} · {t.reference} {listing.reference}
               </div>
-              {listing.statut !== "disponible" && (
-                <span className="font-mono text-[10px] uppercase tracking-widest bg-ink/5 text-ink-soft px-2.5 py-1 rounded-sm">
-                  {statusLabel(listing.statut)}
-                </span>
-              )}
             </div>
-            <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-6">
-              {seoTitle(listing, neighborhood?.nom)}
-            </h1>
+            <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-6">{title}</h1>
 
             <div className="flex flex-wrap gap-6 mb-10 pb-10 border-b border-ink/10">
-              <Spec label="Type" value={propertyTypeLabel(listing.typeBien)} />
-              {listing.pieces && <Spec label="Pièces" value={String(listing.pieces)} />}
-              <Spec label="Surface" value={`${listing.surfaceM2} m²`} />
-              <Spec label="Chambres" value={String(listing.chambres)} />
-              <Spec label="Salles de bain" value={String(listing.sallesDeBain)} />
-              {listing.wcInvites !== undefined && (
-                <Spec label="WC invités" value={String(listing.wcInvites)} />
+              <Spec label={t.type} value={propertyTypeLabel(listing.typeBien)} />
+              {listing.pieces && <Spec label={t.rooms} value={String(listing.pieces)} />}
+              <Spec label={t.surface} value={`${listing.surfaceM2} m²`} />
+              <Spec label={t.bedrooms} value={String(listing.chambres)} />
+              <Spec label={t.bathrooms} value={String(listing.sallesDeBain)} />
+              {listing.wcInvites !== undefined && <Spec label={t.guestWc} value={String(listing.wcInvites)} />}
+              {listing.etage && <Spec label={t.floor} value={listing.etage} />}
+              <Spec label={t.elevator} value={listing.ascenseur ? t.yes : t.no} />
+              <Spec label={t.parking} value={listing.parking ? t.yes : t.no} />
+              <Spec label={t.furnished} value={listing.meuble ? t.yes : t.no} />
+              {listing.etat && (
+                <Spec
+                  label={t.condition}
+                  value={conditionLabels[locale as keyof typeof conditionLabels][listing.etat] ?? conditionLabel(listing.etat)}
+                />
               )}
-              {listing.etage && <Spec label="Étage" value={listing.etage} />}
-              <Spec label="Ascenseur" value={listing.ascenseur ? "Oui" : "Non"} />
-              <Spec label="Parking" value={listing.parking ? "Oui" : "Non"} />
-              <Spec label="Meublé" value={listing.meuble ? "Oui" : "Non"} />
-              {listing.etat && <Spec label="État" value={conditionLabel(listing.etat)} />}
-              {listing.disponibilite && (
-                <Spec label="Disponibilité" value={listing.disponibilite} />
-              )}
+              {listing.disponibilite && <Spec label={t.availability} value={listing.disponibilite} />}
             </div>
 
-            <h2 className="font-display text-xl text-ink mb-4">Description</h2>
-            <p className="text-ink-soft mb-10 leading-relaxed">{listing.description}</p>
+            <h2 className="font-display text-xl text-ink mb-4">{t.description}</h2>
+            <p className="text-ink-soft mb-10 leading-relaxed whitespace-pre-line">{listing.description}</p>
 
-            <h2 className="font-display text-xl text-ink mb-4">Équipements</h2>
+            <h2 className="font-display text-xl text-ink mb-4">{t.equipment}</h2>
             <div className="flex flex-wrap gap-2 mb-10">
               {listing.equipements.map((eq) => (
-                <span
-                  key={eq}
-                  className="text-xs font-mono uppercase tracking-wide border border-ink/15 rounded-sm px-3 py-1.5 text-ink-soft"
-                >
+                <span key={eq} className="text-xs font-mono uppercase tracking-wide border border-ink/15 rounded-sm px-3 py-1.5 text-ink-soft">
                   {eq}
                 </span>
               ))}
@@ -230,58 +307,37 @@ export default async function ListingDetailPage({
 
             {(listing.caution || listing.honorairesAgence || listing.chargesIncluses !== undefined || listing.conditionsParticulieres) && (
               <>
-                <h2 className="font-display text-xl text-ink mb-4">Conditions de location</h2>
+                <h2 className="font-display text-xl text-ink mb-4">{t.rentalConditions}</h2>
                 <div className="flex flex-wrap gap-6 mb-10">
                   {listing.chargesIncluses !== undefined && (
-                    <Spec label="Charges / syndic" value={listing.chargesIncluses ? "Inclus" : "Non inclus"} />
+                    <Spec label={t.charges} value={listing.chargesIncluses ? t.included : t.notIncluded} />
                   )}
-                  {listing.caution && <Spec label="Caution" value={listing.caution} />}
-                  {listing.honorairesAgence && (
-                    <Spec label="Honoraires d'agence" value={listing.honorairesAgence} />
-                  )}
+                  {listing.caution && <Spec label={t.deposit} value={listing.caution} />}
+                  {listing.honorairesAgence && <Spec label={t.agencyFees} value={listing.honorairesAgence} />}
                 </div>
-                {listing.conditionsParticulieres && (
-                  <p className="text-ink-soft text-sm mb-10 italic">
-                    {listing.conditionsParticulieres}
-                  </p>
-                )}
+                {listing.conditionsParticulieres && <p className="text-ink-soft text-sm mb-10 italic whitespace-pre-line">{listing.conditionsParticulieres}</p>}
               </>
             )}
 
             {neighborhood && (
               <>
-                <h2 className="font-display text-xl text-ink mb-4">
-                  À propos du quartier
-                </h2>
+                <h2 className="font-display text-xl text-ink mb-4">{t.aboutNeighborhood}</h2>
                 <p className="text-ink-soft mb-2">{neighborhood.description}</p>
-                <Link
-                  href={`/quartiers/${neighborhood.slug}`}
-                  className="text-sm font-semibold text-navy border-b border-gold pb-0.5"
-                >
-                  Découvrir {neighborhood.nom} →
+                <Link href={localizedPath(locale, `/quartiers/${neighborhood.slug}`)} className="text-sm font-semibold text-navy border-b border-gold pb-0.5">
+                  {t.discoverNeighborhood}
                 </Link>
               </>
             )}
           </div>
 
-          {/* Sidebar contact */}
           <aside className="lg:sticky lg:top-28 h-fit bg-navy rounded-sm p-8">
-            <div className="font-display text-2xl text-ivory mb-1">
-              {formatPrice(listing)}
-            </div>
-            <div className="text-ivory/50 text-sm mb-8">
-              {transactionLabel(listing.transaction)}
-            </div>
-
+            <div className="font-display text-2xl text-ivory mb-1">{formatPrice(listing)}</div>
+            <div className="text-ivory/50 text-sm mb-8">{transactionLabel(listing.transaction, locale as keyof typeof transactionLabels)}</div>
             <div className="flex flex-col gap-3 mb-8">
-              <ListingContactActions
-                listing={{ reference: listing.reference, ville: listing.ville }}
-                quartierNom={neighborhood?.nom}
-              />
+              <ListingContactActions listing={{ reference: listing.reference, ville: listing.ville }} quartierNom={neighborhood?.nom} />
             </div>
-
             <div className="border-t border-ivory/15 pt-6">
-              <div className="eyebrow text-gold mb-3">Partager</div>
+              <div className="eyebrow text-gold mb-3">{t.share}</div>
               <ShareButtons title={listing.titre} />
             </div>
           </aside>
@@ -289,23 +345,18 @@ export default async function ListingDetailPage({
 
         {similar.length > 0 && (
           <div className="mt-24">
-            <h2 className="font-display text-2xl text-ink mb-8">Biens similaires</h2>
+            <h2 className="font-display text-2xl text-ink mb-8">{t.similar}</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {similar.map((l) => (
-                <ListingCard key={l.reference} listing={l} />
-              ))}
+              {similar.map((l) => <ListingCard key={l.reference} listing={l} />)}
             </div>
           </div>
         )}
 
         <div className="mt-20 pt-8 border-t border-ink/10 text-center">
           <p className="text-ink-soft text-sm">
-            Vous êtes propriétaire d&apos;un bien similaire ?{" "}
-            <Link
-              href="/confier-mon-bien"
-              className="text-navy font-semibold border-b border-gold pb-0.5"
-            >
-              Confiez-le à Casa Habitat
+            {t.ownerCta}{" "}
+            <Link href={localizedPath(locale, "/confier-mon-bien")} className="text-navy font-semibold border-b border-gold pb-0.5">
+              {t.entrust}
             </Link>
           </p>
         </div>
@@ -317,9 +368,7 @@ export default async function ListingDetailPage({
 function Spec({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="font-mono text-[10px] uppercase tracking-widest text-ink-soft mb-1">
-        {label}
-      </div>
+      <div className="font-mono text-[10px] uppercase tracking-widest text-ink-soft mb-1">{label}</div>
       <div className="text-ink font-medium">{value}</div>
     </div>
   );
