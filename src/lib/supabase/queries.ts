@@ -57,6 +57,7 @@ export async function getPublishedListings(): Promise<Listing[]> {
     .from("listings")
     .select(PUBLIC_LISTING_SELECT)
     .eq("publication_status", "publie")
+    .eq("is_sample", false)
     .order("created_at", { ascending: false });
 
   if (error || !data) return [];
@@ -71,6 +72,7 @@ export async function getPublishedListingsByTransaction(
     .from("listings")
     .select(PUBLIC_LISTING_SELECT)
     .eq("publication_status", "publie")
+    .eq("is_sample", false)
     .eq("transaction", toDbTransaction(transaction))
     .order("created_at", { ascending: false });
 
@@ -86,17 +88,75 @@ export async function getPublishedListingsByTransaction(
   return adaptListingsForPublicSite(data as unknown as DbListingWithImages[]);
 }
 
-export async function getPublishedListingBySlug(slug: string): Promise<Listing | null> {
+export type ListingTranslation = {
+  listing_id: string;
+  locale: string;
+  titre: string | null;
+  description: string | null;
+  conditions_particulieres: string | null;
+};
+
+export async function getListingTranslatedLocales(listingId: string): Promise<string[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("listing_translations")
+    .select("locale, titre, description")
+    .eq("listing_id", listingId);
+
+  if (error || !data) return [];
+  return (data as Array<{ locale: string; titre: string | null; description: string | null }>)
+    .filter((translation) => translation.titre && translation.description)
+    .map((translation) => translation.locale);
+}
+
+export async function getListingTranslation(
+  listingId: string,
+  locale: string
+): Promise<ListingTranslation | null> {
+  if (locale === "fr") return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("listing_translations")
+    .select("listing_id, locale, titre, description, conditions_particulieres")
+    .eq("listing_id", listingId)
+    .eq("locale", locale)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  const translation = data as ListingTranslation;
+  return translation.titre && translation.description ? translation : null;
+}
+
+function applyListingTranslation(
+  listing: Listing,
+  translation: ListingTranslation | null
+): Listing {
+  if (!translation?.titre || !translation.description) return listing;
+  return {
+    ...listing,
+    titre: translation.titre,
+    description: translation.description,
+    conditionsParticulieres:
+      translation.conditions_particulieres ?? listing.conditionsParticulieres,
+  };
+}
+
+export async function getPublishedListingBySlug(
+  slug: string,
+  locale = "fr"
+): Promise<Listing | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
     .select(PUBLIC_LISTING_SELECT)
     .eq("publication_status", "publie")
+    .eq("is_sample", false)
     .eq("slug", slug)
     .maybeSingle();
 
   if (error || !data) return null;
-  return adaptListingForPublicSite(data as unknown as DbListingWithImages);
+  const listing = await adaptListingForPublicSite(data as unknown as DbListingWithImages);
+  return applyListingTranslation(listing, await getListingTranslation(listing.id, locale));
 }
 
 export async function getPublishedListingsByNeighborhood(
@@ -107,6 +167,7 @@ export async function getPublishedListingsByNeighborhood(
     .from("listings")
     .select(PUBLIC_LISTING_SELECT)
     .eq("publication_status", "publie")
+    .eq("is_sample", false)
     .eq("quartier_slug", quartierSlug)
     .order("created_at", { ascending: false });
 
@@ -116,19 +177,50 @@ export async function getPublishedListingsByNeighborhood(
 
 export async function getSimilarPublishedListings(
   listing: Listing,
-  max = 3
+  max = 3,
+  locale = "fr"
 ): Promise<Listing[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
     .select(PUBLIC_LISTING_SELECT)
     .eq("publication_status", "publie")
+    .eq("is_sample", false)
+    .eq("transaction", toDbTransaction(listing.transaction))
+    .not("availability_status", "in", "(loue,vendu)")
     .neq("slug", listing.slug)
     .or(`quartier_slug.eq.${listing.quartierSlug},type_bien.eq.${listing.typeBien}`)
-    .limit(max);
+    .limit(12);
 
   if (error || !data) return [];
-  return adaptListingsForPublicSite(data as unknown as DbListingWithImages[]);
+
+  const candidates = await adaptListingsForPublicSite(
+    data as unknown as DbListingWithImages[]
+  );
+  const score = (candidate: Listing) => {
+    let value = 0;
+    if (candidate.quartierSlug === listing.quartierSlug) value += 30;
+    if (candidate.typeBien === listing.typeBien) value += 20;
+    if (candidate.statut === "disponible") value += 10;
+    if (candidate.chambres === listing.chambres) value += 8;
+    if (Math.abs(candidate.surfaceM2 - listing.surfaceM2) <= 25) value += 6;
+    if (
+      listing.prix !== null &&
+      candidate.prix !== null &&
+      Math.abs(candidate.prix - listing.prix) <= Math.max(1000, listing.prix * 0.2)
+    ) value += 4;
+    return value;
+  };
+
+  const ranked = candidates.sort((a, b) => score(b) - score(a)).slice(0, max);
+  if (locale === "fr") return ranked;
+
+  const translations = await Promise.all(
+    ranked.map((candidate) => getListingTranslation(candidate.id, locale))
+  );
+  return ranked.map((candidate, index) =>
+    applyListingTranslation(candidate, translations[index])
+  );
 }
 
 export async function getNeighborhoods(): Promise<Neighborhood[]> {
@@ -196,14 +288,50 @@ export async function getNeighborhoodBySlug(slug: string): Promise<Neighborhood 
   };
 }
 
-/** Références de tous les biens publiés — pour generateStaticParams / sitemap. */
-export async function getAllPublishedSlugs(): Promise<string[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("listings")
-    .select("slug")
-    .eq("publication_status", "publie");
+export type ListingSitemapEntry = {
+  slug: string;
+  updatedAt: string;
+  locales: string[];
+};
 
-  if (error || !data) return [];
-  return data.map((row) => row.slug as string);
+export async function getPublishedListingSitemapEntries(): Promise<ListingSitemapEntry[]> {
+  const supabase = await createClient();
+  const { data: listings, error } = await supabase
+    .from("listings")
+    .select("id, slug, updated_at")
+    .eq("publication_status", "publie")
+    .eq("is_sample", false)
+    .not("availability_status", "in", "(loue,vendu)");
+
+  if (error || !listings) return [];
+
+  const ids = listings.map((row) => row.id as string);
+  const { data: translations } = ids.length
+    ? await supabase
+        .from("listing_translations")
+        .select("listing_id, locale, titre, description")
+        .in("listing_id", ids)
+    : { data: [] as Array<{ listing_id: string; locale: string; titre: string | null; description: string | null }> };
+
+  const translatedByListing = new Map<string, string[]>();
+  for (const translation of (translations ?? []) as Array<{
+    listing_id: string;
+    locale: string;
+    titre: string | null;
+    description: string | null;
+  }>) {
+    if (!translation.titre || !translation.description) continue;
+    const locales = translatedByListing.get(translation.listing_id) ?? [];
+    locales.push(translation.locale);
+    translatedByListing.set(translation.listing_id, locales);
+  }
+
+  return listings.map((row) => ({
+    slug: row.slug as string,
+    updatedAt: row.updated_at as string,
+    locales: [
+      "fr",
+      ...(translatedByListing.get(row.id as string) ?? []).filter((locale) => locale !== "fr"),
+    ],
+  }));
 }
