@@ -7,6 +7,7 @@ import {
 import { SYSTEM_PROMPT } from "./prompt";
 import { getProvider, LlmError } from "./provider";
 import {
+  createCommercialLead,
   getPropertyDetails,
   requestHumanContact,
   searchProperties,
@@ -33,6 +34,7 @@ function statusFor(name: string): string {
   if (name === "search_properties") return "Recherche dans le catalogue…";
   if (name === "get_property_details") return "Consultation de la fiche…";
   if (name === "request_human_contact") return "Préparation du contact…";
+  if (name === "create_lead") return "Enregistrement de votre demande…";
   return "Traitement…";
 }
 
@@ -48,6 +50,7 @@ export async function* runAgent(params: {
   message: string;
   history: AgentMessage[];
   signal: AbortSignal;
+  conversationId: string;
 }): AsyncGenerator<AgentEvent> {
   const provider = getProvider();
 
@@ -55,6 +58,19 @@ export async function* runAgent(params: {
     ...params.history.slice(-MAX_HISTORY_MESSAGES),
     { role: "user", text: params.message },
   ];
+
+  // Le consentement doit provenir du message utilisateur courant. L'historique
+  // envoyé par le navigateur est utile au dialogue, mais ne constitue pas une
+  // preuve fiable de consentement puisqu'il peut être falsifié côté client.
+  //
+  // Les formulations naturelles de consentement sont acceptées lorsqu'elles
+  // expriment clairement l'accord au stockage/recontact : « Oui, je suis
+  // d'accord » est notamment une réponse naturelle à la question de consentement
+  // posée par l'agent. Un simple « oui » reste volontairement insuffisant.
+  const explicitConsent =
+    /(?:j['’]?(?:accepte|autorise)|je consens|je suis d['’]accord|je donne mon accord|mon accord est donné|vous pouvez enregistrer|vous pouvez (?:stocker|conserver) (?:mes coordonnées|mes données|mes informations)|d['’]accord,?\s*(?:vous pouvez|j['’]accepte)|i\s+(?:agree|consent)|yes,?\s*(?:i\s+agree|you\s+may\s+(?:store|save)\s+(?:my\s+(?:contact|details|information)|my\s+data))|نعم\s*(?:أوافق|موافق)|أوافق\s*على\s*(?:تسجيل|حفظ)\s*(?:بياناتي|معلوماتي))/iu.test(
+      params.message,
+    );
 
   let toolCallsUsed = 0;
   let resultsUsed = 0;
@@ -132,7 +148,12 @@ export async function* runAgent(params: {
       yield { type: "status", label: statusFor(call.name) };
 
       try {
-        const payload = await executeTool(call, MAX_RESULTS_PER_REQUEST - resultsUsed);
+        const payload = await executeTool(
+          call,
+          MAX_RESULTS_PER_REQUEST - resultsUsed,
+          params.conversationId,
+          explicitConsent,
+        );
         if (call.name === "search_properties" && "properties" in payload) {
           resultsUsed += (payload.properties as unknown[]).length;
         }
@@ -158,7 +179,9 @@ export async function* runAgent(params: {
 
 async function executeTool(
   call: AgentToolCall,
-  remainingResults: number
+  remainingResults: number,
+  conversationId: string,
+  explicitConsent: boolean,
 ): Promise<Record<string, unknown>> {
   if (call.name === "search_properties") {
     return { ...(await searchProperties(call.input, remainingResults)) };
@@ -168,6 +191,15 @@ async function executeTool(
   }
   if (call.name === "request_human_contact") {
     return { ...(await requestHumanContact(call.input)) };
+  }
+  if (call.name === "create_lead") {
+    return {
+      ...(await createCommercialLead({
+        ...call.input,
+        conversation_id: conversationId,
+        consent: call.input.consent === true && explicitConsent,
+      })),
+    };
   }
   return { error: "Outil inconnu." };
 }
