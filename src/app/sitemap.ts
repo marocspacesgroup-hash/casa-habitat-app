@@ -71,5 +71,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
     }));
 
-  return [...staticRoutes, ...ownerRoutes, ...listingRoutes, ...neighborhoodRoutes];
+  const guideSlugs = [
+    "louer-appartement-casablanca",
+    "choisir-quartier-casablanca",
+    "confier-bien-location-casablanca",
+    "acheter-appartement-casablanca",
+    "investissement-locatif-casablanca",
+  ];
+  const guideRoutes = [
+    { url: `${siteConfig.url}/fr/guides`, lastModified: now },
+    ...guideSlugs.map((slug) => ({
+      url: `${siteConfig.url}/fr/guides/${slug}`,
+      lastModified: now,
+    })),
+  ];
+
+  return [...staticRoutes, ...ownerRoutes, ...listingRoutes, ...neighborhoodRoutes, ...guideRoutes];
 }
