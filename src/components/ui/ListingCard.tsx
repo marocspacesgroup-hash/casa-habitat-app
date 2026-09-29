@@ -8,7 +8,7 @@ import FavoriteButton from "./FavoriteButton";
 import PropertyImage from "./PropertyImage";
 
 export default function ListingCard({ listing }: { listing: PublicListingCard }) {
-  const { translation } = useTranslation();
+  const { language, translation } = useTranslation();
   const notAvailable = listing.statut !== "disponible";
 
   return (
@@ -51,7 +51,7 @@ export default function ListingCard({ listing }: { listing: PublicListingCard })
         <div className="flex items-center justify-between border-t border-ink/8 pt-4">
           <div className="font-display text-lg text-ink">{formatPrice(listing)}</div>
           <Link
-            href={`/biens/${listing.slug}`}
+            href={`/${language}/biens/${listing.slug}`}
             className="text-[11.5px] uppercase tracking-wider font-semibold text-navy border-b border-gold pb-0.5"
           >
             {translation.properties.viewDetails}
