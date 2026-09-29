@@ -196,7 +196,7 @@ export async function getNeighborhoodBySlug(slug: string): Promise<Neighborhood 
   };
 }
 
-/** Références de tous les biens publiés — pour generateStaticParams / sitemap. */
+/** Références de tous les biens publiés et réels — pour le sitemap. */
 export async function getAllPublishedSlugs(): Promise<string[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -207,4 +207,21 @@ export async function getAllPublishedSlugs(): Promise<string[]> {
 
   if (error || !data) return [];
   return data.map((row) => row.slug as string);
+}
+
+export async function getPublishedListingSitemapEntries(): Promise<
+  { slug: string; lastModified: string | null }[]
+> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("listings")
+    .select("slug, updated_at")
+    .eq("publication_status", "publie")
+    .eq("is_sample", false);
+
+  if (error || !data) return [];
+  return data.map((row) => ({
+    slug: row.slug as string,
+    lastModified: (row.updated_at as string | null) ?? null,
+  }));
 }
