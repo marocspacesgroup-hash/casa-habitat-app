@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { getDynamicMetadata } from "@/lib/i18n/metadata";
+import { getServerLocale } from "@/lib/i18n/server";
+import { prefixLocale, type Language } from "@/lib/i18n/config";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -34,11 +36,12 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const listing = await getPublishedListingBySlug(slug);
+  const locale = await getServerLocale();
+  const listing = await getPublishedListingBySlug(slug, locale);
   if (!listing) return {};
   const neighborhood = await getNeighborhoodBySlug(listing.quartierSlug);
   const title = seoTitle(listing, neighborhood?.nom);
-  const metaDescription = `${seoTitle(listing, neighborhood?.nom)}. ${listing.description.slice(0, 135)}${listing.description.length > 135 ? "…" : ""}`;
+  const metaDescription = `${seoTitle(listing, neighborhood?.nom)}. ${listing.surfaceM2} m²${listing.chambres > 0 ? `, ${listing.chambres} chambre${listing.chambres > 1 ? "s" : ""}` : ""}${listing.meuble ? ", meublé" : ""}${listing.parking ? ", parking" : ""}. ${listing.description.slice(0, 120)}${listing.description.length > 120 ? "…" : ""}`;
   const ogImage =
     listing.imagePrincipale.kind === "photo"
       ? [
@@ -51,9 +54,21 @@ export async function generateMetadata({
         ]
       : undefined;
   const base = await getDynamicMetadata(title, metaDescription, `/biens/${listing.slug}`);
+  const canonical = `${siteConfig.url}/${locale}/biens/${listing.slug}`;
   return {
     ...base,
-    openGraph: { ...base.openGraph, title: `${title} | ${siteConfig.name}`, type: "article", images: ogImage },
+    alternates: { canonical },
+    robots:
+      listing.statut === "loue" || listing.statut === "vendu"
+        ? { index: false, follow: true }
+        : { index: true, follow: true },
+    openGraph: {
+      ...base.openGraph,
+      title: `${title} | ${siteConfig.name}`,
+      type: "article",
+      url: canonical,
+      images: ogImage,
+    },
     twitter: { card: "summary_large_image", title, description: metaDescription, images: ogImage },
   };
 }
@@ -64,7 +79,8 @@ export default async function ListingDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const listing = await getPublishedListingBySlug(slug);
+  const locale = await getServerLocale();
+  const listing = await getPublishedListingBySlug(slug, locale);
   if (!listing) notFound();
 
   const [neighborhood, similar] = await Promise.all([
@@ -75,16 +91,16 @@ export default async function ListingDetailPage({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
-    "@id": `${siteConfig.url}/biens/${listing.slug}#listing`,
+    "@id": `${siteConfig.url}/${locale}/biens/${listing.slug}#listing`,
     name: seoTitle(listing, neighborhood?.nom),
-    url: `${siteConfig.url}/biens/${listing.slug}`,
-    mainEntityOfPage: `${siteConfig.url}/biens/${listing.slug}`,
+    url: `${siteConfig.url}/${locale}/biens/${listing.slug}`,
+    mainEntityOfPage: `${siteConfig.url}/${locale}/biens/${listing.slug}`,
     provider: { "@id": `${siteConfig.url}/#organization` },
     description: listing.description,
     sku: listing.reference,
     image:
       listing.imagePrincipale.kind === "photo"
-        ? `${siteConfig.url}${listing.imagePrincipale.src}`
+        ? new URL(listing.imagePrincipale.src, siteConfig.url).toString()
         : undefined,
     about: {
       "@type": "Place",
@@ -106,7 +122,7 @@ export default async function ListingDetailPage({
         listing.statut === "disponible"
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
-      url: `${siteConfig.url}/biens/${listing.slug}`,
+      url: `${siteConfig.url}/${locale}/biens/${listing.slug}`,
     },
   };
 
@@ -157,10 +173,10 @@ export default async function ListingDetailPage({
 
       <div className="max-w-6xl mx-auto px-6">
         <nav className="text-xs font-mono text-ink-soft mb-8 flex gap-2 flex-wrap">
-          <Link href="/" className="hover:text-gold">Accueil</Link>
+          <Link href={prefixLocale("/", locale as Language)} className="hover:text-gold">Accueil</Link>
           <span>/</span>
           <Link
-            href={listing.transaction === "vente" ? "/vente" : "/locations"}
+            href={prefixLocale(listing.transaction === "vente" ? "/vente" : "/locations", locale as Language)}
             className="hover:text-gold"
           >
             {transactionLabel(listing.transaction)}
@@ -255,7 +271,7 @@ export default async function ListingDetailPage({
                 </h2>
                 <p className="text-ink-soft mb-2">{neighborhood.description}</p>
                 <Link
-                  href={`/quartiers/${neighborhood.slug}`}
+                  href={prefixLocale(`/quartiers/${neighborhood.slug}`, locale as Language)}
                   className="text-sm font-semibold text-navy border-b border-gold pb-0.5"
                 >
                   Découvrir {neighborhood.nom} →
@@ -302,7 +318,7 @@ export default async function ListingDetailPage({
           <p className="text-ink-soft text-sm">
             Vous êtes propriétaire d&apos;un bien similaire ?{" "}
             <Link
-              href="/confier-mon-bien"
+              href={prefixLocale("/confier-mon-bien", locale as Language)}
               className="text-navy font-semibold border-b border-gold pb-0.5"
             >
               Confiez-le à Casa Habitat
