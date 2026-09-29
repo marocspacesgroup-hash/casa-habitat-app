@@ -5,6 +5,7 @@ import ListingCard from "@/components/ui/ListingCard";
 import { whatsappGeneral } from "@/lib/whatsapp";
 import { siteConfig } from "@/config/site";
 import { getServerTranslation } from "@/lib/i18n/server";
+import { prefixLocale } from "@/lib/i18n/config";
 
 export interface ListingFilters {
   type?: string;
@@ -51,24 +52,31 @@ export default async function ListingsPageContent({
   /** Optionnel — affiche un CTA WhatsApp sous la description (ex. courte durée) */
   whatsappCta?: string;
 }) {
-  const { translation } = await getServerTranslation();
+  const { translation, locale } = await getServerTranslation();
   let results = await getPublishedListingsByTransaction(transaction);
   if (meubleOnly === true) results = results.filter((l) => l.meuble);
   if (meubleOnly === false) results = results.filter((l) => !l.meuble);
   results = applyFilters(results, filters);
+
+  const collectionPath =
+    transaction === "vente"
+      ? "/vente"
+      : transaction === "courte-duree"
+        ? "/courte-duree"
+        : "/locations";
 
   const pageJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: `${title} ${emphasis ?? ""}`.trim(),
     description,
-    url: `${siteConfig.url}${transaction === "vente" ? "/vente" : transaction === "courte-duree" ? "/courte-duree" : "/locations"}`,
+    url: `${siteConfig.url}${prefixLocale(collectionPath, locale)}`,
     mainEntity: {
       "@type": "ItemList",
       itemListElement: results.map((listing, index) => ({
         "@type": "ListItem",
         position: index + 1,
-        url: `${siteConfig.url}/biens/${listing.slug}`,
+        url: `${siteConfig.url}${prefixLocale(`/biens/${listing.slug}`, locale)}`,
         name: listing.titre,
       })),
     },
@@ -82,7 +90,7 @@ export default async function ListingsPageContent({
       />
       <div className="max-w-6xl mx-auto px-6">
         <nav className="text-xs font-mono text-ink-soft mb-8 flex gap-2">
-          <Link href="/" className="hover:text-gold">{translation.pages.listings.home}</Link>
+          <Link href={prefixLocale("/", locale)} className="hover:text-gold">{translation.pages.listings.home}</Link>
           <span>/</span>
           <span className="text-ink">{breadcrumb}</span>
         </nav>
