@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
-import { getAllPublishedSlugs, getNeighborhoods } from "@/lib/supabase/queries";
+import { getPublishedListingSitemapEntries, getNeighborhoods } from "@/lib/supabase/queries";
 import { supportedLanguages } from "@/lib/i18n/config";
 import { AUTHORITY_READY_NEIGHBORHOODS } from "@/data/neighborhood-authority";
 
@@ -46,12 +46,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
   }));
 
-  const [slugs, neighborhoods] = await Promise.all([
-    getAllPublishedSlugs(),
+  const [listingEntries, neighborhoods] = await Promise.all([
+    getPublishedListingSitemapEntries(),
     getNeighborhoods(),
   ]);
 
-  const listingRoutes = slugs.flatMap((slug) => localized(`/biens/${slug}`, now));
+  const listingRoutes = listingEntries.flatMap(({ slug, lastModified }) => {
+    const modified = lastModified ? new Date(lastModified) : now;
+    return localized(`/biens/${slug}`, modified);
+  });
   const neighborhoodRoutes = neighborhoods
     .filter((n) => AUTHORITY_READY_NEIGHBORHOODS.includes(n.slug))
     .map((n) => ({
