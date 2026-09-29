@@ -38,7 +38,7 @@ export async function generateMetadata({
   if (!listing) return {};
   const neighborhood = await getNeighborhoodBySlug(listing.quartierSlug);
   const title = seoTitle(listing, neighborhood?.nom);
-  const metaDescription = `${seoTitle(listing, neighborhood?.nom)}. ${listing.description.slice(0, 135)}${listing.description.length > 135 ? "…" : ""}`;
+  const metaDescription = `${seoTitle(listing, neighborhood?.nom)}. ${listing.surfaceM2} m²${listing.chambres > 0 ? `, ${listing.chambres} chambre${listing.chambres > 1 ? "s" : ""}` : ""}${listing.meuble ? ", meublé" : ""}${listing.parking ? ", parking" : ""}. ${listing.description.slice(0, 105)}${listing.description.length > 105 ? "…" : ""}`;
   const ogImage =
     listing.imagePrincipale.kind === "photo"
       ? [
@@ -53,6 +53,7 @@ export async function generateMetadata({
   const base = await getDynamicMetadata(title, metaDescription, `/biens/${listing.slug}`);
   return {
     ...base,
+    robots: listing.isSample ? { index: false, follow: true } : { index: true, follow: true },
     openGraph: { ...base.openGraph, title: `${title} | ${siteConfig.name}`, type: "article", images: ogImage },
     twitter: { card: "summary_large_image", title, description: metaDescription, images: ogImage },
   };
@@ -82,6 +83,8 @@ export default async function ListingDetailPage({
     provider: { "@id": `${siteConfig.url}/#organization` },
     description: listing.description,
     sku: listing.reference,
+    dateModified: listing.dateMiseAJour,
+    seller: { "@id": `${siteConfig.url}/#organization` },
     image:
       listing.imagePrincipale.kind === "photo"
         ? `${siteConfig.url}${listing.imagePrincipale.src}`
@@ -212,6 +215,19 @@ export default async function ListingDetailPage({
                 <Spec label="Disponibilité" value={listing.disponibilite} />
               )}
             </div>
+
+            <section className="mb-10 border border-ink/10 rounded-sm p-6" aria-labelledby="inventory-proof-title">
+              <span className="eyebrow inline-block px-3 py-1.5 rounded-sm mb-4 bg-navy text-gold-bright">Bien publié par Casa Habitat</span>
+              <h2 id="inventory-proof-title" className="font-display text-xl text-ink mb-4">Informations du bien</h2>
+              <p className="text-sm text-ink-soft mb-4">
+                Cette fiche présente les caractéristiques publiées pour la référence <strong className="text-ink">{listing.reference}</strong>. Les informations, le prix et la disponibilité peuvent évoluer ; la date de mise à jour indiquée ci-dessous permet de situer l’information dans le temps.
+              </p>
+              <div className="flex flex-wrap gap-x-8 gap-y-3 text-xs text-ink-soft">
+                <span>Référence : <strong className="text-ink">{listing.reference}</strong></span>
+                <span>Mise à jour : <strong className="text-ink">{new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date(listing.dateMiseAJour))}</strong></span>
+                <span>Statut : <strong className="text-ink">{statusLabel(listing.statut)}</strong></span>
+              </div>
+            </section>
 
             <h2 className="font-display text-xl text-ink mb-4">Description</h2>
             <p className="text-ink-soft mb-10 leading-relaxed">{listing.description}</p>
