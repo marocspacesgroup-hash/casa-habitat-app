@@ -23,7 +23,7 @@ import PropertyGallery from "@/components/ui/PropertyGallery";
 import ListingContactActions from "@/components/ui/ListingContactActions";
 import ListingViewTracker from "@/components/ui/ListingViewTracker";
 
-const listingUi = {
+const listingUi: Record<Language, Record<string, string>> = {
   fr: {type:"Type",rooms:"Pièces",surface:"Surface",bedrooms:"Chambres",bathrooms:"Salles de bain",guestWc:"WC invités",floor:"Étage",elevator:"Ascenseur",parking:"Parking",furnished:"Meublé",condition:"État",availability:"Disponibilité",yes:"Oui",no:"Non",description:"Description",equipment:"Équipements",rentalConditions:"Conditions de location",charges:"Charges / syndic",included:"Inclus",notIncluded:"Non inclus",deposit:"Caution",agencyFees:"Honoraires d'agence",aboutNeighborhood:"À propos du quartier",discoverNeighborhood:"Découvrir le quartier →",similar:"Biens similaires",ownerCta:"Vous êtes propriétaire d'un bien similaire ?",entrust:"Confiez-le à Casa Habitat",reference:"Réf.",share:"Partager",home:"Accueil",notAvailable:"Bien non disponible",example:"Fiche présentée à titre d'exemple."},
   en: {type:"Type",rooms:"Rooms",surface:"Area",bedrooms:"Bedrooms",bathrooms:"Bathrooms",guestWc:"Guest WC",floor:"Floor",elevator:"Elevator",parking:"Parking",furnished:"Furnished",condition:"Condition",availability:"Availability",yes:"Yes",no:"No",description:"Description",equipment:"Amenities",rentalConditions:"Rental terms",charges:"Building charges",included:"Included",notIncluded:"Not included",deposit:"Deposit",agencyFees:"Agency fees",aboutNeighborhood:"About the neighborhood",discoverNeighborhood:"Discover the neighborhood →",similar:"Similar properties",ownerCta:"Do you own a similar property?",entrust:"Entrust it to Casa Habitat",reference:"Ref.",share:"Share",home:"Home",notAvailable:"Property unavailable",example:"Example listing."},
   ar: {type:"النوع",rooms:"الغرف",surface:"المساحة",bedrooms:"غرف النوم",bathrooms:"الحمامات",guestWc:"مرحاض للضيوف",floor:"الطابق",elevator:"مصعد",parking:"موقف سيارات",furnished:"مفروش",condition:"الحالة",availability:"التوفر",yes:"نعم",no:"لا",description:"الوصف",equipment:"التجهيزات",rentalConditions:"شروط الإيجار",charges:"رسوم العمارة",included:"مشمولة",notIncluded:"غير مشمولة",deposit:"الضمان",agencyFees:"أتعاب الوكالة",aboutNeighborhood:"عن الحي",discoverNeighborhood:"اكتشف الحي ←",similar:"عقارات مشابهة",ownerCta:"هل تملك عقارًا مشابهًا؟",entrust:"أوكل العقار إلى Casa Habitat",reference:"المرجع",share:"مشاركة",home:"الرئيسية",notAvailable:"العقار غير متاح",example:"إعلان تجريبي."},
@@ -31,7 +31,7 @@ const listingUi = {
   it: {type:"Tipo",rooms:"Locali",surface:"Superficie",bedrooms:"Camere",bathrooms:"Bagni",guestWc:"WC ospiti",floor:"Piano",elevator:"Ascensore",parking:"Parcheggio",furnished:"Arredato",condition:"Condizione",availability:"Disponibilità",yes:"Sì",no:"No",description:"Descrizione",equipment:"Dotazioni",rentalConditions:"Condizioni di affitto",charges:"Spese condominiali",included:"Incluse",notIncluded:"Non incluse",deposit:"Cauzione",agencyFees:"Commissioni d'agenzia",aboutNeighborhood:"Sul quartiere",discoverNeighborhood:"Scopri il quartiere →",similar:"Immobili simili",ownerCta:"Sei proprietario di un immobile simile?",entrust:"Affidalo a Casa Habitat",reference:"Rif.",share:"Condividi",home:"Home",notAvailable:"Immobile non disponibile",example:"Annuncio di esempio."},
 } as const;
 
-const transactionLabels = {
+const transactionLabels: Record<Language, Record<string, string>> = {
   fr: { location: "Location", vente: "Vente", "courte-duree": "Courte durée" },
   en: { location: "Rental", vente: "For sale", "courte-duree": "Short stay" },
   ar: { location: "إيجار", vente: "للبيع", "courte-duree": "إقامة قصيرة" },
@@ -39,7 +39,7 @@ const transactionLabels = {
   it: { location: "Affitto", vente: "Vendita", "courte-duree": "Affitto breve" },
 } as const;
 
-const statusLabels = {
+const statusLabels: Record<Language, Record<string, string>> = {
   fr: { reserve: "Réservé", loue: "Loué", vendu: "Vendu" },
   en: { reserve: "Reserved", loue: "Rented", vendu: "Sold" },
   ar: { reserve: "محجوز", loue: "مؤجر", vendu: "مباع" },
@@ -47,7 +47,7 @@ const statusLabels = {
   it: { reserve: "Prenotato", loue: "Affittato", vendu: "Venduto" },
 } as const;
 
-const conditionLabels = {
+const conditionLabels: Record<Language, Record<string, string>> = {
   fr: { neuf: "Neuf", "excellent-etat": "Excellent état", "bon-etat": "Bon état", "a-rafraichir": "À rafraîchir", "a-renover": "À rénover" },
   en: { neuf: "New", "excellent-etat": "Excellent condition", "bon-etat": "Good condition", "a-rafraichir": "Needs refresh", "a-renover": "Needs renovation" },
   ar: { neuf: "جديد", "excellent-etat": "حالة ممتازة", "bon-etat": "حالة جيدة", "a-rafraichir": "يحتاج إلى تجديد خفيف", "a-renover": "يحتاج إلى تجديد" },
@@ -55,8 +55,8 @@ const conditionLabels = {
   it: { neuf: "Nuovo", "excellent-etat": "Ottime condizioni", "bon-etat": "Buone condizioni", "a-rafraichir": "Da rinfrescare", "a-renover": "Da ristrutturare" },
 } as const;
 
-function transactionLabel(transaction: keyof typeof transactionLabels.fr, locale: keyof typeof transactionLabels) {
-  return transactionLabels[locale][transaction];
+function transactionLabel(transaction: string, locale: Language) {
+  return transactionLabels[locale][transaction] ?? transaction;
 }
 
 function localizedPath(locale: string, path: string) {
@@ -210,7 +210,7 @@ export default async function ListingDetailPage({
       {
         "@type": "ListItem",
         position: 2,
-        name: transactionLabel(listing.transaction, locale as keyof typeof transactionLabels),
+        name: transactionLabel(listing.transaction, locale),
         item: `${siteConfig.url}${localizedPath(locale, listing.transaction === "vente" ? "/vente" : "/locations")}`,
       },
       ...(neighborhood
@@ -247,7 +247,7 @@ export default async function ListingDetailPage({
             href={localizedPath(locale, listing.transaction === "vente" ? "/vente" : "/locations")}
             className="hover:text-gold"
           >
-            {transactionLabel(listing.transaction, locale as keyof typeof transactionLabels)}
+            {transactionLabel(listing.transaction, locale)}
           </Link>
           {neighborhood && (
             <>
@@ -269,7 +269,7 @@ export default async function ListingDetailPage({
 
         {listing.statut !== "disponible" && (
           <div className="bg-navy/5 border border-navy/15 text-ink-soft text-sm px-4 py-3 rounded-sm mb-8">
-            {statusLabels[locale as keyof typeof statusLabels][listing.statut as "reserve" | "loue" | "vendu"] ?? t.notAvailable}
+            {statusLabels[locale][listing.statut] ?? t.notAvailable}
           </div>
         )}
 
@@ -298,7 +298,7 @@ export default async function ListingDetailPage({
               {listing.etat && (
                 <Spec
                   label={t.condition}
-                  value={conditionLabels[locale as keyof typeof conditionLabels][listing.etat] ?? conditionLabel(listing.etat)}
+                  value={conditionLabels[locale][listing.etat] ?? conditionLabel(listing.etat)}
                 />
               )}
               {listing.disponibilite && <Spec label={t.availability} value={listing.disponibilite} />}
