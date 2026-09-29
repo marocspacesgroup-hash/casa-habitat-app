@@ -5,6 +5,7 @@ import { prefixLocale, type Language } from "@/lib/i18n/config";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
+  getListingTranslatedLocales,
   getPublishedListingBySlug,
   getSimilarPublishedListings,
   getNeighborhoodBySlug,
@@ -39,8 +40,10 @@ export async function generateMetadata({
   const locale = await getServerLocale();
   const listing = await getPublishedListingBySlug(slug, locale);
   if (!listing) return {};
+  const translatedLocales = await getListingTranslatedLocales(listing.id);
+  const isLocalized = locale === "fr" || translatedLocales.includes(locale);
   const neighborhood = await getNeighborhoodBySlug(listing.quartierSlug);
-  const title = seoTitle(listing, neighborhood?.nom);
+  const title = locale === "fr" || isLocalized ? (locale === "fr" ? seoTitle(listing, neighborhood?.nom) : listing.titre) : seoTitle(listing, neighborhood?.nom);
   const metaDescription = `${seoTitle(listing, neighborhood?.nom)}. ${listing.surfaceM2} m²${listing.chambres > 0 ? `, ${listing.chambres} chambre${listing.chambres > 1 ? "s" : ""}` : ""}${listing.meuble ? ", meublé" : ""}${listing.parking ? ", parking" : ""}. ${listing.description.slice(0, 120)}${listing.description.length > 120 ? "…" : ""}`;
   const ogImage =
     listing.imagePrincipale.kind === "photo"
@@ -57,9 +60,24 @@ export async function generateMetadata({
   const canonical = `${siteConfig.url}/${locale}/biens/${listing.slug}`;
   return {
     ...base,
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      ...(isLocalized
+        ? {
+            languages: {
+              ...Object.fromEntries(
+                ["fr", ...translatedLocales.filter((item) => item !== "fr")].map((item) => [
+                  item,
+                  `${siteConfig.url}/${item}/biens/${listing.slug}`,
+                ])
+              ),
+              "x-default": `${siteConfig.url}/fr/biens/${listing.slug}`,
+            },
+          }
+        : {}),
+    },
     robots:
-      listing.statut === "loue" || listing.statut === "vendu"
+      listing.statut === "loue" || listing.statut === "vendu" || !isLocalized
         ? { index: false, follow: true }
         : { index: true, follow: true },
     openGraph: {
@@ -82,6 +100,8 @@ export default async function ListingDetailPage({
   const locale = await getServerLocale();
   const listing = await getPublishedListingBySlug(slug, locale);
   if (!listing) notFound();
+  const translatedLocales = await getListingTranslatedLocales(listing.id);
+  const isLocalized = locale === "fr" || translatedLocales.includes(locale);
 
   const [neighborhood, similar] = await Promise.all([
     getNeighborhoodBySlug(listing.quartierSlug),
