@@ -65,9 +65,12 @@ export default async function QuartierPage({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
+    "@id": `${siteConfig.url}/quartiers/${neighborhood.slug}#webpage`,
     name: `Immobilier à ${neighborhood.nom}, Casablanca`,
     description: neighborhood.description,
     url: `${siteConfig.url}/quartiers/${neighborhood.slug}`,
+    isPartOf: { "@id": `${siteConfig.url}/#website` },
+    publisher: { "@id": `${siteConfig.url}/#organization` },
     about: { "@type": "Place", name: neighborhood.nom, containedInPlace: { "@type": "City", name: "Casablanca" } },
     mainEntity: {
       "@type": "ItemList",
