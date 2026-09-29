@@ -10,6 +10,8 @@ import {
 import ListingCard from "@/components/ui/ListingCard";
 import { siteConfig } from "@/config/site";
 import MapboxMap from "@/components/MapboxMap";
+import { getServerTranslation } from "@/lib/i18n/server";
+import { prefixLocale } from "@/lib/i18n/config";
 
 const CASABLANCA_CENTER: [number, number] = [-7.6322, 33.5731];
 
@@ -41,6 +43,9 @@ export default async function QuartierPage({
   const neighborhood = await getNeighborhoodBySlug(slug);
   if (!neighborhood) notFound();
 
+  const { translation, locale } = await getServerTranslation();
+  const t = translation.pages.neighborhoodDetail;
+
   const [listings, allNeighborhoods] = await Promise.all([
     getPublishedListingsByNeighborhood(slug),
     getNeighborhoods(),
@@ -67,40 +72,17 @@ export default async function QuartierPage({
     "@type": "WebPage",
     name: `Immobilier à ${neighborhood.nom}, Casablanca`,
     description: neighborhood.description,
-    url: `${siteConfig.url}/quartiers/${neighborhood.slug}`,
+    url: `${siteConfig.url}/${locale}/quartiers/${neighborhood.slug}`
     about: { "@type": "Place", name: neighborhood.nom, containedInPlace: { "@type": "City", name: "Casablanca" } },
     mainEntity: {
       "@type": "ItemList",
       itemListElement: listings.map((listing, index) => ({
         "@type": "ListItem",
         position: index + 1,
-        url: `${siteConfig.url}/biens/${listing.slug}`,
+        url: `${siteConfig.url}/${locale}/biens/${listing.slug}`,
         name: listing.titre,
       })),
     },
-  };
-
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: `Quels types de biens trouve-t-on à ${neighborhood.nom} ?`,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: `Casa Habitat sélectionne des biens à ${neighborhood.nom} en location comme à la vente — contactez l'agence pour la disponibilité actualisée.`,
-        },
-      },
-      {
-        "@type": "Question",
-        name: `Comment visiter un bien à ${neighborhood.nom} ?`,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: `Contactez Casa Habitat par WhatsApp ou téléphone au ${siteConfig.contact.phones[0]} pour organiser une visite.`,
-        },
-      },
-    ],
   };
 
   return (
@@ -115,30 +97,29 @@ export default async function QuartierPage({
       />
       <div className="max-w-6xl mx-auto px-6">
         <nav className="text-xs font-mono text-ink-soft mb-8 flex gap-2">
-          <Link href="/quartiers" className="hover:text-gold">Quartiers</Link>
+          <Link href={prefixLocale("/quartiers", locale)} className="hover:text-gold">{t.breadcrumb}</Link>
           <span>/</span>
           <span className="text-ink">{neighborhood.nom}</span>
         </nav>
 
         <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-5">
-          Immobilier à <em className="text-gold not-italic italic">{neighborhood.nom}</em>
+          {t.h1Prefix} <em className="text-gold not-italic italic">{neighborhood.nom}</em>
         </h1>
         <p className="text-ink-soft max-w-2xl mb-8">{neighborhood.description}</p>
 
         <h2 className="font-display text-xl text-ink mb-4">
-          Le marché immobilier à {neighborhood.nom}
+          {t.marketTitle} {neighborhood.nom}
         </h2>
         <p className="text-ink-soft max-w-2xl mb-8">
-          Retrouvez les biens actuellement publiés par Casa Habitat à {neighborhood.nom},
-          en location ou à la vente selon les disponibilités réelles.
+          {t.marketDescription} {neighborhood.nom}.
         </p>
 
         <section className="mb-16" aria-labelledby="quartier-map-title">
           <h2 id="quartier-map-title" className="font-display text-xl text-ink mb-3">
-            Zone générale de {neighborhood.nom}
+            {t.mapTitle} {neighborhood.nom}
           </h2>
           <p className="text-ink-soft text-sm max-w-2xl mb-5">
-            La carte présente une zone indicative de Casablanca et ne localise jamais précisément un immeuble.
+            {t.mapDescription}
           </p>
           <div className="h-[360px] overflow-hidden rounded-sm border border-ink/10 bg-navy">
             <MapboxMap center={mapCenter} zoom={mapZoom} markers={mapMarkers} />
@@ -157,7 +138,7 @@ export default async function QuartierPage({
         </div>
 
         <h2 className="font-display text-2xl text-ink mb-8">
-          Biens à {neighborhood.nom}
+          {t.listingsTitle} {neighborhood.nom}
         </h2>
         {listings.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
@@ -168,17 +149,17 @@ export default async function QuartierPage({
         ) : (
           <div className="border border-ink/10 rounded-sm p-10 text-center mb-20">
             <p className="text-ink-soft">
-              Aucun bien publié à {neighborhood.nom} pour le moment — contactez-nous, de nouveaux biens arrivent régulièrement.
+              {t.noListings} {neighborhood.nom}.
             </p>
           </div>
         )}
 
-        <h2 className="font-display text-xl text-ink mb-5">Autres quartiers</h2>
+        <h2 className="font-display text-xl text-ink mb-5">{t.otherNeighborhoods}</h2>
         <div className="flex flex-wrap gap-3">
           {others.map((n) => (
             <Link
               key={n.slug}
-              href={`/quartiers/${n.slug}`}
+              href={prefixLocale(`/quartiers/${n.slug}`, locale)}
               className="text-sm text-navy border border-ink/15 rounded-sm px-4 py-2 hover:border-gold transition-colors"
             >
               {n.nom}
