@@ -13,7 +13,7 @@ export default async function EstimationPage() {
     <div className="pt-36 pb-24">
       <div className="max-w-2xl mx-auto px-6">
         <span className="eyebrow inline-block px-3 py-1.5 rounded-sm mb-5 bg-navy text-gold-bright">
-          Estimation
+          {t.eyebrow}
         </span>
         <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-4">
           {t.title} <em className="text-gold not-italic italic">{t.emphasis}</em>
