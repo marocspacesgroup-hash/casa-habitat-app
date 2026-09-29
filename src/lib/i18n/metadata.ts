@@ -181,15 +181,28 @@ export async function getDynamicMetadata(
 ): Promise<Metadata> {
   const locale = await requestLocale();
   const localizedPath = `/${locale}${pathname === "/" ? "" : pathname}`;
-  const languages = Object.fromEntries(
-    Object.keys(seo).map((lang) => [lang, `/${lang}${pathname === "/" ? "" : pathname}`])
-  );
+  const isNeighborhoodPath =
+    pathname === "/quartiers" || pathname.startsWith("/quartiers/");
+  const languages = isNeighborhoodPath
+    ? locale === "fr"
+      ? { fr: `/fr${pathname === "/" ? "" : pathname}` }
+      : {}
+    : Object.fromEntries(
+        Object.keys(seo).map((lang) => [lang, `/${lang}${pathname === "/" ? "" : pathname}`])
+      );
   return {
     title,
     description,
     alternates: {
       canonical: localizedPath,
-      languages: { ...languages, "x-default": `${siteConfig.url}/fr${pathname}` },
+      ...(locale === "fr" || !isNeighborhoodPath
+        ? {
+            languages: {
+              ...languages,
+              "x-default": `${siteConfig.url}/fr${pathname}`,
+            },
+          }
+        : {}),
     },
     openGraph: {
       locale: locale === "ar" ? "ar_MA" : `${locale}_MA`,

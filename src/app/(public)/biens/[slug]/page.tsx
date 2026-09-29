@@ -75,8 +75,11 @@ export default async function ListingDetailPage({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
+    "@id": `${siteConfig.url}/biens/${listing.slug}#listing`,
     name: seoTitle(listing, neighborhood?.nom),
     url: `${siteConfig.url}/biens/${listing.slug}`,
+    mainEntityOfPage: `${siteConfig.url}/biens/${listing.slug}`,
+    provider: { "@id": `${siteConfig.url}/#organization` },
     description: listing.description,
     sku: listing.reference,
     image:
