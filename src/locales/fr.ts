@@ -192,5 +192,6 @@ export type Locale = {
   contact:{title:string;namePlaceholder:string;emailPlaceholder:string;phonePlaceholder:string;messagePlaceholder:string;submitButton:string;successMessage:string};
   footer:{tagline:string;rights:string;agency:string;legal:string};
   pages:any;
+  listingDetail: { [key: string]: string };
   forms:any;
 };
