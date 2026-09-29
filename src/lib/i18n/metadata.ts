@@ -16,6 +16,12 @@ const seo = {
     contact: ["Contact", "Contactez Casa Habitat à Casablanca par téléphone, e-mail ou WhatsApp."],
     estimation: ["Estimation gratuite", "Demandez une estimation gratuite de votre bien à Casablanca avec Casa Habitat."],
     owner: ["Confier un bien à Casa Habitat", "Propriétaire à Casablanca ? Casa Habitat vous accompagne pour estimer, vendre ou louer votre bien."],
+    management: ["Gestion locative à Casablanca", "Confiez la gestion de votre bien à Casablanca à Casa Habitat : positionnement, commercialisation, sélection des dossiers et suivi."],
+    letProperty: ["Mettre son bien en location à Casablanca", "Propriétaire à Casablanca ? Préparez, positionnez et commercialisez votre bien avec un accompagnement adapté."],
+    sellProperty: ["Vendre son bien immobilier à Casablanca", "Préparez la vente de votre appartement, villa ou autre bien à Casablanca avec une stratégie de positionnement et de commercialisation."],
+    shortStayOwner: ["Location courte durée à Casablanca pour propriétaires", "Étudiez le potentiel de votre bien pour la courte durée à Casablanca avec une approche fondée sur ses caractéristiques et le marché."],
+    remoteOwner: ["Propriétaire à distance à Casablanca", "Gérez votre bien à Casablanca depuis une autre ville ou l'étranger avec un interlocuteur local et un suivi clair."],
+    investment: ["Investissement immobilier à Casablanca", "Analysez un projet d'investissement immobilier à Casablanca en reliant budget, quartier, type de bien, usage et économie réelle."],
     legal: ["Mentions légales", "Mentions légales de Casa Habitat."],
     privacy: ["Politique de confidentialité", "Politique de confidentialité de Casa Habitat."],
     favorites: ["Mes favoris", "Vos biens enregistrés en favoris sur Casa Habitat."],
@@ -111,7 +117,7 @@ export async function getPageMetadata(key: SeoKey, pathname: string): Promise<Me
       canonical: `/${locale}${pathname === "/" ? "" : pathname}`,
       languages: {
         ...languageAlternates,
-        "x-default": pathname === "/" ? "/" : pathname,
+        "x-default": pathname === "/" ? `${siteConfig.url}/fr` : `${siteConfig.url}/fr${pathname}`,
       },
     },
     openGraph: {
@@ -142,7 +148,7 @@ export async function getDynamicMetadata(
     description,
     alternates: {
       canonical: localizedPath,
-      languages: { ...languages, "x-default": pathname },
+      languages: { ...languages, "x-default": `${siteConfig.url}/fr${pathname}` },
     },
     openGraph: {
       locale: locale === "ar" ? "ar_MA" : `${locale}_MA`,
