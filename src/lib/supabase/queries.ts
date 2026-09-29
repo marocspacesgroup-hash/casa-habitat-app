@@ -289,16 +289,36 @@ export async function getNeighborhoodBySlug(slug: string): Promise<Neighborhood 
   };
 }
 
-/** Références de tous les biens publiés — pour generateStaticParams / sitemap. */
-export async function getAllPublishedSlugs(): Promise<string[]> {
+export type ListingSitemapEntry = {
+  slug: string;
+  updatedAt: string;
+  locales: string[];
+};
+
+export async function getPublishedListingSitemapEntries(): Promise<ListingSitemapEntry[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("slug")
+    .select("slug, updated_at, listing_translations(locale, titre, description)")
     .eq("publication_status", "publie")
     .eq("is_sample", false)
     .not("availability_status", "in", "(loue,vendu)");
 
   if (error || !data) return [];
-  return data.map((row) => row.slug as string);
+
+  return data.map((row) => {
+    const translatedLocales = ((row.listing_translations ?? []) as Array<{
+      locale: string;
+      titre: string | null;
+      description: string | null;
+    }>)
+      .filter((translation) => translation.titre && translation.description)
+      .map((translation) => translation.locale);
+
+    return {
+      slug: row.slug as string,
+      updatedAt: row.updated_at as string,
+      locales: ["fr", ...translatedLocales.filter((locale) => locale !== "fr")],
+    };
+  });
 }
