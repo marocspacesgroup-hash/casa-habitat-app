@@ -52,7 +52,7 @@ export const proofRecords = [
   {
     id: "legal-identity",
     level: "verified",
-    sourceType: "regulatory",
+    sourceType: "casa_habitat",
     claim: "L'identité légale publiée par le site comprend YKSD INTERNATIONAL GROUP, SARL, RC, ICE et IF.",
     source: "siteConfig.legal",
     notes: "Les informations doivent rester conformes aux documents légaux à jour.",
