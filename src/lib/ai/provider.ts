@@ -27,12 +27,6 @@ export class LlmError extends Error {
   }
 }
 
-
-function logProviderDiagnostic(data: Record<string, unknown>): void {
-  if (process.env.VERCEL_ENV !== "preview" || process.env.AI_AGENT_DIAGNOSTICS === "false") return;
-  console.info("[AI_DIAGNOSTIC]", JSON.stringify(data));
-}
-
 function toAnthropicMessages(messages: AgentMessage[]): Anthropic.MessageParam[] {
   const out: Anthropic.MessageParam[] = [];
 
@@ -96,7 +90,6 @@ class AnthropicProvider implements LlmProvider {
     signal?: AbortSignal;
   }): Promise<AgentTurn> {
     try {
-      const startedAt = Date.now();
       const response = await this.client.messages.create(
         {
           model: AGENT_MODEL,
@@ -114,18 +107,6 @@ class AnthropicProvider implements LlmProvider {
         },
         { signal }
       );
-
-      logProviderDiagnostic({
-        phase: "provider_response",
-        model: AGENT_MODEL,
-        elapsed_ms: Date.now() - startedAt,
-        stop_reason: response.stop_reason,
-        block_types: response.content.map((block) => block.type),
-        block_count: response.content.length,
-        tool_use_count: response.content.filter((block) => block.type === "tool_use").length,
-        input_tokens: response.usage.input_tokens,
-        output_tokens: response.usage.output_tokens,
-      });
 
       let text = "";
       const calls: AgentTurn["calls"] = [];
@@ -150,13 +131,6 @@ class AnthropicProvider implements LlmProvider {
 
       return { text, calls, stopReason };
     } catch (error) {
-      logProviderDiagnostic({
-        phase: "provider_error",
-        error_type: error instanceof Anthropic.APIError ? "api_error" : error?.constructor?.name ?? "unknown",
-        status: error instanceof Anthropic.APIError ? error.status ?? null : null,
-        message: error instanceof Anthropic.APIError ? error.message.slice(0, 300) : null,
-        request_id: error instanceof Anthropic.APIError ? error.requestID ?? null : null,
-      });
       if (error instanceof Anthropic.RateLimitError) {
         throw new LlmError("rate_limited", true);
       }
