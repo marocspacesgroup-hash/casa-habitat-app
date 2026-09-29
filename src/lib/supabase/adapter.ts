@@ -1,6 +1,5 @@
 import { Listing, ListingImage, PropertyCondition } from "@/data/types";
 import { DbListingWithImages, DbPropertyCondition } from "./database.types";
-import { getSignedPhotoUrls } from "@/lib/images/signed-url";
 
 const conditionMap: Record<DbPropertyCondition, PropertyCondition> = {
   neuf: "neuf",
@@ -25,13 +24,24 @@ export async function adaptListingForPublicSite(
   db: DbListingWithImages
 ): Promise<Listing> {
   const sortedImages = [...db.listing_images].sort((a, b) => a.position - b.position);
-  const paths = sortedImages.map((img) => img.storage_path);
-  const signedUrls = await getSignedPhotoUrls(paths);
+  const toStableImageUrl = (storagePath: string) =>
+    `/api/listing-image/${storagePath
+      .split("/")
+      .map((segment) => encodeURIComponent(segment))
+      .join("/")}`;
 
   const toImage = (path: string, alt: string | null): ListingImage => {
-    const url = signedUrls.get(path);
-    if (!url) return { kind: "placeholder" };
-    return { kind: "photo", src: url, alt: alt ?? db.titre, width: 1500, height: 2000 };
+    const url = toStableImageUrl(path);
+    const descriptiveAlt =
+      alt?.trim() ||
+      `Photo de ${db.titre} à ${db.neighborhoods?.nom ?? db.ville}`;
+    return {
+      kind: "photo",
+      src: url,
+      alt: descriptiveAlt,
+      width: 1500,
+      height: 2000,
+    };
   };
 
   const images = sortedImages.map((img) => toImage(img.storage_path, img.alt));
