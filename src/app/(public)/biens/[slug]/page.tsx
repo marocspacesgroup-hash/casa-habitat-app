@@ -116,14 +116,20 @@ export default async function ListingDetailPage({
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: t.home, item: siteConfig.url },
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: t.home,
+        item: `${siteConfig.url}${prefixLocale("/", locale)}`,
+      },
       {
         "@type": "ListItem",
         position: 2,
         name: transactionLabel(listing.transaction),
-        item: `${siteConfig.url}/${
-          listing.transaction === "vente" ? "vente" : "locations"
-        }`,
+        item: `${siteConfig.url}${prefixLocale(
+          listing.transaction === "vente" ? "/vente" : "/locations",
+          locale
+        )}`,
       },
       { "@type": "ListItem", position: 3, name: listing.titre },
     ],
