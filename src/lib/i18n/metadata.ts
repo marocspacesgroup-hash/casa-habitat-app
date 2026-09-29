@@ -97,7 +97,11 @@ async function requestLocale(): Promise<Language> {
   return getPreferredLocale(h.get(localeCookie) ?? undefined, h.get("accept-language"));
 }
 
-export async function getPageMetadata(\n  key: SeoKey,\n  pathname: string,\n  options?: { noindex?: boolean }\n): Promise<Metadata> {
+export async function getPageMetadata(
+  key: SeoKey,
+  pathname: string,
+  options?: { noindex?: boolean }
+): Promise<Metadata> {
   const locale = await requestLocale();
   const [title, description] = seo[locale][key];
   const languageAlternates = Object.fromEntries(
@@ -111,10 +115,10 @@ export async function getPageMetadata(\n  key: SeoKey,\n  pathname: string,\n  o
       canonical: `${siteConfig.url}/${locale}${pathname === "/" ? "" : pathname}`,
       languages: { ...languageAlternates, "x-default": `${siteConfig.url}/fr${pathname === "/" ? "" : pathname}` },
     },
-    ...(key === "legal" || key === "privacy" || key === "favorites"
+    ...((key === "legal" || key === "privacy" || key === "favorites" || options?.noindex)
       ? { robots: { index: false, follow: true } }
       : {}),
-    ...(options?.noindex ? { robots: { index: false, follow: true } } : {}),\n    openGraph: {
+    openGraph: {
       locale: locale === "ar" ? "ar_MA" : `${locale}_MA`,
       title,
       description,
@@ -130,7 +134,8 @@ export const defaultMetadataLocale = defaultLanguage;
 export async function getDynamicMetadata(
   title: string,
   description: string,
-  pathname: string
+  pathname: string,
+  options?: { noindex?: boolean }
 ): Promise<Metadata> {
   const locale = await requestLocale();
   const localizedPath = `/${locale}${pathname === "/" ? "" : pathname}`;
@@ -144,6 +149,7 @@ export async function getDynamicMetadata(
       canonical: `${siteConfig.url}${localizedPath}`,
       languages: { ...languages, "x-default": `${siteConfig.url}/fr${pathname === "/" ? "" : pathname}` },
     },
+    ...(options?.noindex ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       locale: locale === "ar" ? "ar_MA" : `${locale}_MA`,
       title,
