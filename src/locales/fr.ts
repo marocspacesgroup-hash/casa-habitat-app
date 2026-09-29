@@ -100,6 +100,10 @@ export const fr = {
       description: "Chaque quartier a son caractère — voici ceux que Casa Habitat connaît et couvre activement.",
       view: "Voir les biens →",
     },
+    furnishedTitle: "Locations", furnishedEmphasis: "meublées.", furnishedBreadcrumb: "Locations meublées", furnishedDescription: "Biens prêts à vivre, équipés — idéal pour une installation rapide.",
+    unfurnishedTitle: "Locations", unfurnishedEmphasis: "vides.", unfurnishedBreadcrumb: "Locations vides", unfurnishedDescription: "Biens non meublés, à aménager selon vos goûts.",
+    listingDetail: { home:"Accueil", sample:"Fiche présentée à titre d’exemple — les annonces réelles de Casa Habitat seront publiées ici.", reference:"Réf.", type:"Type", rooms:"Pièces", bedrooms:"Chambres", bathrooms:"Salles de bain", guestWc:"WC invités", floor:"Étage", elevator:"Ascenseur", parking:"Parking", furnished:"Meublé", condition:"État", availability:"Disponibilité", description:"Description", equipment:"Équipements", rentalConditions:"Conditions de location", charges:"Charges / syndic", included:"Inclus", notIncluded:"Non inclus", deposit:"Caution", agencyFees:"Honoraires d'agence", aboutNeighborhood:"À propos du quartier", discover:"Découvrir", share:"Partager", similar:"Biens similaires", ownerQuestion:"Vous êtes propriétaire d'un bien similaire ?", ownerCta:"Confiez-le à Casa Habitat" },
+    neighborhoodDetail: { breadcrumb:"Quartiers", h1Prefix:"Immobilier à", marketTitle:"Le marché immobilier à", marketDescription:"Retrouvez les biens actuellement publiés par Casa Habitat à", mapTitle:"Zone générale de", mapDescription:"La carte présente une zone indicative de Casablanca et ne localise jamais précisément un immeuble.", listingsTitle:"Biens à", noListings:"Aucun bien publié à", otherNeighborhoods:"Autres quartiers" },
     legal: {
       eyebrow: "Informations légales",
       title: "Mentions légales",
