@@ -101,19 +101,19 @@ export async function getPageMetadata(key: SeoKey, pathname: string): Promise<Me
   const locale = await requestLocale();
   const [title, description] = seo[locale][key];
   const languageAlternates = Object.fromEntries(
-    Object.keys(seo).map((lang) => [lang, `/${lang}${pathname === "/" ? "" : pathname}`])
+    Object.keys(seo).map((lang) => [lang, `${siteConfig.url}/${lang}${pathname === "/" ? "" : pathname}`])
   );
 
   return {
     title,
     description,
     alternates: {
-      canonical: `/${locale}${pathname === "/" ? "" : pathname}`,
-      languages: {
-        ...languageAlternates,
-        "x-default": pathname === "/" ? "/" : pathname,
-      },
+      canonical: `${siteConfig.url}/${locale}${pathname === "/" ? "" : pathname}`,
+      languages: { ...languageAlternates, "x-default": `${siteConfig.url}/fr${pathname === "/" ? "" : pathname}` },
     },
+    ...(key === "legal" || key === "privacy" || key === "favorites"
+      ? { robots: { index: false, follow: true } }
+      : {}),
     openGraph: {
       locale: locale === "ar" ? "ar_MA" : `${locale}_MA`,
       title,
@@ -135,14 +135,14 @@ export async function getDynamicMetadata(
   const locale = await requestLocale();
   const localizedPath = `/${locale}${pathname === "/" ? "" : pathname}`;
   const languages = Object.fromEntries(
-    Object.keys(seo).map((lang) => [lang, `/${lang}${pathname === "/" ? "" : pathname}`])
+    Object.keys(seo).map((lang) => [lang, `${siteConfig.url}/${lang}${pathname === "/" ? "" : pathname}`])
   );
   return {
     title,
     description,
     alternates: {
-      canonical: localizedPath,
-      languages: { ...languages, "x-default": pathname },
+      canonical: `${siteConfig.url}${localizedPath}`,
+      languages: { ...languages, "x-default": `${siteConfig.url}/fr${pathname === "/" ? "" : pathname}` },
     },
     openGraph: {
       locale: locale === "ar" ? "ar_MA" : `${locale}_MA`,
