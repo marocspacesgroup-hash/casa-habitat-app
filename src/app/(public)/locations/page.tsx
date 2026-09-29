@@ -2,8 +2,10 @@ import ListingsPageContent from "@/components/sections/ListingsPageContent";
 import { getPageMetadata } from "@/lib/i18n/metadata";
 import { getServerTranslation } from "@/lib/i18n/server";
 
-export async function generateMetadata() {
-  return getPageMetadata("locations", "/locations");
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+  const params = await searchParams;
+  const noindex = Object.keys(params).length > 0;
+  return getPageMetadata("locations", "/locations", { noindex });
 }
 
 export default async function LocationsPage({
