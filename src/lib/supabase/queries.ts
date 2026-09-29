@@ -202,7 +202,8 @@ export async function getAllPublishedSlugs(): Promise<string[]> {
   const { data, error } = await supabase
     .from("listings")
     .select("slug")
-    .eq("publication_status", "publie");
+    .eq("publication_status", "publie")
+    .eq("is_sample", false);
 
   if (error || !data) return [];
   return data.map((row) => row.slug as string);
