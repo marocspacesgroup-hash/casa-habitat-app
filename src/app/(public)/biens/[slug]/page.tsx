@@ -5,6 +5,7 @@ import { getServerLocale } from "@/lib/i18n/server";
 import { prefixLocale, type Language } from "@/lib/i18n/config";
 import {
   getListingTranslation,
+  getListingTranslatedLocales,
   getPublishedListingBySlug,
   getSimilarPublishedListings,
   getNeighborhoodBySlug,
@@ -79,6 +80,7 @@ export async function generateMetadata({
   if (!listing) return {};
 
   const translation = await getListingTranslation(listing.id, locale);
+  const translatedLocales = await getListingTranslatedLocales(listing.id);
   const isLocalized = locale === "fr" || Boolean(translation);
   const neighborhood = await getNeighborhoodBySlug(listing.quartierSlug);
   const title = seoTitle(listing, neighborhood?.nom);
@@ -88,12 +90,14 @@ export async function generateMetadata({
       : `${title}. ${listing.surfaceM2} m²${listing.chambres > 0 ? `, ${listing.chambres} ${listing.chambres > 1 ? "bedrooms" : "bedroom"}` : ""}${listing.meuble ? ", furnished" : ""}${listing.parking ? ", parking" : ""}. ${listing.description.slice(0, 135)}${listing.description.length > 135 ? "…" : ""}`;
   const canonical = `${siteConfig.url}/${locale}/biens/${listing.slug}`;
   const languageAlternates = isLocalized
-    ? {
-        fr: `${siteConfig.url}/fr/biens/${listing.slug}`,
-        ...(locale === "en" || translation
-          ? { en: `${siteConfig.url}/en/biens/${listing.slug}` }
-          : {}),
-      }
+    ? Object.fromEntries(
+        ["fr", ...translatedLocales.filter((translatedLocale) => translatedLocale !== "fr")].map(
+          (translatedLocale) => [
+            translatedLocale,
+            `${siteConfig.url}/${translatedLocale}/biens/${listing.slug}`,
+          ]
+        )
+      )
     : undefined;
 
   return {
