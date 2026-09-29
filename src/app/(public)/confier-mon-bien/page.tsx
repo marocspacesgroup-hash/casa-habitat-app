@@ -26,19 +26,9 @@ export default async function ConfierMonBienPage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
+    "@id": `${siteConfig.url}/confier-mon-bien#service`,
     serviceType: "Vente et location de biens immobiliers",
-    provider: {
-      "@type": "RealEstateAgent",
-      name: siteConfig.name,
-      telephone: siteConfig.contact.phones[0],
-      email: siteConfig.contact.email,
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: siteConfig.contact.address.line1,
-        addressLocality: siteConfig.contact.address.city,
-        addressCountry: "MA",
-      },
-    },
+    provider: { "@id": `${siteConfig.url}/#organization` },
     areaServed: { "@type": "City", name: "Casablanca" },
   };
 
