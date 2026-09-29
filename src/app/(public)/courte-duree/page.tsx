@@ -2,8 +2,10 @@ import ListingsPageContent from "@/components/sections/ListingsPageContent";
 import { getPageMetadata } from "@/lib/i18n/metadata";
 import { getServerTranslation } from "@/lib/i18n/server";
 
-export async function generateMetadata() {
-  return getPageMetadata("shortStay", "/courte-duree");
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+  const params = await searchParams;
+  const noindex = Object.keys(params).length > 0;
+  return getPageMetadata("shortStay", "/courte-duree", { noindex });
 }
 
 export default async function CourteDureePage({
