@@ -96,6 +96,15 @@ export type ListingTranslation = {
   conditions_particulieres: string | null;
 };
 
+export async function getListingTranslation(
+  listingId: string,
+  locale: string
+): Promise<ListingTranslation | null> {
+  if (locale === "fr") return null;
+  const translations = await getListingTranslations([listingId], locale);
+  return translations.get(listingId) ?? null;
+}
+
 async function getListingTranslations(
   listingIds: string[],
   locale: string
@@ -169,7 +178,8 @@ export async function getPublishedListingsByNeighborhood(
 
 export async function getSimilarPublishedListings(
   listing: Listing,
-  max = 3
+  max = 3,
+  locale = "fr"
 ): Promise<Listing[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -203,7 +213,15 @@ export async function getSimilarPublishedListings(
   };
 
   const ranked = candidates.sort((a, b) => score(b) - score(a)).slice(0, max);
-  return ranked;
+  if (locale === "fr") return ranked;
+
+  const translations = await getListingTranslations(
+    ranked.map((candidate) => candidate.id),
+    locale
+  );
+  return ranked.map((candidate) =>
+    applyListingTranslation(candidate, translations.get(candidate.id))
+  );
 }
 
 export async function getNeighborhoods(): Promise<Neighborhood[]> {
