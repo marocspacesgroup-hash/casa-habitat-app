@@ -97,7 +97,7 @@ async function requestLocale(): Promise<Language> {
   return getPreferredLocale(h.get(localeCookie) ?? undefined, h.get("accept-language"));
 }
 
-export async function getPageMetadata(key: SeoKey, pathname: string): Promise<Metadata> {
+export async function getPageMetadata(\n  key: SeoKey,\n  pathname: string,\n  options?: { noindex?: boolean }\n): Promise<Metadata> {
   const locale = await requestLocale();
   const [title, description] = seo[locale][key];
   const languageAlternates = Object.fromEntries(
@@ -114,7 +114,7 @@ export async function getPageMetadata(key: SeoKey, pathname: string): Promise<Me
     ...(key === "legal" || key === "privacy" || key === "favorites"
       ? { robots: { index: false, follow: true } }
       : {}),
-    openGraph: {
+    ...(options?.noindex ? { robots: { index: false, follow: true } } : {}),\n    openGraph: {
       locale: locale === "ar" ? "ar_MA" : `${locale}_MA`,
       title,
       description,
