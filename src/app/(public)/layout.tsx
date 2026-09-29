@@ -8,20 +8,28 @@ import WhatsAppFloat from "@/components/layout/WhatsAppFloat";
 import ChatWidget from "@/components/chat/ChatWidget";
 import { FavoritesProvider } from "@/lib/favorites";
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "RealEstateAgent",
+const organizationJsonLd = {
+  "@type": ["RealEstateAgent", "LocalBusiness"],
+  "@id": `${siteConfig.url}/#organization`,
   name: siteConfig.name,
+  alternateName: "CASA Habitat",
+  legalName: siteConfig.legal.denominationSociale,
   description: siteConfig.description,
   url: siteConfig.url,
-  telephone: siteConfig.contact.phones[0],
+  telephone: siteConfig.contact.phones,
   email: siteConfig.contact.email,
   address: {
     "@type": "PostalAddress",
     streetAddress: siteConfig.contact.address.line1,
     addressLocality: siteConfig.contact.address.city,
+    addressRegion: "Casablanca-Settat",
     addressCountry: "MA",
   },
+  taxID: siteConfig.legal.identifiantFiscal,
+  identifier: [
+    { "@type": "PropertyValue", propertyID: "RC", value: "00952402" },
+    { "@type": "PropertyValue", propertyID: "ICE", value: siteConfig.legal.ice },
+  ],
   areaServed: {
     "@type": "City",
     name: "Casablanca",
@@ -30,12 +38,12 @@ const jsonLd = {
 };
 
 const websiteJsonLd = (locale: Language) => ({
-  "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": `${siteConfig.url}/#website`,
   name: siteConfig.name,
   url: siteConfig.url,
   description: siteConfig.description,
-  publisher: { "@type": "Organization", name: siteConfig.name },
+  publisher: { "@id": `${siteConfig.url}/#organization` },
   inLanguage: locale === "ar" ? "ar-MA" : `${locale}-MA`,
 });
 
@@ -50,11 +58,19 @@ export default async function PublicLayout({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              { "@type": "Organization", "@id": `${siteConfig.url}/#organization-meta`, name: siteConfig.name },
+              { "@context": "https://schema.org", ...organizationJsonLd },
+            ],
+          }),
+        }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd(locale)) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", ...websiteJsonLd(locale) }) }}
       />
       <FavoritesProvider>
         <Header />
