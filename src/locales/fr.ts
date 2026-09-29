@@ -132,6 +132,7 @@ export const fr = {
       hours: "Du lundi au samedi : 09h00 - 19h00",
     },
   },
+  listingDetail: {type:"Type",rooms:"Pièces",surface:"Surface",bedrooms:"Chambres",bathrooms:"Salles de bain",guestWc:"WC invités",floor:"Étage",elevator:"Ascenseur",parking:"Parking",furnished:"Meublé",condition:"État",availability:"Disponibilité",yes:"Oui",no:"Non",description:"Description",equipment:"Équipements",rentalConditions:"Conditions de location",charges:"Charges / syndic",included:"Inclus",notIncluded:"Non inclus",deposit:"Caution",agencyFees:"Honoraires d'agence",aboutNeighborhood:"À propos du quartier",discoverNeighborhood:"Découvrir le quartier →",similar:"Biens similaires",ownerCta:"Vous êtes propriétaire d'un bien similaire ?",entrust:"Confiez-le à Casa Habitat",publishedBy:"Bien publié par Casa Habitat",reference:"Réf.",share:"Partager",home:"Accueil",notAvailable:"Bien non disponible",example:"Fiche présentée à titre d'exemple."},
   forms: {
     fullName: "Nom complet",
     email: "E-mail",
