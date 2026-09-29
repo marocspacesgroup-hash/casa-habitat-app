@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
 import { getAllPublishedSlugs, getNeighborhoods } from "@/lib/supabase/queries";
 import { supportedLanguages } from "@/lib/i18n/config";
+import { AUTHORITY_READY_NEIGHBORHOODS } from "@/data/neighborhood-authority";
 
 const localized = (pathname: string, lastModified: Date): MetadataRoute.Sitemap => {
   const clean = pathname === "/" ? "" : pathname;
@@ -51,7 +52,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   const listingRoutes = slugs.flatMap((slug) => localized(`/biens/${slug}`, now));
-  const neighborhoodRoutes = neighborhoods.flatMap((n) => localized(`/quartiers/${n.slug}`, now));
+  const neighborhoodRoutes = neighborhoods
+    .filter((n) => AUTHORITY_READY_NEIGHBORHOODS.includes(n.slug))
+    .map((n) => ({
+      url: `${siteConfig.url}/fr/quartiers/${n.slug}`,
+      lastModified: now,
+    }));
 
   return [...staticRoutes, ...ownerRoutes, ...listingRoutes, ...neighborhoodRoutes];
 }
