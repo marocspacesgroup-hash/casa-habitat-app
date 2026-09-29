@@ -73,8 +73,8 @@ export const AGENT_EFFORT = "medium" as const;
  * sérieuses. Le mécanisme est dans `rate-limit.ts` ; sa portée réelle y est
  * documentée sans détour.
  */
-export const RATE_LIMIT_PER_MINUTE = 5;
-export const RATE_LIMIT_PER_HOUR = 30;
+export const RATE_LIMIT_PER_MINUTE = 10;
+export const RATE_LIMIT_PER_HOUR = 40;
 
 /** Requêtes simultanées par visiteur. Deux tolèrent un second onglet. */
 export const RATE_LIMIT_CONCURRENT = 2;
