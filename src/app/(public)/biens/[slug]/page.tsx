@@ -21,6 +21,8 @@ import ShareButtons from "@/components/ui/ShareButtons";
 import PropertyGallery from "@/components/ui/PropertyGallery";
 import ListingContactActions from "@/components/ui/ListingContactActions";
 import ListingViewTracker from "@/components/ui/ListingViewTracker";
+import { getServerTranslation } from "@/lib/i18n/server";
+import { prefixLocale } from "@/lib/i18n/config";
 
 // Pas de generateStaticParams : les biens viennent de Supabase et peuvent
 // changer à tout moment depuis l'admin (prix, statut, photos...). La page
@@ -67,6 +69,9 @@ export default async function ListingDetailPage({
   const listing = await getPublishedListingBySlug(slug);
   if (!listing) notFound();
 
+  const { translation, locale } = await getServerTranslation();
+  const t = translation.pages.listingDetail;
+
   const [neighborhood, similar] = await Promise.all([
     getNeighborhoodBySlug(listing.quartierSlug),
     getSimilarPublishedListings(listing),
@@ -76,7 +81,7 @@ export default async function ListingDetailPage({
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
     name: seoTitle(listing, neighborhood?.nom),
-    url: `${siteConfig.url}/biens/${listing.slug}`,
+    url: `${siteConfig.url}/${locale}/biens/${listing.slug}`,
     description: listing.description,
     sku: listing.reference,
     image:
@@ -111,7 +116,7 @@ export default async function ListingDetailPage({
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: siteConfig.url },
+      { "@type": "ListItem", position: 1, name: t.home, item: siteConfig.url },
       {
         "@type": "ListItem",
         position: 2,
@@ -154,10 +159,10 @@ export default async function ListingDetailPage({
 
       <div className="max-w-6xl mx-auto px-6">
         <nav className="text-xs font-mono text-ink-soft mb-8 flex gap-2 flex-wrap">
-          <Link href="/" className="hover:text-gold">Accueil</Link>
+          <Link href={prefixLocale("/", locale)} className="hover:text-gold">{t.home}</Link>
           <span>/</span>
           <Link
-            href={listing.transaction === "vente" ? "/vente" : "/locations"}
+            href={prefixLocale(listing.transaction === "vente" ? "/vente" : "/locations", locale)}
             className="hover:text-gold"
           >
             {transactionLabel(listing.transaction)}
@@ -168,7 +173,7 @@ export default async function ListingDetailPage({
 
         {listing.isSample && (
           <div className="bg-navy/5 border border-navy/15 text-ink-soft text-sm px-4 py-3 rounded-sm mb-8">
-            Fiche présentée à titre d&apos;exemple — les annonces réelles de Casa Habitat seront publiées ici.
+            {t.sample}
           </div>
         )}
 
@@ -179,7 +184,7 @@ export default async function ListingDetailPage({
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-3 flex-wrap">
               <div className="font-mono text-[10.5px] uppercase tracking-widest text-gold">
-                {neighborhood?.nom ?? listing.ville} · Réf. {listing.reference}
+                {neighborhood?.nom ?? listing.ville} · {t.reference} {listing.reference}
               </div>
               {listing.statut !== "disponible" && (
                 <span className="font-mono text-[10px] uppercase tracking-widest bg-ink/5 text-ink-soft px-2.5 py-1 rounded-sm">
@@ -192,28 +197,28 @@ export default async function ListingDetailPage({
             </h1>
 
             <div className="flex flex-wrap gap-6 mb-10 pb-10 border-b border-ink/10">
-              <Spec label="Type" value={propertyTypeLabel(listing.typeBien)} />
-              {listing.pieces && <Spec label="Pièces" value={String(listing.pieces)} />}
+              <Spec label={t.type} value={propertyTypeLabel(listing.typeBien)} />
+              {listing.pieces && <Spec label={t.rooms} value={String(listing.pieces)} />}
               <Spec label="Surface" value={`${listing.surfaceM2} m²`} />
-              <Spec label="Chambres" value={String(listing.chambres)} />
-              <Spec label="Salles de bain" value={String(listing.sallesDeBain)} />
+              <Spec label={t.bedrooms} value={String(listing.chambres)} />
+              <Spec label={t.bathrooms} value={String(listing.sallesDeBain)} />
               {listing.wcInvites !== undefined && (
-                <Spec label="WC invités" value={String(listing.wcInvites)} />
+                <Spec label={t.guestWc} value={String(listing.wcInvites)} />
               )}
-              {listing.etage && <Spec label="Étage" value={listing.etage} />}
-              <Spec label="Ascenseur" value={listing.ascenseur ? "Oui" : "Non"} />
-              <Spec label="Parking" value={listing.parking ? "Oui" : "Non"} />
-              <Spec label="Meublé" value={listing.meuble ? "Oui" : "Non"} />
-              {listing.etat && <Spec label="État" value={conditionLabel(listing.etat)} />}
+              {listing.etage && <Spec label={t.floor} value={listing.etage} />}
+              <Spec label={t.elevator} value={listing.ascenseur ? "Oui" : "Non"} />
+              <Spec label={t.parking} value={listing.parking ? "Oui" : "Non"} />
+              <Spec label={t.furnished} value={listing.meuble ? "Oui" : "Non"} />
+              {listing.etat && <Spec label={t.condition} value={conditionLabel(listing.etat)} />}
               {listing.disponibilite && (
-                <Spec label="Disponibilité" value={listing.disponibilite} />
+                <Spec label={t.availability} value={listing.disponibilite} />
               )}
             </div>
 
-            <h2 className="font-display text-xl text-ink mb-4">Description</h2>
+            <h2 className="font-display text-xl text-ink mb-4">{t.description}</h2>
             <p className="text-ink-soft mb-10 leading-relaxed">{listing.description}</p>
 
-            <h2 className="font-display text-xl text-ink mb-4">Équipements</h2>
+            <h2 className="font-display text-xl text-ink mb-4">{t.equipment}</h2>
             <div className="flex flex-wrap gap-2 mb-10">
               {listing.equipements.map((eq) => (
                 <span
@@ -227,14 +232,14 @@ export default async function ListingDetailPage({
 
             {(listing.caution || listing.honorairesAgence || listing.chargesIncluses !== undefined || listing.conditionsParticulieres) && (
               <>
-                <h2 className="font-display text-xl text-ink mb-4">Conditions de location</h2>
+                <h2 className="font-display text-xl text-ink mb-4">{t.rentalConditions}</h2>
                 <div className="flex flex-wrap gap-6 mb-10">
                   {listing.chargesIncluses !== undefined && (
-                    <Spec label="Charges / syndic" value={listing.chargesIncluses ? "Inclus" : "Non inclus"} />
+                    <Spec label={t.charges} value={listing.chargesIncluses ? t.included : t.notIncluded} />
                   )}
-                  {listing.caution && <Spec label="Caution" value={listing.caution} />}
+                  {listing.caution && <Spec label={t.deposit} value={listing.caution} />}
                   {listing.honorairesAgence && (
-                    <Spec label="Honoraires d'agence" value={listing.honorairesAgence} />
+                    <Spec label={t.agencyFees} value={listing.honorairesAgence} />
                   )}
                 </div>
                 {listing.conditionsParticulieres && (
@@ -248,14 +253,14 @@ export default async function ListingDetailPage({
             {neighborhood && (
               <>
                 <h2 className="font-display text-xl text-ink mb-4">
-                  À propos du quartier
+                  {t.aboutNeighborhood}
                 </h2>
                 <p className="text-ink-soft mb-2">{neighborhood.description}</p>
                 <Link
-                  href={`/quartiers/${neighborhood.slug}`}
+                  href={prefixLocale(`/quartiers/${neighborhood.slug}`, locale)}
                   className="text-sm font-semibold text-navy border-b border-gold pb-0.5"
                 >
-                  Découvrir {neighborhood.nom} →
+                  {t.discover} {neighborhood.nom} →
                 </Link>
               </>
             )}
@@ -278,7 +283,7 @@ export default async function ListingDetailPage({
             </div>
 
             <div className="border-t border-ivory/15 pt-6">
-              <div className="eyebrow text-gold mb-3">Partager</div>
+              <div className="eyebrow text-gold mb-3">{t.share}</div>
               <ShareButtons title={listing.titre} />
             </div>
           </aside>
@@ -286,7 +291,7 @@ export default async function ListingDetailPage({
 
         {similar.length > 0 && (
           <div className="mt-24">
-            <h2 className="font-display text-2xl text-ink mb-8">Biens similaires</h2>
+            <h2 className="font-display text-2xl text-ink mb-8">{t.similar}</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {similar.map((l) => (
                 <ListingCard key={l.reference} listing={l} />
@@ -297,12 +302,12 @@ export default async function ListingDetailPage({
 
         <div className="mt-20 pt-8 border-t border-ink/10 text-center">
           <p className="text-ink-soft text-sm">
-            Vous êtes propriétaire d&apos;un bien similaire ?{" "}
+            {t.ownerQuestion}{" "}
             <Link
-              href="/confier-mon-bien"
+              href={prefixLocale("/confier-mon-bien", locale)}
               className="text-navy font-semibold border-b border-gold pb-0.5"
             >
-              Confiez-le à Casa Habitat
+              {t.ownerCta}
             </Link>
           </p>
         </div>
