@@ -100,6 +100,12 @@ export default async function ListingDetailPage({
         value: propertyTypeLabel(listing.typeBien),
       },
       { "@type": "PropertyValue", name: "Surface", value: `${listing.surfaceM2} m²` },
+      { "@type": "PropertyValue", name: "Chambres", value: String(listing.chambres) },
+      { "@type": "PropertyValue", name: "Salles de bain", value: String(listing.sallesDeBain) },
+      { "@type": "PropertyValue", name: "Meublé", value: listing.meuble ? "Oui" : "Non" },
+      { "@type": "PropertyValue", name: "Parking", value: listing.parking ? "Oui" : "Non" },
+      { "@type": "PropertyValue", name: "Climatisation", value: listing.climatisation ? "Oui" : "Non" },
+      { "@type": "PropertyValue", name: "Terrasse ou balcon", value: listing.terrasseBalcon ? "Oui" : "Non" },
     ],
     offers: {
       "@type": "Offer",
