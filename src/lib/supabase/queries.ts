@@ -96,6 +96,19 @@ export type ListingTranslation = {
   conditions_particulieres: string | null;
 };
 
+export async function getListingTranslatedLocales(listingId: string): Promise<string[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("listing_translations")
+    .select("locale, titre, description")
+    .eq("listing_id", listingId);
+
+  if (error || !data) return [];
+  return (data as Array<{ locale: string; titre: string | null; description: string | null }>)
+    .filter((translation) => translation.titre && translation.description)
+    .map((translation) => translation.locale);
+}
+
 export async function getListingTranslation(
   listingId: string,
   locale: string
@@ -188,6 +201,7 @@ export async function getSimilarPublishedListings(
     .eq("publication_status", "publie")
     .eq("is_sample", false)
     .eq("transaction", toDbTransaction(listing.transaction))
+    .not("availability_status", "in", "(loue,vendu)")
     .neq("slug", listing.slug)
     .or(`quartier_slug.eq.${listing.quartierSlug},type_bien.eq.${listing.typeBien}`)
     .limit(12);
