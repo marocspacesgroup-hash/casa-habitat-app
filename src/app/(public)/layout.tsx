@@ -61,13 +61,9 @@ export default async function PublicLayout({
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@graph": [organizationJsonLd],
+            "@graph": [organizationJsonLd, websiteJsonLd(locale)],
           }),
         }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", ...websiteJsonLd(locale) }) }}
       />
       <FavoritesProvider>
         <Header />
