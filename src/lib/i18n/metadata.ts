@@ -130,19 +130,36 @@ async function requestLocale(): Promise<Language> {
 export async function getPageMetadata(key: SeoKey, pathname: string): Promise<Metadata> {
   const locale = await requestLocale();
   const [title, description] = seo[locale][key];
-  const languageAlternates = Object.fromEntries(
-    Object.keys(seo).map((lang) => [lang, `/${lang}${pathname === "/" ? "" : pathname}`])
-  );
+  const ownerSeoPaths = new Set([
+    "/gestion-locative",
+    "/mettre-en-location",
+    "/vendre-son-bien",
+    "/courte-duree-proprietaire",
+    "/proprietaire-a-distance",
+    "/investissement",
+  ]);
+  const isOwnerSeoPage = ownerSeoPaths.has(pathname);
+  const languageAlternates = isOwnerSeoPage
+    ? locale === "fr"
+      ? { fr: `/fr${pathname === "/" ? "" : pathname}` }
+      : {}
+    : Object.fromEntries(
+        Object.keys(seo).map((lang) => [lang, `/${lang}${pathname === "/" ? "" : pathname}`])
+      );
 
   return {
     title,
     description,
     alternates: {
       canonical: `/${locale}${pathname === "/" ? "" : pathname}`,
-      languages: {
-        ...languageAlternates,
-        "x-default": pathname === "/" ? `${siteConfig.url}/fr` : `${siteConfig.url}/fr${pathname}`,
-      },
+      ...(isOwnerSeoPage && locale !== "fr"
+        ? {}
+        : {
+            languages: {
+              ...languageAlternates,
+              "x-default": pathname === "/" ? `${siteConfig.url}/fr` : `${siteConfig.url}/fr${pathname}`,
+            },
+          }),
     },
     openGraph: {
       locale: locale === "ar" ? "ar_MA" : `${locale}_MA`,
