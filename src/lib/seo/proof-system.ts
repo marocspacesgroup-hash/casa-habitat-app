@@ -98,8 +98,7 @@ export function validateProofRecords(records: readonly ProofRecord[]) {
     (record) =>
       record.id.trim().length > 0 &&
       record.claim.trim().length > 0 &&
-      record.source.trim().length > 0 &&
-      record.level !== "prohibited",
+      record.source.trim().length > 0,
   );
 }
 
