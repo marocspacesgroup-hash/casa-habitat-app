@@ -108,7 +108,7 @@ export default async function ListingDetailPage({
         listing.statut === "disponible"
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
-      url: `${siteConfig.url}/biens/${listing.slug}`,
+      url: `${siteConfig.url}/${locale}/biens/${listing.slug}`,
     },
   };
 
