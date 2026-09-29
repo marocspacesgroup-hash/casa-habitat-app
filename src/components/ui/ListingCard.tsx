@@ -1,10 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { PublicListingCard } from "@/data/types";
 import { formatPrice, statusLabel, transactionLabel } from "@/lib/format";
+import { useTranslation } from "@/hooks/useTranslation";
 import FavoriteButton from "./FavoriteButton";
 import PropertyImage from "./PropertyImage";
 
 export default function ListingCard({ listing }: { listing: PublicListingCard }) {
+  const { translation } = useTranslation();
   const notAvailable = listing.statut !== "disponible";
 
   return (
@@ -39,20 +43,18 @@ export default function ListingCard({ listing }: { listing: PublicListingCard })
         </div>
         <h3 className="font-display text-xl text-ink mb-3">{listing.titre}</h3>
         <div className="flex gap-4 flex-wrap mb-4 font-mono text-xs text-ink-soft">
-          {listing.pieces && <span>◆ {listing.pieces} pièces</span>}
+          {listing.pieces && <span>◆ {listing.pieces} {translation.properties.rooms}</span>}
           <span>◆ {listing.chambres} ch.</span>
-          <span>◆ {listing.surfaceM2} m²</span>
-          <span>◆ {listing.sallesDeBain} sdb</span>
+          <span>◆ {listing.surfaceM2} {translation.properties.area}</span>
+          <span>◆ {listing.sallesDeBain} {translation.properties.bathrooms}</span>
         </div>
         <div className="flex items-center justify-between border-t border-ink/8 pt-4">
-          <div className="font-display text-lg text-ink">
-            {formatPrice(listing)}
-          </div>
+          <div className="font-display text-lg text-ink">{formatPrice(listing)}</div>
           <Link
             href={`/biens/${listing.slug}`}
             className="text-[11.5px] uppercase tracking-wider font-semibold text-navy border-b border-gold pb-0.5"
           >
-            Voir le bien
+            {translation.properties.viewDetails}
           </Link>
         </div>
       </div>

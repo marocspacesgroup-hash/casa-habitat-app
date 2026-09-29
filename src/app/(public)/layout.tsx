@@ -1,4 +1,7 @@
 import { siteConfig } from "@/config/site";
+import { headers } from "next/headers";
+import { isLanguage, type Language } from "@/locales";
+import { localeHeader } from "@/lib/i18n/config";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppFloat from "@/components/layout/WhatsAppFloat";
@@ -26,19 +29,23 @@ const jsonLd = {
   sameAs: Object.values(siteConfig.social).filter(Boolean),
 };
 
-const websiteJsonLd = {
+const websiteJsonLd = (locale: Language) => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: siteConfig.name,
   url: siteConfig.url,
   description: siteConfig.description,
   publisher: { "@type": "Organization", name: siteConfig.name },
-  inLanguage: "fr-MA",
-};
+  inLanguage: locale === "ar" ? "ar-MA" : `${locale}-MA`,
+});
 
-export default function PublicLayout({
+export default async function PublicLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const requestHeaders = await headers();
+  const requestedLocale = requestHeaders.get(localeHeader);
+  const locale: Language = isLanguage(requestedLocale) ? requestedLocale : "fr";
+
   return (
     <>
       <script
@@ -47,7 +54,7 @@ export default function PublicLayout({
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd(locale)) }}
       />
       <FavoritesProvider>
         <Header />

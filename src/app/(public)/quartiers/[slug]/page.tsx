@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getDynamicMetadata } from "@/lib/i18n/metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -24,17 +25,11 @@ export async function generateMetadata({
   const { slug } = await params;
   const n = await getNeighborhoodBySlug(slug);
   if (!n) return {};
-  return {
-    title: `Immobilier à ${n.nom}, Casablanca`,
-    description: `${n.description} Biens à louer et à vendre à ${n.nom} avec Casa Habitat.`,
-    alternates: { canonical: `/quartiers/${slug}` },
-    openGraph: {
-      title: `Immobilier à ${n.nom}, Casablanca`,
-      description: `${n.description} Biens à louer et à vendre à ${n.nom} avec Casa Habitat.`,
-      url: `${siteConfig.url}/quartiers/${slug}`,
-      type: "website",
-    },
-  };
+  return getDynamicMetadata(
+    `Immobilier à ${n.nom}, Casablanca`,
+    `${n.description} Biens à louer et à vendre à ${n.nom} avec Casa Habitat.`,
+    `/quartiers/${slug}`
+  );
 }
 
 export default async function QuartierPage({

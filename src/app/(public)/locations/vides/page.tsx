@@ -1,11 +1,9 @@
-import type { Metadata } from "next";
 import ListingsPageContent from "@/components/sections/ListingsPageContent";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 
-export const metadata: Metadata = {
-  title: "Locations vides à Casablanca",
-  description: "Appartements et villas non meublés à louer à Casablanca.",
-  alternates: { canonical: "/locations/vides" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("unfurnished", "/locations/vides");
+}
 
 export default async function LocationsVidesPage({
   searchParams,

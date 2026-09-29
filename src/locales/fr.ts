@@ -1,88 +1,195 @@
 export const fr = {
-  nav: {
-    rentals: "Locations",
-    sales: "Vente",
-    shortStay: "Courte durée",
-    neighborhoods: "Quartiers",
-    about: "À propos",
-    contact: "Contact",
-    listProperty: "Confier mon bien",
+  nav: { rentals:"Locations", sales:"Vente", shortStay:"Courte durée", neighborhoods:"Quartiers", about:"À propos", contact:"Contact", listProperty:"Confier mon bien" },
+  hero: { title:"Trouvez votre bien à Casablanca,", highlight:"sans compromis.", subtitle:"Une sélection vérifiée, accompagnée par un interlocuteur unique.", searchPlaceholder:"Rechercher un bien", ctaButton:"Voir les biens" },
+  filters: { propertyType:"Type de bien", city:"Ville", budget:"Budget", search:"Rechercher" },
+  properties: { featuredTitle:"Des biens choisis, pas listés.", rooms:"pièces", bathrooms:"sdb", area:"m²", viewDetails:"Voir le bien" },
+  home: {
+    cabinet:"Cabinet Immobilier", looking:"Vous cherchez", lookingTitle:"Je recherche un bien", lookingText:"Location, vente ou courte durée — parcourez une sélection vérifiée à Casablanca.", lookingCta:"Voir les biens →",
+    owner:"Vous possédez un bien", ownerTitle:"Je suis propriétaire", ownerText:"Confiez votre bien à Casa Habitat — estimation juste et visiteurs qualifiés.", ownerCta:"Confier mon bien →",
+    premium:"Sélection premium", premiumDescription:"Un aperçu de notre portefeuille — la disponibilité évolue au fil des visites, contactez-nous pour l'état actualisé.", comingSoon:"Nouvelles annonces à venir très prochainement — contactez-nous directement en attendant.", allProperties:"Voir tous les biens →",
+    services:"Ce que nous faisons", servicesTitle:"Quatre métiers,", servicesEmphasis:"une même exigence.", serviceSale:"Vente", serviceSaleText:"Estimation juste, mise en valeur soignée et négociation menée jusqu'à la signature.", serviceRent:"Location", serviceRentText:"Sélection de locataires, dossiers vérifiés, biens meublés et non meublés.", serviceShortStay:"Courte durée", serviceShortStayText:"Biens meublés prêts à accueillir, pensés pour des séjours de quelques nuits à quelques mois.", serviceManagement:"Gestion & conseil", serviceManagementText:"Suivi locatif, encaissements, entretien, et lecture du marché pour les investisseurs.",
+    coverage:"Zone de couverture", neighborhoodsTitle:"Les quartiers", neighborhoodsEmphasis:"que nous connaissons.", allNeighborhoods:"Voir tous les quartiers →",
+    agency:"L'agence", agencyTitle:"Un interlocuteur unique,", agencyEmphasis:"du premier échange aux clés.", agencyText:"Casa Habitat accompagne une clientèle exigeante — expatriés et résidents — avec un accompagnement bilingue, une sélection resserrée et une discrétion totale sur chaque dossier.", agencyCta:"En savoir plus sur l'agence →",
+    projectTitle:"Un projet en tête ?", projectText:"Écrivez-nous directement — réponse sous 24h ouvrées, ou immédiatement sur WhatsApp.", whatsapp:"Écrire sur WhatsApp", contactForm:"Formulaire de contact"
   },
-hero: {
-    title: "Trouvez votre bien à Casablanca,",
-    highlight: "sans compromis.",
-    subtitle: "Une sélection vérifiée, accompagnée par un interlocuteur unique.",
-    searchPlaceholder: "Rechercher un bien",
-    ctaButton: "Voir les biens",
+  contact: { title:"Un interlocuteur unique, du premier échange aux clés.", namePlaceholder:"Votre nom", emailPlaceholder:"Votre adresse e-mail", phonePlaceholder:"Votre téléphone", messagePlaceholder:"Votre message", submitButton:"Envoyer le message", successMessage:"Merci, votre message a bien été envoyé." },
+  footer: { tagline:"Immobilier de prestige à Casablanca.", rights:"Tous droits réservés.", agency:"Agence", legal:"Légal" },
+  pages: {
+    favorites: {
+      eyebrow: "Favoris",
+      title: "Vos biens",
+      emphasis: "enregistrés.",
+      description: "Enregistrés sur cet appareil uniquement — créez un compte prochainement pour les retrouver partout.",
+      empty: "Aucun bien en favori pour le moment.",
+      browse: "Parcourir les biens →",
+    },
+    listings: {
+      rentalsTitle: "Biens à louer",
+      rentalsEmphasis: "à Casablanca.",
+      rentalsBreadcrumb: "Locations",
+      rentalsDescription: "Appartements, studios et villas — meublés et non meublés, vérifiés avant publication.",
+      salesTitle: "Biens à vendre",
+      salesEmphasis: "à Casablanca.",
+      salesBreadcrumb: "Vente",
+      salesDescription: "Une sélection resserrée, chaque bien visité et qualifié avant d'être proposé.",
+      shortTitle: "Séjours",
+      shortEmphasis: "courte durée.",
+      shortBreadcrumb: "Courte durée",
+      shortDescription: "Biens meublés et équipés, pour quelques nuits ou quelques mois. Disponibilités et tarifs sur demande — contactez-nous sur WhatsApp.",
+      whatsappAvailability: "Demander les disponibilités sur WhatsApp",
+      found: "bien trouvé",
+      foundPlural: "biens trouvés",
+      home: "Accueil",
+      noResults: "Aucun bien ne correspond à ces critères pour le moment.",
+      noResultsHelp: "Contactez-nous directement — de nouveaux biens sont ajoutés régulièrement.",
+    },
+    about: {
+      eyebrow: "L'agence",
+      intro: "Casa Habitat accompagne la vente, la location et la gestion de biens à Casablanca, avec un interlocuteur unique du premier échange jusqu'à la remise des clés. Chaque bien est visité et qualifié avant d'être proposé — pas de catalogue générique.",
+      international: "L'agence s'adresse aussi bien à une clientèle résidente qu'à une clientèle internationale, avec un accompagnement bilingue et une attention particulière portée à la discrétion de chaque dossier.",
+      domains: "Nos domaines d'intervention",
+      sale: "Vente",
+      rent: "Location",
+      shortStay: "Location courte durée",
+      management: "Gestion immobilière",
+      investment: "Conseil en investissement",
+      project: "Discuter de votre projet",
+    },
+    contactPage: {
+      eyebrow: "Contact",
+      title: "Discutons de",
+      emphasis: "votre projet.",
+      coordinates: "Coordonnées de l'agence",
+      address: "Adresse",
+      phone: "Téléphone",
+      email: "E-mail",
+      web: "Web",
+      fastest: "Réponse la plus rapide",
+      fastestText: "Écrivez-nous directement sur WhatsApp.",
+    },
+    estimation: {
+      eyebrow: "Estimation",
+      title: "Quelle est la valeur de",
+      emphasis: "votre bien ?",
+      description: "Quelques informations suffisent pour démarrer — nous revenons vers vous avec une estimation argumentée, basée sur le marché casablancais actuel.",
+    },
+    owner: {
+      eyebrow: "Propriétaires",
+      title: "Confiez votre bien{\" \"}",
+      emphasis: "à Casa Habitat",
+      intro: "Nous vous accompagnons pour louer ou vendre votre bien à Casablanca avec une stratégie adaptée au marché.",
+      estimate: "Recevez une première estimation de positionnement de votre bien.",
+      reason1Title: "Une estimation juste",
+      reason1Text: "Basée sur le marché casablancais actuel, pas sur un chiffre gonflé pour signer le mandat.",
+      reason2Title: "Des visiteurs qualifiés",
+      reason2Text: "Chaque dossier est vérifié avant la visite — vous ne perdez pas de temps avec des curieux.",
+      reason3Title: "Un interlocuteur unique",
+      reason3Text: "Du premier contact à la signature, vous parlez à la même personne — pas à un standard.",
+      reason4Title: "Une diffusion soignée",
+      reason4Text: "Votre bien mis en valeur, pas noyé dans un catalogue générique.",
+      formTitle: "Parlez-nous de votre bien",
+      formText: "Quelques informations suffisent — nous vous recontactons rapidement pour en discuter.",
+      directTitle: "Vous préférez en parler directement ?",
+      directText: "Écrivez-nous sur WhatsApp ou appelez l'agence — même démarche, sans formulaire.",
+      whatsapp: "Écrire sur WhatsApp",
+    },
+    neighborhoods: {
+      eyebrow: "Zone de couverture",
+      title: "Les quartiers",
+      emphasis: "de Casablanca.",
+      description: "Chaque quartier a son caractère — voici ceux que Casa Habitat connaît et couvre activement.",
+      view: "Voir les biens →",
+    },
+    legal: {
+      eyebrow: "Informations légales",
+      title: "Mentions légales",
+      publisher: "Éditeur du site",
+      professional: "Identification professionnelle",
+      hosting: "Hébergement",
+      intellectual: "Propriété intellectuelle",
+      listings: "Annonces immobilières",
+      toComplete: "à renseigner",
+    },
+    privacy: {
+      eyebrow: "Confidentialité",
+      title: "Politique de confidentialité",
+      collected: "Données collectées",
+      favorites: "Favoris",
+      use: "Utilisation des données",
+      rights: "Vos droits",
+      contact: "Contact",
+    },
+    notFound: {
+      title: "Cette page n'existe pas.",
+      text: "Le bien ou la page recherchée n'est plus disponible.",
+      back: "Retour à l'accueil",
+    },
+    agencyLocation: {
+      agency: "Notre agence",
+      title: "Notre cabinet à Casablanca",
+      intro: "Pour garantir une relation de confiance absolue avec nos propriétaires et investisseurs, notre équipe vous reçoit au cœur de Maârif.",
+      headquarters: "Siège officiel",
+      hours: "Du lundi au samedi : 09h00 - 19h00",
+    },
   },
-  filters: {
+  forms: {
+    fullName: "Nom complet",
+    email: "E-mail",
+    phone: "Téléphone",
+    property: "Bien concerné (référence, facultatif)",
+    project: "Votre projet",
+    projectPlaceholder: "Achat, location, gestion — décrivez votre besoin en quelques lignes.",
+    send: "Envoyer",
+    reply: "Réponse sous 24h ouvrées.",
+    requiredName: "Votre nom est requis.",
+    requiredEmail: "Votre e-mail est requis.",
+    invalidEmail: "E-mail invalide.",
+    requiredPhone: "Votre téléphone est requis.",
+    requiredMessage: "Décrivez votre besoin en quelques mots.",
+    mailOpened: "Votre application e-mail va s'ouvrir avec le message pré-rempli — il ne reste qu'à l'envoyer.",
     propertyType: "Type de bien",
-    city: "Ville",
-    budget: "Budget",
-    search: "Rechercher",
-  },
-  properties: {
-    featuredTitle: "Des biens choisis, pas listés.",
-    rooms: "pièces",
-    bathrooms: "sdb",
-    area: "m²",
-    viewDetails: "Voir le bien",
-  },
-  contact: {
-    title: "Un interlocuteur unique, du premier échange aux clés.",
-    namePlaceholder: "Votre nom",
-    emailPlaceholder: "Votre adresse e-mail",
-    phonePlaceholder: "Votre téléphone",
-    messagePlaceholder: "Votre message",
-    submitButton: "Envoyer le message",
-    successMessage: "Merci, votre message a bien été envoyé.",
-  },
-  footer: {
-    tagline: "Immobilier de prestige à Casablanca.",
-    rights: "Tous droits réservés.",
+    apartment: "Appartement",
+    studio: "Studio",
+    villa: "Villa",
+    office: "Bureau",
+    other: "Autre",
+    surface: "Surface approximative (m²)",
+    neighborhoodCity: "Quartier / ville du bien",
+    neighborhoodPlaceholder: "ex. Maarif, Casablanca",
+    details: "Détails complémentaires",
+    detailsPlaceholder: "État du bien, année, particularités...",
+    requestEstimate: "Demander mon estimation",
+    freeEstimate: "Estimation gratuite et sans engagement.",
+    whatsapp: "WhatsApp (si différent)",
+    sellRent: "Vendre ou louer",
+    transactionRent: "Location",
+    transactionSale: "Vente",
+    transactionShort: "Courte durée",
+    need: "Votre besoin",
+    needEstimate: "Estimation",
+    needMarketing: "Commercialisation",
+    needSupport: "Accompagnement immobilier",
+    needManagement: "Gestion locative",
+    neighborhood: "Quartier",
+    choose: "Choisir…",
+    area: "Superficie (m²)",
+    rooms: "Chambres",
+    desiredPrice: "Prix souhaité (DH)",
+    additional: "Informations complémentaires",
+    additionalPlaceholder: "État du bien, disponibilité, particularités...",
+    entrust: "Confier mon bien",
+    ownerReply: "Casa Habitat vous recontacte rapidement pour en discuter.",
   },
 } as const;
 
 export type Locale = {
-  nav: {
-    rentals: string;
-    sales: string;
-    shortStay: string;
-    neighborhoods: string;
-    about: string;
-    contact: string;
-    listProperty: string;
-  };
-  hero: {
-    title: string;
-    subtitle: string;
-    searchPlaceholder: string;
-    ctaButton: string;
-  };
-  filters: {
-    propertyType: string;
-    city: string;
-    budget: string;
-    search: string;
-  };
-  properties: {
-    featuredTitle: string;
-    rooms: string;
-    bathrooms: string;
-    area: string;
-    viewDetails: string;
-  };
-  contact: {
-    title: string;
-    namePlaceholder: string;
-    emailPlaceholder: string;
-    phonePlaceholder: string;
-    messagePlaceholder: string;
-    submitButton: string;
-    successMessage: string;
-  };
-  footer: {
-    tagline: string;
-    rights: string;
-  };
+  nav:{rentals:string;sales:string;shortStay:string;neighborhoods:string;about:string;contact:string;listProperty:string};
+  hero:{title:string;highlight:string;subtitle:string;searchPlaceholder:string;ctaButton:string};
+  filters:{propertyType:string;city:string;budget:string;search:string};
+  properties:{featuredTitle:string;rooms:string;bathrooms:string;area:string;viewDetails:string};
+  home:{cabinet:string;looking:string;lookingTitle:string;lookingText:string;lookingCta:string;owner:string;ownerTitle:string;ownerText:string;ownerCta:string;premium:string;premiumDescription:string;comingSoon:string;allProperties:string;services:string;servicesTitle:string;servicesEmphasis:string;serviceSale:string;serviceSaleText:string;serviceRent:string;serviceRentText:string;serviceShortStay:string;serviceShortStayText:string;serviceManagement:string;serviceManagementText:string;coverage:string;neighborhoodsTitle:string;neighborhoodsEmphasis:string;allNeighborhoods:string;agency:string;agencyTitle:string;agencyEmphasis:string;agencyText:string;agencyCta:string;projectTitle:string;projectText:string;whatsapp:string;contactForm:string};
+  contact:{title:string;namePlaceholder:string;emailPlaceholder:string;phonePlaceholder:string;messagePlaceholder:string;submitButton:string;successMessage:string};
+  footer:{tagline:string;rights:string;agency:string;legal:string};
+  pages:any;
+  forms:any;
 };

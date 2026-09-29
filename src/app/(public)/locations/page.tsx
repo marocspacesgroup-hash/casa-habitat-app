@@ -1,12 +1,10 @@
-import type { Metadata } from "next";
 import ListingsPageContent from "@/components/sections/ListingsPageContent";
+import { getPageMetadata } from "@/lib/i18n/metadata";
+import { getServerTranslation } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Locations à Casablanca",
-  description:
-    "Appartements, studios et villas à louer à Casablanca — sélection Casa Habitat, meublés et non meublés.",
-  alternates: { canonical: "/locations" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("locations", "/locations");
+}
 
 export default async function LocationsPage({
   searchParams,
@@ -14,14 +12,15 @@ export default async function LocationsPage({
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
   const filters = await searchParams;
+  const { translation } = await getServerTranslation();
   return (
     <ListingsPageContent
       transaction="location"
       filters={filters}
-      title="Biens à louer"
-      emphasis="à Casablanca."
-      breadcrumb="Locations"
-      description="Appartements, studios et villas — meublés et non meublés, vérifiés avant publication."
+      title={translation.pages.listings.rentalsTitle}
+      emphasis={translation.pages.listings.rentalsEmphasis}
+      breadcrumb={translation.pages.listings.rentalsBreadcrumb}
+      description={translation.pages.listings.rentalsDescription}
     />
   );
 }

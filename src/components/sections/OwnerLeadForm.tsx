@@ -4,6 +4,7 @@ import { useState, FormEvent } from "react";
 import { siteConfig } from "@/config/site";
 import { Neighborhood } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Errors {
   nom?: string;
@@ -13,6 +14,8 @@ interface Errors {
 }
 
 export default function OwnerLeadForm({ neighborhoods }: { neighborhoods: Neighborhood[] }) {
+  const { translation } = useTranslation();
+  const t = translation.forms;
   const [nom, setNom] = useState("");
   const [telephone, setTelephone] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -30,11 +33,11 @@ export default function OwnerLeadForm({ neighborhoods }: { neighborhoods: Neighb
 
   const validate = (): boolean => {
     const next: Errors = {};
-    if (!nom.trim()) next.nom = "Votre nom est requis.";
-    if (!telephone.trim()) next.telephone = "Votre téléphone est requis.";
-    if (!email.trim()) next.email = "Votre e-mail est requis.";
-    else if (!/^\S+@\S+\.\S+$/.test(email)) next.email = "E-mail invalide.";
-    if (!quartier) next.quartier = "Précisez le quartier du bien.";
+    if (!nom.trim()) next.nom = t.requiredName;
+    if (!telephone.trim()) next.telephone = t.requiredPhone;
+    if (!email.trim()) next.email = t.requiredEmail;
+    else if (!/^\S+@\S+\.\S+$/.test(email)) next.email = t.invalidEmail;
+    if (!quartier) next.quartier = t.requiredNeighborhood;
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -80,12 +83,12 @@ export default function OwnerLeadForm({ neighborhoods }: { neighborhoods: Neighb
     <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
       <div className="grid sm:grid-cols-2 gap-5">
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="nom">Nom complet</label>
+          <label className={labelClass} htmlFor="nom">{t.fullName}</label>
           <input id="nom" className={inputClass} value={nom} onChange={(e) => setNom(e.target.value)} />
           {errors.nom && <p className="text-red-600 text-xs">{errors.nom}</p>}
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="telephone">Téléphone</label>
+          <label className={labelClass} htmlFor="telephone">{t.phone}</label>
           <input id="telephone" className={inputClass} value={telephone} onChange={(e) => setTelephone(e.target.value)} />
           {errors.telephone && <p className="text-red-600 text-xs">{errors.telephone}</p>}
         </div>
@@ -93,11 +96,11 @@ export default function OwnerLeadForm({ neighborhoods }: { neighborhoods: Neighb
 
       <div className="grid sm:grid-cols-2 gap-5">
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="whatsapp">WhatsApp (si différent)</label>
+          <label className={labelClass} htmlFor="whatsapp">{t.whatsapp}</label>
           <input id="whatsapp" className={inputClass} value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} />
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="email">E-mail</label>
+          <label className={labelClass} htmlFor="email">{t.email}</label>
           <input id="email" type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} />
           {errors.email && <p className="text-red-600 text-xs">{errors.email}</p>}
         </div>
@@ -105,36 +108,36 @@ export default function OwnerLeadForm({ neighborhoods }: { neighborhoods: Neighb
 
       <div className="grid sm:grid-cols-3 gap-5">
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="transaction">Vendre ou louer</label>
+          <label className={labelClass} htmlFor="transaction">{t.sellRent}</label>
           <select id="transaction" className={inputClass} value={transaction} onChange={(e) => setTransaction(e.target.value)}>
-            <option value="location">Location</option>
-            <option value="vente">Vente</option>
-            <option value="courte-duree">Courte durée</option>
+            <option value="location">{t.transactionRent}</option>
+            <option value="vente">{t.transactionSale}</option>
+            <option value="courte-duree">{t.transactionShort}</option>
           </select>
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="typeBien">Type de bien</label>
+          <label className={labelClass} htmlFor="typeBien">{t.propertyType}</label>
           <select id="typeBien" className={inputClass} value={typeBien} onChange={(e) => setTypeBien(e.target.value)}>
-            <option value="appartement">Appartement</option>
-            <option value="studio">Studio</option>
-            <option value="villa">Villa</option>
-            <option value="bureau">Bureau</option>
-            <option value="autre">Autre</option>
+            <option value="appartement">{t.apartment}</option>
+            <option value="studio">{t.studio}</option>
+            <option value="villa">{t.villa}</option>
+            <option value="bureau">{t.office}</option>
+            <option value="autre">{t.other}</option>
           </select>
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="besoin">Votre besoin</label>
+          <label className={labelClass} htmlFor="besoin">{t.need}</label>
           <select id="besoin" className={inputClass} value={besoin} onChange={(e) => setBesoin(e.target.value)}>
-            <option value="estimation">Estimation</option>
-            <option value="commercialisation">Commercialisation</option>
-            <option value="accompagnement">Accompagnement immobilier</option>
-            <option value="gestion-locative">Gestion locative</option>
+            <option value="estimation">{t.needEstimate}</option>
+            <option value="commercialisation">{t.needMarketing}</option>
+            <option value="accompagnement">{t.needSupport}</option>
+            <option value="gestion-locative">{t.needManagement}</option>
           </select>
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="quartier">Quartier</label>
+          <label className={labelClass} htmlFor="quartier">{t.neighborhood}</label>
           <select id="quartier" className={inputClass} value={quartier} onChange={(e) => setQuartier(e.target.value)}>
-            <option value="">Choisir…</option>
+            <option value="">{t.choose}</option>
             {neighborhoods.map((n) => (
               <option key={n.slug} value={n.slug}>{n.nom}</option>
             ))}
@@ -145,27 +148,27 @@ export default function OwnerLeadForm({ neighborhoods }: { neighborhoods: Neighb
 
       <div className="grid sm:grid-cols-3 gap-5">
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="surface">Superficie (m²)</label>
+          <label className={labelClass} htmlFor="surface">{t.area}</label>
           <input id="surface" type="number" min="0" className={inputClass} value={surface} onChange={(e) => setSurface(e.target.value)} />
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="chambres">Chambres</label>
+          <label className={labelClass} htmlFor="chambres">{t.rooms}</label>
           <input id="chambres" type="number" min="0" className={inputClass} value={chambres} onChange={(e) => setChambres(e.target.value)} />
         </div>
         <div className="flex flex-col gap-2">
-          <label className={labelClass} htmlFor="prixSouhaite">Prix souhaité (DH)</label>
+          <label className={labelClass} htmlFor="prixSouhaite">{t.desiredPrice}</label>
           <input id="prixSouhaite" type="number" min="0" className={inputClass} value={prixSouhaite} onChange={(e) => setPrixSouhaite(e.target.value)} />
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className={labelClass} htmlFor="message">Informations complémentaires</label>
+        <label className={labelClass} htmlFor="message">{t.additional}</label>
         <textarea
           id="message"
           className={`${inputClass} min-h-[90px] resize-y`}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="État du bien, disponibilité, particularités..."
+          placeholder={t.additionalPlaceholder}
         />
       </div>
 

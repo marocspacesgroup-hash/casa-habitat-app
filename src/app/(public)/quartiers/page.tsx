@@ -1,16 +1,16 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 import { getNeighborhoods } from "@/lib/supabase/queries";
+import { getServerTranslation } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Quartiers de Casablanca",
-  description:
-    "Découvrez les quartiers de Casablanca couverts par Casa Habitat : Maarif, Racine, Gauthier, Anfa, et plus.",
-  alternates: { canonical: "/quartiers" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("neighborhoods", "/quartiers");
+}
 
 export default async function QuartiersPage() {
   const neighborhoods = await getNeighborhoods();
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.neighborhoods;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-6xl mx-auto px-6">
@@ -18,11 +18,10 @@ export default async function QuartiersPage() {
           Zone de couverture
         </span>
         <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-4">
-          Les quartiers <em className="text-gold not-italic italic">de Casablanca.</em>
+          {t.title} <em className="text-gold not-italic italic">{t.emphasis}</em>
         </h1>
         <p className="text-ink-soft max-w-xl mb-14">
-          Chaque quartier a son caractère — voici ceux que Casa Habitat
-          connaît et couvre activement.
+          {t.description}
         </p>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -35,7 +34,7 @@ export default async function QuartiersPage() {
               <h2 className="font-display text-xl text-ink mb-2">{n.nom}</h2>
               <p className="text-ink-soft text-sm mb-4">{n.description}</p>
               <span className="text-xs font-semibold text-navy border-b border-gold pb-0.5">
-                Voir les biens →
+                {t.view}
               </span>
             </Link>
           ))}

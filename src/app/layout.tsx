@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { headers } from "next/headers";
+import { isLanguage, type Language } from "@/locales";
+import { localeHeader } from "@/lib/i18n/config";
 import "./globals.css";
 import { siteConfig } from "@/config/site";
 import Analytics from "@/components/layout/Analytics";
@@ -69,11 +72,15 @@ export const metadata: Metadata = {
  * héritent jamais (auparavant, la page de connexion affichait par erreur
  * la navigation publique par-dessus le formulaire).
  */
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const requestHeaders = await headers();
+  const requestedLocale = requestHeaders.get(localeHeader);
+  const locale: Language = isLanguage(requestedLocale) ? requestedLocale : "fr";
+
   return (
-    <html lang="fr">
+    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <body
         className={`${fraunces.variable} ${manrope.variable} ${plexMono.variable} antialiased`}
       >

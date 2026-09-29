@@ -1,44 +1,28 @@
-import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
+import { getPageMetadata } from "@/lib/i18n/metadata";
 import { whatsappOwner } from "@/lib/whatsapp";
 import { getNeighborhoods } from "@/lib/supabase/queries";
 import OwnerLeadForm from "@/components/sections/OwnerLeadForm";
 import TrackedLink from "@/components/ui/TrackedLink";
+import { getServerTranslation } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Propriétaire : confier un bien à une agence à Casablanca",
-  description:
-    "Vous êtes propriétaire à Casablanca ? Casa Habitat vous accompagne pour estimer, vendre ou mettre en location votre appartement, villa ou bureau.",
-  alternates: { canonical: "/confier-mon-bien" },
-  openGraph: {
-    title: "Confiez votre bien à Casa Habitat",
-    description: "Estimation, vente et mise en location de biens à Casablanca avec un accompagnement professionnel.",
-    url: `${siteConfig.url}/confier-mon-bien`,
-    type: "website",
-  },
-};
+export async function generateMetadata() {
+  const metadata = await getPageMetadata("owner", "/confier-mon-bien");
+  return metadata;
+}
 
-const reasons = [
-  {
-    titre: "Une estimation juste",
-    texte: "Basée sur le marché casablancais actuel, pas sur un chiffre gonflé pour signer le mandat.",
-  },
-  {
-    titre: "Des visiteurs qualifiés",
-    texte: "Chaque dossier est vérifié avant la visite — vous ne perdez pas de temps avec des curieux.",
-  },
-  {
-    titre: "Un interlocuteur unique",
-    texte: "Du premier contact à la signature, vous parlez à la même personne — pas à un standard.",
-  },
-  {
-    titre: "Une diffusion soignée",
-    texte: "Votre bien mis en valeur, pas noyé dans un catalogue générique.",
-  },
-];
+
 
 export default async function ConfierMonBienPage() {
   const neighborhoods = await getNeighborhoods();
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.owner;
+  const reasons = [
+    { titre: t.reason1Title, texte: t.reason1Text },
+    { titre: t.reason2Title, texte: t.reason2Text },
+    { titre: t.reason3Title, texte: t.reason3Text },
+    { titre: t.reason4Title, texte: t.reason4Text },
+  ];
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -70,18 +54,17 @@ export default async function ConfierMonBienPage() {
       <section className="bg-navy py-20 mb-20">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <span className="eyebrow inline-block px-3 py-1.5 rounded-sm mb-6 bg-gold text-navy">
-            Propriétaires
+            {t.eyebrow}
           </span>
           <h1 className="font-display text-ivory text-[clamp(28px,4vw,44px)] mb-6">
-            Confiez votre bien{" "}
-            <em className="text-gold not-italic italic">à Casa Habitat</em>
+            {t.title}{" "}
+            <em className="text-gold not-italic italic">{t.emphasis}</em>
           </h1>
           <p className="text-ivory/70 text-[16px] max-w-xl mx-auto mb-4">
-            Nous vous accompagnons pour louer ou vendre votre bien à
-            Casablanca avec une stratégie adaptée au marché.
+            {t.intro}
           </p>
           <p className="text-gold text-[15px] font-medium">
-            Recevez une première estimation de positionnement de votre bien.
+            {t.estimate}
           </p>
         </div>
       </section>
@@ -102,22 +85,20 @@ export default async function ConfierMonBienPage() {
         <div className="grid lg:grid-cols-3 gap-16">
           <div className="lg:col-span-2">
             <h2 className="font-display text-2xl text-ink mb-2">
-              Parlez-nous de votre bien
+              {t.formTitle}
             </h2>
             <p className="text-ink-soft mb-10">
-              Quelques informations suffisent — nous vous recontactons
-              rapidement pour en discuter.
+              {t.formText}
             </p>
             <OwnerLeadForm neighborhoods={neighborhoods} />
           </div>
 
           <aside className="bg-navy rounded-sm p-8 h-fit lg:sticky lg:top-28">
             <h3 className="text-ivory text-lg font-medium mb-2">
-              Vous préférez en parler directement ?
+              {t.directTitle}
             </h3>
             <p className="text-ivory/60 text-sm mb-6">
-              Écrivez-nous sur WhatsApp ou appelez l&apos;agence — même
-              démarche, sans formulaire.
+              {t.directText}
             </p>
             <div className="flex flex-col gap-3">
               <TrackedLink
@@ -128,7 +109,7 @@ export default async function ConfierMonBienPage() {
                 params={{ channel: "whatsapp" }}
                 className="bg-gold text-navy text-center font-semibold text-xs uppercase tracking-widest px-6 py-3.5 rounded-sm hover:bg-gold-bright transition-colors"
               >
-                Écrire sur WhatsApp
+                {t.whatsapp}
               </TrackedLink>
               <TrackedLink
                 href={`tel:${siteConfig.contact.phones[0]}`}

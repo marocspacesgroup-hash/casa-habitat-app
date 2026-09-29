@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getDynamicMetadata } from "@/lib/i18n/metadata";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -49,23 +50,11 @@ export async function generateMetadata({
           },
         ]
       : undefined;
+  const base = await getDynamicMetadata(title, metaDescription, `/biens/${listing.slug}`);
   return {
-    title,
-    description: metaDescription,
-    alternates: { canonical: `/biens/${listing.slug}` },
-    openGraph: {
-      title: `${title} | ${siteConfig.name}`,
-      description: metaDescription,
-      url: `${siteConfig.url}/biens/${listing.slug}`,
-      type: "article",
-      images: ogImage,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description: metaDescription,
-      images: ogImage,
-    },
+    ...base,
+    openGraph: { ...base.openGraph, title: `${title} | ${siteConfig.name}`, type: "article", images: ogImage },
+    twitter: { card: "summary_large_image", title, description: metaDescription, images: ogImage },
   };
 }
 

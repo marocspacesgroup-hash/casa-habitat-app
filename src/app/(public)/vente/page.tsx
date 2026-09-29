@@ -1,12 +1,10 @@
-import type { Metadata } from "next";
 import ListingsPageContent from "@/components/sections/ListingsPageContent";
+import { getPageMetadata } from "@/lib/i18n/metadata";
+import { getServerTranslation } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Biens à vendre à Casablanca",
-  description:
-    "Appartements, villas et bureaux à vendre à Casablanca — sélection Casa Habitat.",
-  alternates: { canonical: "/vente" },
-};
+export async function generateMetadata() {
+  return getPageMetadata("sales", "/vente");
+}
 
 export default async function VentePage({
   searchParams,
@@ -14,14 +12,15 @@ export default async function VentePage({
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
   const filters = await searchParams;
+  const { translation } = await getServerTranslation();
   return (
     <ListingsPageContent
       transaction="vente"
       filters={filters}
-      title="Biens à vendre"
-      emphasis="à Casablanca."
-      breadcrumb="Vente"
-      description="Une sélection resserrée, chaque bien visité et qualifié avant d'être proposé."
+      title={translation.pages.listings.salesTitle}
+      emphasis={translation.pages.listings.salesEmphasis}
+      breadcrumb={translation.pages.listings.salesBreadcrumb}
+      description={translation.pages.listings.salesDescription}
     />
   );
 }

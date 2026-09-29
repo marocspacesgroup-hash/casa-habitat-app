@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useFavorites } from "@/lib/favorites";
 import { PublicListingCard } from "@/data/types";
 import ListingCard from "@/components/ui/ListingCard";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function FavorisContent({ listings }: { listings: PublicListingCard[] }) {
   const { favorites } = useFavorites();
+  const { translation } = useTranslation();
   const favoriteListings = listings.filter((l) =>
     favorites.includes(l.reference)
   );
@@ -18,23 +20,22 @@ export default function FavorisContent({ listings }: { listings: PublicListingCa
           Favoris
         </span>
         <h1 className="font-display text-[clamp(28px,3.6vw,42px)] text-ink mb-4">
-          Vos biens <em className="text-gold not-italic italic">enregistrés.</em>
+          {translation.pages.favorites.title} <em className="text-gold not-italic italic">{translation.pages.favorites.emphasis}</em>
         </h1>
         <p className="text-ink-soft max-w-xl mb-14">
-          Enregistrés sur cet appareil uniquement — créez un compte
-          prochainement pour les retrouver partout.
+          {translation.pages.favorites.description}
         </p>
 
         {favoriteListings.length === 0 ? (
           <div className="border border-ink/10 rounded-sm p-12 text-center">
             <p className="text-ink-soft mb-4">
-              Aucun bien en favori pour le moment.
+              {translation.pages.favorites.empty}
             </p>
             <Link
               href="/locations"
               className="text-sm font-semibold text-navy border-b border-gold pb-0.5"
             >
-              Parcourir les biens →
+              {translation.pages.favorites.browse}
             </Link>
           </div>
         ) : (

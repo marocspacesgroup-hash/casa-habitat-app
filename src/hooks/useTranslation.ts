@@ -1,24 +1,13 @@
 "use client";
 
-import { startTransition, useEffect, useState } from "react";
-import { isLanguage, translations, type Language } from "@/locales";
-
-const STORAGE_KEY = "casa-habitat-language";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { translations, type Language } from "@/locales";
+import { getLocaleFromPath } from "@/lib/i18n/config";
 
 export function useTranslation() {
-  const [language, setLanguage] = useState<Language>("fr");
-
-  useEffect(() => {
-    const savedLanguage = window.localStorage.getItem(STORAGE_KEY);
-    if (isLanguage(savedLanguage)) startTransition(() => setLanguage(savedLanguage));
-
-    const onLanguageChange = (event: Event) => {
-      const nextLanguage = (event as CustomEvent<string>).detail;
-      if (isLanguage(nextLanguage)) startTransition(() => setLanguage(nextLanguage));
-    };
-    window.addEventListener("casa-habitat-language-change", onLanguageChange);
-    return () => window.removeEventListener("casa-habitat-language-change", onLanguageChange);
-  }, []);
+  const pathname = usePathname();
+  const language: Language = getLocaleFromPath(pathname) ?? "fr";
 
   useEffect(() => {
     document.documentElement.lang = language;

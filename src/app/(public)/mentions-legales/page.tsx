@@ -1,26 +1,28 @@
-import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
+import { getPageMetadata } from "@/lib/i18n/metadata";
+import { getServerTranslation } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Mentions légales",
-  description: "Mentions légales de Casa Habitat.",
-  alternates: { canonical: "/mentions-legales" },
-};
+export async function generateMetadata() {
+  const metadata = await getPageMetadata("legal", "/mentions-legales");
+  return metadata;
+}
 
-function LegalField({ label, value }: { label: string; value: string }) {
+function LegalField({ label, value, emptyLabel }: { label: string; value: string; emptyLabel: string }) {
   return (
     <p>
-      {label} : {value || <span className="italic text-ink-soft/70">à renseigner</span>}
+      {label} : {value || <span className="italic text-ink-soft/70">{emptyLabel}</span>}
     </p>
   );
 }
 
-export default function MentionsLegalesPage() {
+export default async function MentionsLegalesPage() {
+  const { translation } = await getServerTranslation();
+  const t = translation.pages.legal;
   return (
     <div className="pt-36 pb-24">
       <div className="max-w-2xl mx-auto px-6">
         <span className="eyebrow inline-block px-3 py-1.5 rounded-sm mb-5 bg-navy text-gold-bright">
-          Informations légales
+          {t.eyebrow}
         </span>
         <h1 className="font-display text-[clamp(28px,3.6vw,38px)] text-ink mb-10">
           Mentions légales
@@ -28,15 +30,15 @@ export default function MentionsLegalesPage() {
 
         <div className="flex flex-col gap-10 text-ink-soft leading-relaxed">
           <section>
-            <h2 className="font-display text-lg text-ink mb-3">Éditeur du site</h2>
+            <h2 className="font-display text-lg text-ink mb-3">{t.publisher}</h2>
             <p>
               {siteConfig.name} — {siteConfig.tagline}
               <br />
               {siteConfig.contact.address.line1}, {siteConfig.contact.address.city}, {siteConfig.contact.address.country}
               <br />
-              E-mail : {siteConfig.contact.email}
+              {translation.nav.contact} : {siteConfig.contact.email}
               <br />
-              Téléphone : {siteConfig.contact.phones.join(" · ")}
+              {translation.nav.contact} : {siteConfig.contact.phones.join(" · ")}
               <br />
               Responsable de la publication : Charles Konan
             </p>
@@ -44,7 +46,7 @@ export default function MentionsLegalesPage() {
 
           <section>
             <h2 className="font-display text-lg text-ink mb-3">
-              Identification professionnelle
+              {t.professional}
             </h2>
             <p className="mb-3">
               {siteConfig.name}
@@ -53,17 +55,17 @@ export default function MentionsLegalesPage() {
               {siteConfig.legal.denominationSociale} {siteConfig.legal.formeJuridique}
             </p>
             <div className="flex flex-col gap-1 text-sm">
-              <LegalField label="Dénomination sociale" value={siteConfig.legal.denominationSociale} />
-              <LegalField label="Forme juridique" value={siteConfig.legal.formeJuridique} />
-              <LegalField label="Siège social" value={siteConfig.legal.siegeSocial} />
-              <LegalField label="Registre du commerce (RC)" value={siteConfig.legal.rc} />
-              <LegalField label="Identifiant commun de l'entreprise (ICE)" value={siteConfig.legal.ice} />
-              <LegalField label="Identifiant fiscal (IF)" value={siteConfig.legal.identifiantFiscal} />
+              <LegalField label="Dénomination sociale" value={siteConfig.legal.denominationSociale} emptyLabel={t.toComplete} />
+              <LegalField label="Forme juridique" value={siteConfig.legal.formeJuridique} emptyLabel={t.toComplete} />
+              <LegalField label="Siège social" value={siteConfig.legal.siegeSocial} emptyLabel={t.toComplete} />
+              <LegalField label="Registre du commerce (RC)" value={siteConfig.legal.rc} emptyLabel={t.toComplete} />
+              <LegalField label="Identifiant commun de l'entreprise (ICE)" value={siteConfig.legal.ice} emptyLabel={t.toComplete} />
+              <LegalField label="Identifiant fiscal (IF)" value={siteConfig.legal.identifiantFiscal} emptyLabel={t.toComplete} />
             </div>
           </section>
 
           <section>
-            <h2 className="font-display text-lg text-ink mb-3">Hébergement</h2>
+            <h2 className="font-display text-lg text-ink mb-3">{t.hosting}</h2>
             <p>
               {siteConfig.hosting.name}
               <br />
@@ -83,7 +85,7 @@ export default function MentionsLegalesPage() {
 
           <section>
             <h2 className="font-display text-lg text-ink mb-3">
-              Propriété intellectuelle
+              {t.intellectual}
             </h2>
             <p>
               L&apos;ensemble des contenus présents sur ce site (textes,
@@ -95,7 +97,7 @@ export default function MentionsLegalesPage() {
 
           <section>
             <h2 className="font-display text-lg text-ink mb-3">
-              Annonces immobilières
+              {t.listings}
             </h2>
             <p>
               Les informations relatives aux biens (prix, surface,
