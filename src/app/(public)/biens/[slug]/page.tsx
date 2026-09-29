@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getServerLocale, getServerTranslation } from "@/lib/i18n/server";
-import { prefixLocale } from "@/lib/i18n/config";
+import { prefixLocale, type Language } from "@/lib/i18n/config";
 import {
   getListingTranslation,
   getPublishedListingBySlug,
@@ -51,7 +51,7 @@ function transactionLabel(transaction: keyof typeof transactionLabels.fr, locale
 }
 
 function localizedPath(locale: string, path: string) {
-  return prefixLocale(path, locale as keyof typeof transactionLabels.fr);
+  return prefixLocale(path, locale as Language);
 }
 
 function availabilitySchema(status: string) {
