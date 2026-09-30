@@ -56,12 +56,18 @@ export async function createLead(input: CreateLeadInput): Promise<{
   whatsappUrl: string;
   email: string;
   message: string;
+  failureCode?:
+    | "CONSENT_REQUIRED"
+    | "CONTACT_REQUIRED"
+    | "REFERENCE_UNCONFIRMED"
+    | "SUPABASE_INSERT_FAILED";
 }> {
   if (!input.consent) {
     return {
       created: false,
       whatsappUrl: whatsappGeneral(),
       email: siteConfig.contact.email,
+      failureCode: "CONSENT_REQUIRED",
       message: "Le consentement explicite est nécessaire avant l'enregistrement d'une demande de contact.",
     };
   }
@@ -77,6 +83,7 @@ export async function createLead(input: CreateLeadInput): Promise<{
       created: false,
       whatsappUrl: whatsappGeneral(),
       email: siteConfig.contact.email,
+      failureCode: "CONTACT_REQUIRED",
       message: "Un identifiant de conversation et au moins un moyen de contact sont nécessaires.",
     };
   }
@@ -97,6 +104,7 @@ export async function createLead(input: CreateLeadInput): Promise<{
         created: false,
         whatsappUrl: whatsappGeneral(),
         email: siteConfig.contact.email,
+        failureCode: "REFERENCE_UNCONFIRMED",
         message: "La référence du bien ne peut pas être confirmée. Ne pas enregistrer la demande comme liée à ce bien ; proposer le contact général.",
       };
     }
@@ -139,6 +147,7 @@ export async function createLead(input: CreateLeadInput): Promise<{
       created: false,
       whatsappUrl: whatsappGeneral(),
       email: siteConfig.contact.email,
+      failureCode: "SUPABASE_INSERT_FAILED",
       message: "La demande de contact n'a pas pu être enregistrée. Proposer néanmoins le contact WhatsApp direct.",
     };
   }
