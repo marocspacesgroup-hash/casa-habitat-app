@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getNeighborhoods } from "@/lib/supabase/queries";
 import HeroContent from "./HeroContent";
 
@@ -8,10 +9,13 @@ export default async function Hero() {
   return (
     <section className="relative overflow-hidden bg-navy pt-36 pb-20">
       <div aria-hidden="true" className="absolute inset-0">
-        <img
+        <Image
           src={HERO_IMAGE}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-navy/[0.88] via-navy/[0.76] to-navy/[0.65]" />
         <div
