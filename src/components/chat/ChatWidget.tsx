@@ -18,7 +18,7 @@ interface ChatMessage {
   text: string;
 }
 
-const AI_AVATAR_SRC = "/images/ai/casa-habitat-ai-avatar.webp";
+const AI_AVATAR_SRC = "/images/ai/casa-habitat-ai-avatar.svg";
 
 const SUGGESTIONS = [
   "Je cherche un appartement à louer",
@@ -267,6 +267,7 @@ export default function ChatWidget() {
           width={52}
           height={52}
           sizes="52px"
+          unoptimized
           className="h-full w-full rounded-full object-cover"
           priority
         />
@@ -288,6 +289,7 @@ export default function ChatWidget() {
                 width={40}
                 height={40}
                 sizes="40px"
+                unoptimized
                 className="h-10 w-10 flex-none rounded-full object-cover ring-1 ring-gold/70"
               />
               <div className="min-w-0">
@@ -352,6 +354,7 @@ export default function ChatWidget() {
                       width={32}
                       height={32}
                       sizes="32px"
+                      unoptimized
                       className="mt-0.5 h-8 w-8 flex-none rounded-full object-cover ring-1 ring-gold/50"
                     />
                   )}
