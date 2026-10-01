@@ -18,7 +18,7 @@ interface ChatMessage {
   text: string;
 }
 
-const AI_AVATAR_SRC = "/images/ai/casa-habitat-ai-avatar.jpg";
+const AI_AVATAR_SRC = "/images/ai/casa-habitat-ai-avatar-vision-globale.webp";
 
 const SUGGESTIONS = [
   "Je cherche un appartement à louer",
