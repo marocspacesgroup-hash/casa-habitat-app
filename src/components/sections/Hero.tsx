@@ -2,7 +2,7 @@ import Image from "next/image";
 import { getNeighborhoods } from "@/lib/supabase/queries";
 import HeroContent from "./HeroContent";
 
-const HERO_IMAGE = "/images/home/casa-habitat-casablanca-hero.webp?v=casablanca-hero-preview-1";
+const HERO_IMAGE = "/images/home/casa-habitat-casablanca-hero.webp";
 
 export default async function Hero() {
   const neighborhoods = await getNeighborhoods();
