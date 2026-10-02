@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 /**
  * Conseiller virtuel Casa Habitat.
@@ -16,6 +17,8 @@ interface ChatMessage {
   role: "user" | "assistant";
   text: string;
 }
+
+const AI_AVATAR_SRC = "/images/ai/casa-habitat-ai-avatar-vision-globale.webp";
 
 const SUGGESTIONS = [
   "Je cherche un appartement à louer",
@@ -256,17 +259,18 @@ export default function ChatWidget() {
         onClick={() => setIsOpen(true)}
         aria-label="Ouvrir le conseiller virtuel Casa Habitat"
         aria-expanded={isOpen}
-        className="fixed bottom-24 right-6 z-50 flex h-14 w-14 touch-manipulation items-center justify-center rounded-full border border-gold/40 bg-navy text-gold shadow-lg shadow-black/20 transition-colors hover:border-gold hover:text-gold-bright focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+        className="fixed bottom-24 right-6 z-50 flex h-14 w-14 touch-manipulation items-center justify-center overflow-hidden rounded-full border border-gold/60 bg-navy p-0.5 shadow-lg shadow-black/20 transition-transform hover:scale-[1.03] hover:border-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <Image
+          src={AI_AVATAR_SRC}
+          alt=""
+          width={52}
+          height={52}
+          sizes="52px"
+          unoptimized
+          className="h-full w-full rounded-full object-cover"
+          priority
+        />
       </button>
 
       {isOpen && (
@@ -277,12 +281,23 @@ export default function ChatWidget() {
           aria-label="Conseiller virtuel Casa Habitat"
           className="fixed inset-0 z-[60] flex flex-col bg-ivory md:inset-auto md:bottom-6 md:right-6 md:h-[min(620px,calc(100vh-3rem))] md:w-[min(420px,calc(100vw-3rem))] md:rounded-md md:border md:border-ink/10 md:shadow-2xl md:shadow-black/25"
         >
-          <header className="flex items-start justify-between gap-3 border-b border-ink/10 bg-navy px-5 py-4 md:rounded-t-md">
-            <div className="min-w-0">
-              <div className="font-display text-base text-ivory">Conseiller virtuel</div>
-              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-gold">
-                Assistant automatique
-              </p>
+          <header className="flex items-center justify-between gap-3 border-b border-ink/10 bg-navy px-5 py-4 md:rounded-t-md">
+            <div className="flex min-w-0 items-center gap-3">
+              <Image
+                src={AI_AVATAR_SRC}
+                alt="La Vision Globale, assistant IA Casa Habitat"
+                width={40}
+                height={40}
+                sizes="40px"
+                unoptimized
+                className="h-10 w-10 flex-none rounded-full object-cover ring-1 ring-gold/70"
+              />
+              <div className="min-w-0">
+                <div className="font-display text-base text-ivory">Conseiller virtuel</div>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-gold">
+                  Assistant automatique
+                </p>
+              </div>
             </div>
             <button
               ref={closeRef}
@@ -329,10 +344,23 @@ export default function ChatWidget() {
                   className={
                     message.role === "user"
                       ? "self-end max-w-[85%] break-words rounded-sm bg-navy px-4 py-2.5 text-[15px] text-ivory"
-                      : "max-w-full break-words whitespace-pre-wrap text-[15px] leading-relaxed text-ink"
+                      : "flex max-w-full items-start gap-2.5 break-words text-[15px] leading-relaxed text-ink"
                   }
                 >
-                  {message.role === "assistant" ? renderText(message.text) : message.text}
+                  {message.role === "assistant" && (
+                    <Image
+                      src={AI_AVATAR_SRC}
+                      alt=""
+                      width={32}
+                      height={32}
+                      sizes="32px"
+                      unoptimized
+                      className="mt-0.5 h-8 w-8 flex-none rounded-full object-cover ring-1 ring-gold/50"
+                    />
+                  )}
+                  <div className={message.role === "assistant" ? "min-w-0 whitespace-pre-wrap" : ""}>
+                    {message.role === "assistant" ? renderText(message.text) : message.text}
+                  </div>
                 </div>
               ))}
               {status && (
