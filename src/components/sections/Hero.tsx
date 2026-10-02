@@ -17,6 +17,10 @@ export default async function Hero() {
           sizes="100vw"
           className="object-cover object-center"
         />
+        <div
+          aria-hidden="true"
+          className="absolute inset-y-0 left-0 w-full md:w-[72%] bg-gradient-to-r from-navy/40 via-navy/16 to-transparent"
+        />
       </div>
       <div className="relative max-w-6xl mx-auto px-6">
         <HeroContent neighborhoods={neighborhoods} />
