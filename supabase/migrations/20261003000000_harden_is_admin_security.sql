@@ -14,3 +14,7 @@ using ((select auth.uid()) = user_id);
 alter function public.is_admin()
   security invoker
   set search_path = public, auth;
+
+-- Keep the RPC callable by authenticated users only.
+revoke execute on function public.is_admin() from public, anon;
+grant execute on function public.is_admin() to authenticated;
